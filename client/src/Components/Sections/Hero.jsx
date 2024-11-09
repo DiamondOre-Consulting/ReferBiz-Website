@@ -1,35 +1,36 @@
 import React from 'react'
+import { MdOutlineSearch } from "react-icons/md";
 
 const Hero = () => {
     return (
-        <div className="bg-gradient-to-r from-[#AD49E1] via-[#4B70F5] to-[#AD49E1] font-poppins min-h-[100vh]">
+        <div className="bg-gradient-to-r flex relative overflow-hidden items-center justify-center from-[#a345d5] via-[#4c6ad5] to-[#a348d4] font-poppins min-h-[100vh]">
+            <div className='absolute bg-[#a747db] blur-2xl animate-pulse duration-700 rounded-full w-[25vw] h-[50vh] top-0 left-0'></div>
+            <div className='absolute bg-[#a247d3] blur-3xl animate-pulse rounded-full w-[25vw] h-[50vh] bottom-0 right-0'></div>
+
             <main
                 className={`relative h-full backdrop-blur-md w-full overflow-hidden z-[100] `}
             >
                 <div
                     className={` z-[100]  pb-0 flex w-full h-full  items-center object-cover flex-col justify-between  text-white py-[1rem] gap-2`}
                 >
-                    <div className="flex flex-col  border-white z-[100000] items-center justify-center gap-3 w-[100%] overflow-hidden">
+                    <div className="flex flex-col max-w-[40rem] container border-white z-[100] items-center justify-center gap-3 w-[100%]">
                         <h1
                             data-aos="fade-left"
-                            className="tracking-[3px]  p-[2px] px-4 rounded-full text-[1.15rem] text-center mt-[7rem] text-red font-[800]"
+                            className="tracking-[1px] font-roboto p-[2px] px-4 rounded-full text-[3rem] text-center  text-red font-[800] capitalize"
                         >
-                            Referral revolution where we play, earn, and learn
+                            Referral revolution  where  we play, earn,  and learn
                         </h1>
-                        {/* <h1 data-aos="fade-right" data-aos-duration="900" className='font-[500] tracking-wide md:leading-[4.5rem]  text-[2.7rem] sm:text-[3rem] md:text-[3.5rem]
-     text-center'>A Gateway to New Era Business Consultancy</h1> */}
-                        <div className="flex items-center text-[0.9rem] gap-2 justify-center p-1 w-[100vw] mt-4">
-                            <button className="p-2 px-10 text-[1.1rem] tracking-wide rounded bg-red relative z-[10000]">
-                                Initiate with us
+                        <p data-aos="fade-right" data-aos-duration="900" className='text-[1.1rem] mt-4
+     text-center'>                                Unleash the power of ReferBiz! It's not just a platform, it's a lifestyle that lets you play, earn, and learn, all in one place.
+                        </p>
+                        <div className="flex bg-white rounded-full  w-fit items-center text-[0.9rem] gap-2 justify-center p-1  mt-8">
+                            <input type="text" placeholder='Enter location...' className='px-4 w-[16rem] sm:w-[20rem] text-black outline-none' />
+                            <button className="p-[0.65rem] px-5 text-[1.1rem] flex items-center justify-center gap-2 bg-black rounded-full tracking-wide bg-red relative z-[10000]">
+                                <MdOutlineSearch className='text-[1.3rem]' /> Search
                             </button>
-                            {/* <button data-aos="fade-left" onClick={() => setCallFormActive(true)} className='p-2 px-4 tracking-wide rounded bg-blue'>Request a Callback</button> */}
                         </div>
                     </div>
-                    <div className="mt-[5rem] w-full flex flex-col items-center justify-center pt-2">
-                        <p className="text-[1.3rem] font-[500] tracking-wide bg-light p-1 px-3 rounded-full text-blue z-[100]">
-                            Our Happy Clients😊
-                        </p>
-                    </div>
+
                 </div>
             </main>
 

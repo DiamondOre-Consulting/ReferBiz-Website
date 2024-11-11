@@ -3,29 +3,33 @@ const mongoose = require("mongoose");
 const User = require("./models/user.schema");
 const Vendor = require("./models/vendor.schema");
 const vendorRouter = require("./routes/vendor.routes");
-
+const { config } = require('dotenv')
 const app = express();
 const PORT = process.env.PORT || 5000;
+config()
 
 app.use(express.json());
+
+mongoose.set('strictQuery', false)
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(
-      "mongodb+srv://piyushgupta:test123@cluster0.bkpmg.mongodb.net/",
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }
-    );
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    process.exit(1);
+
+    const { connection } = await mongoose.connect(process.env.MONGO_URI)
+
+    console.log(connection)
+
+    if (connection) {
+      console.log(`Database is connection to ${connection.host}`)
+    }
+
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
   }
 };
 
 connectDB();
-app.use("/api", vendorRouter);
+app.use("/api/vendor/", vendorRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });

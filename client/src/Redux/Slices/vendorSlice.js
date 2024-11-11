@@ -4,11 +4,12 @@ import { toast } from 'sonner'
 import axiosInstance from '../../Helper/axiosInstance';
 
 const initialState = {
-    vendorList: localStorage.getItem('vendorList') !== "undefined" ? JSON.parse(localStorage.getItem('vendorList')) : {},
+    vendorList: localStorage.getItem('vendorList') !== "undefined" ? JSON.parse(localStorage.getItem('vendorList')) : [],
 };
 
 export const getVendorListByLocation = createAsyncThunk('/vendor/nearby', async (data) => {
     try {
+        console.log(data)
         let res = axiosInstance.post('/vendor/nearby', data);
         res = await res;
         return res.data;
@@ -18,6 +19,8 @@ export const getVendorListByLocation = createAsyncThunk('/vendor/nearby', async 
     }
 });
 
+
+
 const vendorSlice = createSlice({
     name: 'vendor',
     initialState,
@@ -25,8 +28,8 @@ const vendorSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getVendorListByLocation.fulfilled, (state, action) => {
-                localStorage.setItem('vendorList', JSON.stringify(action.payload.data));
-                state.vendorList = action.payload.data;
+                localStorage.setItem('vendorList', JSON.stringify(action.payload.vendors));
+                state.vendorList = action.payload.vendors;
             })
 
     }

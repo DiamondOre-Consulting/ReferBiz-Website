@@ -6,6 +6,8 @@ import Register from './Pages/Auth/Register'
 import Login from './Pages/Auth/Login'
 import Header from './Components/Header'
 import Contact from './Pages/Contact'
+import VendorList from './Pages/VendorList'
+import VendorDetail from './Pages/VendorDetail'
 
 const App = () => {
   return (
@@ -13,8 +15,10 @@ const App = () => {
       <Header />
       <Routes>
         <Route element={<RequireAuth />}>
+          <Route path='/vendor-detail' element={<VendorDetail />} />
         </Route>
         <Route path='/' element={<Home />} />
+        <Route path='/vendor-list' element={<VendorList />} />
         <Route path='/contact' element={<Contact />} />
 
         <Route path='/register' element={<Register />} />

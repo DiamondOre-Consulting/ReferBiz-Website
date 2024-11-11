@@ -1,7 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { MdOutlineSearch } from "react-icons/md";
+import { useDispatch } from 'react-redux'
+import { getVendorListByLocation } from '../../Redux/Slices/vendorSlice';
+import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [locationValue, setLocationValue] = useState('')
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        const res = await dispatch(getVendorListByLocation({ nearByLocation: locationValue }))
+
+        if (res.payload.success) {
+            navigate('/vendor-list')
+        }
+
+    }
+
     return (
         <div className="bg-gradient-to-r flex relative overflow-hidden items-center justify-center from-[#a345d5] via-[#4c6ad5] to-[#a348d4] font-poppins min-h-[100vh]">
             <div className='absolute bg-[#a747db] blur-2xl animate-pulse duration-700 rounded-full w-[25vw] h-[50vh] top-0 left-0'></div>
@@ -23,12 +42,16 @@ const Hero = () => {
                         <p data-aos="fade-right" data-aos-duration="900" className='text-[1.1rem] mt-4
      text-center'>                                Unleash the power of ReferBiz! It's not just a platform, it's a lifestyle that lets you play, earn, and learn, all in one place.
                         </p>
-                        <div className="flex bg-white rounded-full  w-fit items-center text-[0.9rem] gap-2 justify-center p-1  mt-8">
-                            <input type="text" placeholder='Enter location...' className='px-4 w-[16rem] sm:w-[20rem] text-black outline-none' />
-                            <button className="p-[0.65rem] px-5 text-[1.1rem] flex items-center justify-center gap-2 bg-black rounded-full tracking-wide bg-red relative z-[10000]">
+                        <form onSubmit={handleSubmit} className="flex bg-white rounded-full  w-fit items-center text-[0.9rem] gap-2 justify-center p-1  mt-8">
+                            <input type="text"
+                                value={locationValue}
+                                onChange={(e) => setLocationValue(e.target.value)}
+                                placeholder='Enter location...' className='px-4 w-[16rem] sm:w-[20rem] text-black outline-none' />
+                            <button type='submit' className="p-[0.65rem] px-5 text-[1.1rem] flex items-center justify-center gap-2 bg-black rounded-full tracking-wide bg-red relative z-[10000]">
                                 <MdOutlineSearch className='text-[1.3rem]' /> Search
                             </button>
-                        </div>
+                        </form>
+
                     </div>
 
                 </div>

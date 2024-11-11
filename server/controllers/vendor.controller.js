@@ -1,7 +1,8 @@
-const Vendor = require("../models/vendor.schema");
+import Vendor from "../models/vendor.schema.js";
+import CustomError from "../utils/error.utils.js";
 
 const vendorController = {
-  getVendorsByCategories: async (req, res) => {
+  getVendorsByCategories: async (req, res, next) => {
     const { categories } = req.body;
 
     let query = {};
@@ -10,8 +11,11 @@ const vendorController = {
       query.businessCategory = categories;
     }
     console.log(query);
+    if (!categories) {
+      return next(new CustomError("Query is invalid", 500));
+    }
     try {
-      const vendors = await Vendor.find(query).select("-venderPassword");
+      const vendors = await Vendor.find(query).select("-vendorPassword");
 
       res.status(200).json({
         success: true,
@@ -28,7 +32,7 @@ const vendorController = {
   },
   getVendors: async (req, res) => {
     try {
-      const vendors = await Vendor.find().select("-venderPassword");
+      const vendors = await Vendor.find().select("-vendorPassword");
 
       res.status(200).json({
         success: true,
@@ -43,18 +47,23 @@ const vendorController = {
       });
     }
   },
-  getVendorsByLocation: async (req, res) => {
+  getVendorsByLocation: async (req, res, next) => {
     try {
-      const { nearByLocation } = req.body;
+      let { nearByLocation } = req.body;
+      console.log(nearByLocation);
+      if (!nearByLocation) {
+        return next(new CustomError("Query is invalid", 500));
+      }
 
       let query = {};
 
       if (nearByLocation) {
-        query.nearByLocation = nearByLocation; // Case-insensitive search for location
+        query.nearByLocation = {
+          $regex: new RegExp(`^${nearByLocation}$`, "i"),
+        };
       }
-      console.log(query);
+      console.log(new RegExp(`^${nearByLocation}$`, "i"));
 
-      // Execute the query
       const vendors = await Vendor.find(query);
       res.json({ success: true, vendors });
     } catch (error) {
@@ -64,4 +73,4 @@ const vendorController = {
   },
 };
 
-module.exports = vendorController;
+export default vendorController;

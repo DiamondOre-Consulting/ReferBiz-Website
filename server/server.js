@@ -1,11 +1,11 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const User = require("./models/user.schema");
-const Vendor = require("./models/vendor.schema");
-const vendorRouter = require("./routes/vendor.routes");
-const { config } = require("dotenv");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
+import express from "express";
+import mongoose from "mongoose";
+import { config } from "dotenv";
+import cookieParser from "cookie-parser";
+import vendorRouter from "./routes/vendor.routes.js";
+import cors from "cors";
+import errorMiddleware from "./middlewares/error.middleware.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 config();
@@ -38,11 +38,12 @@ const connectDB = async () => {
 };
 
 connectDB();
+
 app.use("/api/vendor", vendorRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });
-
+app.use(errorMiddleware);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

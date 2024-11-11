@@ -1,9 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const vendorController = require("../controllers/vendor.controller");
+import express from "express";
+import vendorController from "../controllers/vendor.controller.js";
 
+const router = express.Router();
 router.get("/allVendors", vendorController.getVendors);
 router.post("/categories", vendorController.getVendorsByCategories);
 router.post("/nearby", vendorController.getVendorsByLocation);
 
-module.exports = router;
+export default router;

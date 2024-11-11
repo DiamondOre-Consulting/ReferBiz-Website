@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
@@ -7,14 +7,14 @@ const vendorSchema = new Schema({
     required: [true, "Business name is required"],
     trim: true,
   },
-  venderEmail: {
+  vendorEmail: {
     type: String,
     required: [true, "Email address is required"],
     unique: true,
     trim: true,
     lowercase: true,
   },
-  venderPassword: {
+  vendorPassword: {
     type: String,
     required: [true, "Password is required"],
     minlength: 6,
@@ -35,6 +35,10 @@ const vendorSchema = new Schema({
     coordinates: [Number],
   },
   businessCategory: {
+    type: String,
+    trim: true,
+  },
+  fullAddress: {
     type: String,
     trim: true,
   },
@@ -68,4 +72,4 @@ const vendorSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("Vendor", vendorSchema);
+export default mongoose.model("Vendor", vendorSchema);

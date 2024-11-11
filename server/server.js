@@ -3,10 +3,12 @@ import mongoose from "mongoose";
 import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import vendorRouter from "./routes/vendor.routes.js";
+import authRouter from "./routes/auth.routes.js";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 5000;
 config();
 app.use(cookieParser());
@@ -40,6 +42,7 @@ const connectDB = async () => {
 connectDB();
 
 app.use("/api/vendor", vendorRouter);
+app.use("/api/auth", authRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });

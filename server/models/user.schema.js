@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from "uuid";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  userName: {
+  fullName: {
     type: String,
     required: [true, "Full name is required"],
-    unique: true,
     trim: true,
   },
   userEmail: {
@@ -19,8 +19,18 @@ const userSchema = new Schema({
   },
   userPassword: {
     type: String,
-    required: [true, "Password is required"],
     minlength: 6,
+  },
+  userImage: {
+    publicId: {
+      type: "String",
+    },
+    secure_url: {
+      type: "String",
+    },
+  },
+  phoneNumber: {
+    type: Number,
   },
   referralCode: {
     type: String,
@@ -39,13 +49,13 @@ const userSchema = new Schema({
     default: 0,
   },
   referredBy: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
   referralList: [
     {
       userId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
       dateReferred: {
@@ -60,13 +70,28 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.pre("save", function (next) {
-  if (!this.referralCode) {
-    const namePrefix = this.userName.substring(0, 3).toUpperCase();
-    const uniqueSuffix = uuidv4().substring(0, 6).toUpperCase();
-    this.referralCode = `${namePrefix}${uniqueSuffix}`;
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("userPassword")) {
+    return next();
   }
-  next();
+  this.userPassword = await bcrypt.hash(this.userPassword, 10);
 });
+
+userSchema.methods = {
+  generateJWTToken: async function () {
+    return await jwt.sign(
+      {
+        id: this._id,
+        email: this.email,
+        subscription: this.subscription,
+        role: this.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRY,
+      }
+    );
+  },
+};
 
 export default mongoose.model("User", userSchema);

@@ -45,12 +45,12 @@ const vendorController = {
   },
   getVendorsByLocation: async (req, res) => {
     try {
-      const { nearbyLocation } = req.body;
+      const { nearByLocation } = req.body;
 
       let query = {};
 
-      if (nearbyLocation) {
-        query.nearByLocation = nearbyLocation; // Case-insensitive search for location
+      if (nearByLocation) {
+        query.nearByLocation = nearByLocation; // Case-insensitive search for location
       }
       console.log(query);
 

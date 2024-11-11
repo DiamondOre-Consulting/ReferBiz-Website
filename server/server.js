@@ -16,7 +16,6 @@ const connectDB = async () => {
 
     const { connection } = await mongoose.connect(process.env.MONGO_URI)
 
-    console.log(connection)
 
     if (connection) {
       console.log(`Database is connection to ${connection.host}`)
@@ -29,7 +28,7 @@ const connectDB = async () => {
 };
 
 connectDB();
-app.use("/api/vendor/", vendorRouter);
+app.use("/api/vendor", vendorRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });

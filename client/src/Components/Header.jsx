@@ -65,9 +65,9 @@ const Header = () => {
                         }  px-4 rounded-lg mx-auto`}
                 >
                     <nav className="flex items-center justify-between">
-                        <div className="text-xl font-bold w-[14rem]">
+                        <Link to={'/'} className="text-xl font-bold w-[14rem]">
                             <img className='lg:w-[6.5rem] w-[6rem]' src="https://www.referbiz.in/assets/RB_100_New-db747977.png" alt="" />
-                        </div>
+                        </Link>
                         <ul className="hidden space-x-6 font-semibold lg:gap-10 lg:flex lg:items-center sora-500">
                             <li>
                                 <Link

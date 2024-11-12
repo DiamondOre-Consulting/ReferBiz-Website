@@ -6,7 +6,8 @@ import { FaBars, FaClipboardList, FaDownload, FaSignOutAlt, FaCamera, FaCheckCir
 import { FaCalendarCheck, FaHourglassHalf, FaLock } from 'react-icons/fa6';
 import { changePassword, editProfile, logout, userProfile } from '../../Redux/Slices/authSlice';
 import { VscEye, VscEyeClosed } from 'react-icons/vsc';
-
+import { MdContentCopy } from "react-icons/md";
+import { FiCopy } from 'react-icons/fi';
 
 const Profile = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,8 +19,10 @@ const Profile = () => {
     const data = useSelector((state) => state?.auth?.data);
     const [loaderActive, setLoaderActive] = useState(false);
     const [sideActive, setSideActive] = useState(1)
+    const [copied, setCopied] = useState(false);
 
     const [passwordCardActive, setPasswordCardActive] = useState(false)
+
 
 
     const handleLogout = async () => {
@@ -36,14 +39,14 @@ const Profile = () => {
         userName: data?.fullName || "",
         fullName: data?.fullName || "",
         email: data?.userEmail || "",
-        avatar: "",
+        userImage: "",
         phoneNumber: data?.phoneNumber || "",
         referralCode: data?.referralCode || ""
     });
 
 
     useEffect(() => {
-        const hasChanged = profileData.userName !== data?.userName || profileData.fullName !== data?.fullName || profileData.avatar !== '' || profileData.phoneNumber !== data?.phoneNumber;
+        const hasChanged = profileData.userName !== data?.userName || profileData.fullName !== data?.fullName || profileData.userImage !== '' || profileData.phoneNumber !== data?.phoneNumber;
         setIsUpdated(hasChanged);
     }, [profileData, data]);
 
@@ -51,7 +54,7 @@ const Profile = () => {
         e.preventDefault();
         const uploadedImg = e.target.files[0];
         if (uploadedImg) {
-            setProfileData({ ...profileData, avatar: uploadedImg });
+            setProfileData({ ...profileData, userImage: uploadedImg });
             const fileReader = new FileReader();
             fileReader.readAsDataURL(uploadedImg);
             fileReader.addEventListener('load', function () {
@@ -82,7 +85,7 @@ const Profile = () => {
         formData.append('fullName', fullName);
         formData.append('phoneNumber', phoneNumber);
         formData.append('address', address);
-        formData.append('avatar', profileData.avatar);
+        formData.append('userImage', profileData.userImage);
 
         const response = await dispatch(editProfile([data?._id, formData]));
 
@@ -114,6 +117,16 @@ const Profile = () => {
         });
     };
 
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500); // Hide the tooltip after 1.5 seconds
+            })
+            .catch((error) => {
+                console.error("Copy failed!", error);
+            });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -167,13 +180,13 @@ const Profile = () => {
                 <div className={`flex-1 shadow-[0px_0px_5px_#808080]  bg-gray-50 rounded-md relative h-fit  transition-all duration-300`}>
 
                     <div className='relative w-full z-[50]'>
-                        <img className='w-full h-[8rem] shadow-[0px_5px_15px_-5px_#808080] rounded object-cover' src={"profileBg"} alt="profile background" />
+                        <img className='w-full h-[8rem] shadow-[0px_5px_15px_-5px_#808080] rounded object-cover' src={"https://images.pexels.com/photos/5418830/pexels-photo-5418830.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} alt="profile background" />
                         <div className='absolute bottom-[-1.8rem] left-4'>
                             <label htmlFor="image_uploads" className='cursor-pointer'>
                                 {image ? (
                                     <img src={image} alt="icon" className='size-[6.5rem] border-[2px] border-[#FFB827] rounded-full' />
                                 ) : (
-                                    <img src={(!data?.avatar?.secure_url ? "userImg" : data?.avatar?.secure_url)} alt="icon" className='size-[6.5rem] border-[3px] bg-white border-white rounded-full shadow-[0px_5px_15px_-5px_#808080]' />
+                                    <img src={(!data?.userImage?.secure_url ? "userImg" : data?.userImage?.secure_url)} alt="icon" className='size-[6.5rem] border-[3px] bg-white border-white rounded-full shadow-[0px_5px_15px_-5px_#808080]' />
                                 )}
                             </label>
                             <div className='relative'>
@@ -190,7 +203,6 @@ const Profile = () => {
                         <div className={`relative overflow-hidden top-0 left-0 bg-sky-50 min-h-full ${sidebarOpen ? 'min-w-[15rem]' : 'max-w-[2.8rem] min-w-[2.7rem]'} p-1 transition-transform transform z-40 shadow-lg md:min-w-[15rem] md:transform-none md:transition-none`}>
                             <ul className="pt-[3.2rem] space-y-4">
                                 {/* Hamburger Menu Button (Visible on small screens only) */}
-                                <li className='ml-2 text-[1.1rem]'>Hello <span className='font-semibold'>{profileData?.name?.split(" ")[0]}</span></li>
                                 <div onClick={toggleSidebar} className={`text-[1.1rem] p-2 cursor-pointer bg-[#FFB827] text-white rounded-lg shadow-lg md:hidden`}>
                                     <FaBars />
                                 </div>
@@ -198,7 +210,7 @@ const Profile = () => {
                                     <FaClipboardList size={20} />
                                     <span className={`ml-2 ${sidebarOpen ? 'block' : 'hidden'} md:block`}>Profile</span>
                                 </li>
-                                <li onClick={() => setSideActive(2)} className={`flex items-center cursor-pointer p-2 space-x-2 font-semibold ${sideActive === 2 ? 'bg-gray-200 text-main' : 'bg-white text-gray-700'} rounded-lg`}>
+                                {/* <li onClick={() => setSideActive(2)} className={`flex items-center cursor-pointer p-2 space-x-2 font-semibold ${sideActive === 2 ? 'bg-gray-200 text-main' : 'bg-white text-gray-700'} rounded-lg`}>
                                     <FaCalendarCheck size={20} />
                                     <span className={`ml-2 ${sidebarOpen ? 'block' : 'hidden'} md:block`}>Confirmed bookings</span>
                                 </li>
@@ -210,7 +222,7 @@ const Profile = () => {
                                 <li onClick={() => setSideActive(5)} className={`flex items-center cursor-pointer p-2 space-x-2 font-semibold ${sideActive === 5 ? 'bg-gray-200 text-main' : 'bg-white text-gray-700'} rounded-lg`}>
                                     <FaCheckCircle size={20} />
                                     <span className={`ml-2 ${sidebarOpen ? 'block' : 'hidden'} md:block`}>Completed booking</span>
-                                </li>
+                                </li> */}
                                 <li onClick={() => setSideActive(3)} className={`flex items-center cursor-pointer p-2 space-x-2 font-semibold ${sideActive === 3 ? 'bg-gray-200 text-main' : 'bg-white text-gray-700'} rounded-lg`}>
                                     <FaLock size={20} />
                                     <span className={`ml-2 ${sidebarOpen ? 'block' : 'hidden'} md:block`}>Change Password</span>
@@ -227,8 +239,6 @@ const Profile = () => {
                                     <FaSignOutAlt size={20} />
                                     <span className={`ml-2 ${sidebarOpen ? 'block' : 'hidden'} md:block`}>Logout</span>
                                 </li>
-
-
                             </ul>
                         </div>
 
@@ -239,8 +249,8 @@ const Profile = () => {
                                 <div className='flex items-start mt-8 md:mt-16 justify-start w-full min-h-[55vh] ml-2 '>
                                     <div className='flex flex-col items-start justify-center w-full p-3 text-black rounded-lg '>
                                         <h2 className='text-[1.25rem] font-bold mb-3'>Profile</h2>
-                                        <div className={mainDiv}>
-                                            <label htmlFor="email" className={labelStyle}>
+                                        <div className={`${mainDiv}`}>
+                                            <label htmlFor="email" className={`${labelStyle} cursor-not-allowed`}>
                                                 Email
                                             </label>
                                             <input
@@ -250,7 +260,7 @@ const Profile = () => {
                                                 id="email"
                                                 value={profileData.email}
                                                 onChange={handleInput}
-                                                className={disabledInputStyle}
+                                                className={`${disabledInputStyle} cursor-not-allowed`}
                                                 placeholder=" "
                                             />
 
@@ -264,9 +274,18 @@ const Profile = () => {
                                             <label className={`${labelStyle}`} htmlFor="fullName">Full name</label>
                                             <input className={`${inputStyle}`} type="text" name='fullName' id='fullName' value={profileData.fullName} onChange={handleInput} />
                                         </div>
-                                        <div className={`${mainDiv}`}>
-                                            <label className={`${labelStyle}`} htmlFor="referralCode">Referral code</label>
-                                            <input className={`${inputStyle}`} type="text" name='referralCode' id='referralCode' value={profileData.referralCode} onChange={handleInput} />
+                                        <div className={`${mainDiv} relative`}>
+                                            <label className={`${labelStyle} cursor-not-allowed`} htmlFor="referralCode">Referral code</label>
+                                            <input className={`${inputStyle} cursor-not-allowed pointer-events-none`} type="text" name='referralCode' id='referralCode' value={profileData.referralCode} />
+                                            {copied && (
+                                                <span className="absolute right-0 px-2 py-1 -mt-8 text-xs text-white bg-gray-800 rounded shadow-md top-1">
+                                                    Copied!
+                                                </span>
+                                            )}
+                                            <div onClick={copyToClipboard} className="absolute right-0 text-gray-700 p-[0.95rem] cursor-pointer top-0 rounded-md bg-[#0f4bff1c] hover:text-gray-800 focus:outline-none">
+
+                                                <FiCopy size={24} />
+                                            </div>
                                         </div>
                                         <button type='submit' onClick={() => setLoaderActive(true)} className={`p-2 px-4 mt-2 flex items-center justify-center text-white bg-main transition-all duration-300 w-full lg:px-6 hover:shadow-[1px_1px_6px_-2px#808080] rounded text-[0.9rem] font-semibold ${!isUpdated && 'opacity-50 cursor-not-allowed'}`} disabled={!isUpdated}>
                                             Update profile {loaderActive && <div className='ml-4 ease-in-out mt-1 size-[1.2rem] border-[2.4px] border-y-[#57575769] animate-spin rounded-full bottom-0'></div>}

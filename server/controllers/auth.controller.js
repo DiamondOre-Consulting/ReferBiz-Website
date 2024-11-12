@@ -2,7 +2,7 @@ import User from "../models/user.schema.js";
 import AppError from "../utils/error.utils.js";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
-
+import cloudinary from 'cloudinary'
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -159,10 +159,13 @@ const updateProfile = async (req, res, next) => {
     }
     if (req.file) {
       if (user.userImage.publicId) {
-        await cloudinary.v2.uploader.destroy(user.avatar.publicId);
+        await cloudinary.v2.uploader.destroy(user.userImage.publicId);
       }
       console.log("to ");
       try {
+
+        console.log(req.file.path)
+
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
           folder: "lms",
           width: 250,

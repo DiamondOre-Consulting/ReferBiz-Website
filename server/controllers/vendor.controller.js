@@ -16,6 +16,11 @@ const vendorController = {
     }
     try {
       const vendors = await Vendor.find(query).select("-vendorPassword");
+      if (vendors.length === 0) {
+        return next(
+          new CustomError("Vendors are not listed for this catagory", 500)
+        );
+      }
 
       res.status(200).json({
         success: true,
@@ -65,6 +70,11 @@ const vendorController = {
       console.log(new RegExp(`^${nearByLocation}$`, "i"));
 
       const vendors = await Vendor.find(query);
+      if (vendors.length === 0) {
+        return next(
+          new CustomError("Vendors are not listed for this location", 500)
+        );
+      }
       res.json({ success: true, vendors });
     } catch (error) {
       console.error(error);

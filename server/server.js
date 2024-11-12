@@ -6,6 +6,7 @@ import vendorRouter from "./routes/vendor.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import cloudinary from "cloudinary";
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -40,6 +41,11 @@ const connectDB = async () => {
 };
 
 connectDB();
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);

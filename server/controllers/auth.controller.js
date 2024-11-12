@@ -1,6 +1,7 @@
 import User from "../models/user.schema.js";
 import AppError from "../utils/error.utils.js";
 import { v4 as uuidv4 } from "uuid";
+import fs from "fs/promises";
 
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
@@ -138,4 +139,60 @@ const profile = async (req, res, next) => {
     return next(new AppError("Failed to fetch" + err.message, 500));
   }
 };
-export { register, login, logout, profile };
+
+const updateProfile = async (req, res, next) => {
+  try {
+    const { fullName, phoneNumber } = req.body;
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return next(new AppError("User does not exist", 400));
+    }
+
+    if (fullName) {
+      user.fullName = await fullName;
+    }
+    if (phoneNumber) {
+      user.phoneNumber = await phoneNumber;
+    }
+    if (req.file) {
+      if (user.userImage.publicId) {
+        await cloudinary.v2.uploader.destroy(user.avatar.publicId);
+      }
+      console.log("to ");
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "lms",
+          width: 250,
+          height: 250,
+          gravity: "faces",
+          crop: "fill",
+        });
+        console.log("res", result);
+
+        if (result) {
+          user.userImage.publicId = result.public_id;
+          user.userImage.secure_url = result.secure_url;
+
+          fs.rm(`uploads/${req.file.filename}`);
+        }
+        console.log("res1", result);
+      } catch (err) {
+        return next(new AppError("File can not get uploaded", 500));
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User Detail updated successfully",
+    });
+  } catch (e) {
+    return next(new AppError(e.message, 500));
+  }
+};
+
+export { register, login, logout, profile, updateProfile };

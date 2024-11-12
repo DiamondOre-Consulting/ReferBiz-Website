@@ -30,7 +30,8 @@ const SignUpForm = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState('');
+
 
     const [registerData, setRegisterData] = useState({
         userEmail: "",
@@ -38,7 +39,10 @@ const SignUpForm = () => {
         userPassword: "",
         confirmPassword: "",
         referralCode: "",
+        phoneNumber: ""
     })
+
+    console.log(registerData.phoneNumber)
 
     function handleUserInput(e) {
         const { name, value } = e.target
@@ -54,10 +58,18 @@ const SignUpForm = () => {
 
     const register = async (e) => {
         e.preventDefault()
-        const { userEmail, userPassword, fullName, confirmPassword, referralCode } = registerData
+
+        setRegisterData({
+            ...registerData,
+            phoneNumber: phone
+        })
+
+        const { userEmail, userPassword, fullName, confirmPassword, referralCode, phoneNumber } = registerData
         if (!userEmail || !userPassword || !fullName || !confirmPassword) {
             return toast.error('Please fill all the fields!')
         }
+
+        console.log(phoneNumber)
 
         if (phoneNumber) {
             if (!phoneNumber.match(/^(\+?\d{1,3}[-.\s]?)?(\(?\d{1,4}\)?[-.\s]?)?[\d-.\s]{7,14}$/)) {
@@ -128,15 +140,15 @@ const SignUpForm = () => {
                 </div>
                 <div className="w-full">
                     <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="phoneNumber" className="mb-1 text-[0.85rem]  font-semibold">
+                        <label htmlFor="phone" className="mb-1 text-[0.85rem]  font-semibold">
                             Phone Number
                         </label>
                         <PhoneInput
                             country={'in'}
-                            value={phoneNumber}
-                            onChange={setPhoneNumber}
+                            value={phone}
+                            onChange={setPhone}
                             inputProps={{
-                                name: 'phoneNumber',
+                                name: 'phone',
                                 required: true,
                                 autoFocus: true,
                             }}
@@ -222,8 +234,10 @@ const SignUpForm = () => {
 
 const Register = () => {
     return (
-        <section className="bg-gradient-to-r from-[#a345d5] via-[#4c6ad5] to-[#a348d4]  ezy__signup10 light py-14 md:py-24 text-zinc-900 ">
-            <div className="container px-4 mx-auto">
+        <section className="bg-gradient-to-r pt-10 flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
+            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
+            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
+            <div className="container relative px-4 mx-auto mt-10">
                 <div className="grid h-full grid-cols-6 gap-6">
                     <div className="col-span-6 md:col-span-2 lg:col-span-3">
                         <div
@@ -234,7 +248,7 @@ const Register = () => {
                             }}
                         ></div>
                     </div>
-                    <div className="col-span-6 py-12 md:col-span-4 lg:col-span-3">
+                    <div className="col-span-6 py-6 md:col-span-4 lg:col-span-3">
                         <div className="flex items-center justify-center w-full h-full">
                             <div className="p-4 py-6 bg-white rounded-lg shadow-xl md:p-8">
                                 <h2 className="mb-3 text-2xl font-bold text-indigo-900 ">

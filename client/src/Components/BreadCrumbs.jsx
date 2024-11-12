@@ -4,10 +4,17 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 
 const BreadCrumbs = ({ items, headText }) => {
     return (
-        <div className="bg-gradient-to-r flex flex-col py-14 pt-28 relative overflow-hidden items-center justify-center from-[#a345d5] via-[#4c6ad5] to-[#a348d4] font-poppins ">
-            <div className='absolute bg-[#a747db] blur-2xl animate-pulse duration-700 rounded-full w-[25vw] h-[50vh] top-0 left-0'></div>
-            <div className='absolute bg-[#a247d3] blur-3xl animate-pulse rounded-full w-[25vw] h-[50vh] bottom-0 right-0'></div>
-
+        <div className="bg-gradient-to-r flex-col py-12 pt-28 flex relative overflow-hidden items-center  justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins ">
+            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[10vh] top-[-6rem] left-[-4rem]'></div>
+            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[10vh] bottom-[-6rem] right-[-3rem]'></div>
+            <div
+                className="absolute inset-0 z-10"
+                style={{
+                    background: `radial-gradient(#fff 1.5px, transparent 1.5px)`,
+                    backgroundSize: '30px 30px',
+                    opacity: 0.2,
+                }}
+            ></div>
             <h1 className='text-white text-center relative z-[100] sora-600 text-[2.5rem] px-2 mb-2'>{headText}</h1>
             <nav className="flex items-center relative z-[40] flex-wrap  justify-center p-1 space-x-1 px-2 text-gray-300 text-[0.95rem] ">
                 {items?.map((item, index) => (

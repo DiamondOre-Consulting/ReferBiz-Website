@@ -61,9 +61,11 @@ const ContactFormCard = () => (
 
 const Contact = () => {
     return (
-        <section className="overflow-hidden bg-gradient-to-r from-[#a345d5] via-[#4c6ad5] to-[#a348d4] text-zinc-900">
+        <section className="bg-gradient-to-r pt-10 flex flex-col relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
+            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
+            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
 
-            <div className="container px-4 mt-20">
+            <div className="container relative px-4 mt-10">
                 <div className="grid grid-cols-12 py-6">
                     <div className="col-span-12 mt-4 mb-12 lg:mt-10 lg:col-span-4 lg:mb-0 lg:pl-20">
                         <h2 className="text-[2rem] leading-none font-bold md:text-[50px] mb-6 text-white">

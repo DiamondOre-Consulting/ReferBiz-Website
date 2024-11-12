@@ -8,6 +8,7 @@ import Header from './Components/Header'
 import Contact from './Pages/Contact'
 import VendorList from './Pages/VendorList'
 import VendorDetail from './Pages/VendorDetail'
+import Profile from './Pages/Auth/Profile'
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
       <Routes>
         <Route element={<RequireAuth />}>
           <Route path='/vendor-detail' element={<VendorDetail />} />
+          <Route path='/:fullName' element={<Profile />} />
         </Route>
         <Route path='/' element={<Home />} />
         <Route path='/vendor-list' element={<VendorList />} />

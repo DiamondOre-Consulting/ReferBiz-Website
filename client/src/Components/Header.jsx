@@ -13,8 +13,6 @@ const Header = () => {
     const location = useLocation();
     const navigate = useNavigate()
 
-
-
     const toggleMenu = (event) => {
         event.stopPropagation();
         setIsOpen((prev) => !prev);
@@ -38,13 +36,14 @@ const Header = () => {
         };
     }, [isOpen]);
 
+    const closeMenu = () => {
+        setIsOpen(false);
+    };
 
     const isActive = (path) => location.pathname === path;
 
     const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn)
     const userData = useSelector((state) => state?.auth?.data)
-
-    console.log(isLoggedIn)
 
     const handleLogout = async () => {
         const response = await dispatch(logout())
@@ -54,20 +53,20 @@ const Header = () => {
     }
     return (
         <>
-            <div className={`fixed w-full top-0 z-[10001] py-3 pb-1 backdrop-blur-sm bg-transparent`}>
+            <div className={`fixed w-full top-0 z-[10001] backdrop-blur-sm bg-transparent`}>
                 <header
-                    className={`transition-all overflow-x-hidden shadow-[0px_0px_10px_-3px_#000] duration-300 z-[10002] ease-in-out backdrop-blur-md bg-[#fefefed0] py-[0.6rem] text-black w-[97%] md:w-[98%]
-                        px-4 rounded-lg mx-auto`}
+                    className={`transition-all overflow-x-hidden shadow-[0px_0px_10px_-3px_#000] duration-300 z-[10002] ease-in-out backdrop-blur-md bg-[#fefefee5] py-[0.9rem] text-black w-full
+                        px-4 mx-auto`}
                 >
                     <nav className="flex items-center justify-between">
                         <Link to={'/'} className="text-xl font-bold w-[14rem]">
                             <img className=' w-[5rem]' src="https://www.referbiz.in/assets/RB_100_New-db747977.png" alt="Logo" />
                         </Link>
-                        <ul className="hidden space-x-6 font-semibold lg:gap-10 lg:flex lg:items-center sora-500">
+                        <ul className="hidden font-semibold lg:gap-10 lg:flex lg:items-center sora-500">
                             <li>
                                 <Link
                                     to="/"
-                                    className={`border-b-2 transition-all duration-300  ${isActive('/') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/') ? 'text-main border-main' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     Home
                                 </Link>
@@ -76,7 +75,7 @@ const Header = () => {
                             <li>
                                 <Link
                                     to="/About"
-                                    className={`border-b-2 transition-all duration-300  ${isActive('/About') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/About') ? 'text-main border-main' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     About
                                 </Link>
@@ -84,36 +83,29 @@ const Header = () => {
                             <li>
                                 <Link
                                     to="/Contact"
-                                    className={`border-b-2 transition-all duration-300  ${isActive('/Contact') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/Contact') ? 'text-main border-main' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     Contact
                                 </Link>
                             </li>
-                            <li>
-                                <Link to={'/login'}>
-                                    <button className='bg-[#3B5AFF] lg:hidden block hover:bg-[#1e44ff]  text-white w-full p-[8px] text-[0.95rem] px-5 rounded-md'>
-                                        Login
-                                    </button>
-                                </Link>
-                            </li>
-                        </ul>
-                        {isLoggedIn ? <div className='flex items-center justify-center gap-4'>
-                            <Link to={'/profile'}>
-                                <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-2 shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
 
+                        </ul>
+                        {isLoggedIn ? <div className='flex items-center justify-end gap-4 w-[14rem] '>
+                            <Link to={`/${userData?.fullName}`}>
+                                <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-2 shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
                             </Link>
 
-                            <Link to={'/logout'} onClick={handleLogout} className={` hidden lg:block duration-300 text-black border bg-[#8a57e81e] border-[#8957E8] p-[9px] px-[6px] text-[1.4rem] rounded-md`}>
+                            <Link to={'/logout'} onClick={handleLogout} className={` hidden lg:block duration-300 text-white border border-light bg-light p-[8px] px-[6px] text-[1.4rem] rounded-md`}>
                                 <FiLogOut />
                             </Link>
-                        </div> : <div className='flex items-center justify-center gap-2 font-semibold'>
+                        </div> : <div className='flex items-center justify-end gap-2 font-semibold w-[14rem]'>
                             <Link to={'/login'}>
-                                <button className={` hidden duration-300 lg:block border-2 border-[#8957E8] bg-[#8a57e823] w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden duration-300 lg:block border-2 border-main bg-[#1900ff16] w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Login
                                 </button>
                             </Link>
                             <Link to={'/register'}>
-                                <button className={` hidden lg:block border-2 border-[#4E69D6] bg-[#4e69d63e]  duration-300   text-black w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden lg:block border-2 font-normal border-light bg-light  duration-300   text-white w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Sign up
                                 </button>
                             </Link>
@@ -148,59 +140,61 @@ const Header = () => {
                 className={`fixed flex flex-col justify-between w-[15rem] transition-all duration-500 right-2  sm:right-4 rounded-lg h-auto bg-[#f5f7ff] border-2 border-gray-300 text-gray-800 shadow-lg  transform ${isOpen ? 'open-menu top-[5.8rem] z-[10001] mr-1 sm:mr-0 sm:top-[5.7rem] md:top-[6.2rem]' : 'close-menu top-[-25.8rem] sm:top-[-25.7rem] z-[35]  border-0'} lg:hidden `}
             >
                 <ul className="px-4 mt-8 space-y-4 font-semibold sora-500">
-                    <li>
+                    <li onClick={closeMenu}>
                         <Link
                             to="/"
-                            className={`border-b-2 transition-all duration-300  ${isActive('/') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]'}`}
+                            className={`border-b-2 transition-all duration-300  ${isActive('/') ? 'text-main border-main' : 'border-transparent hover:text-main hover:border-main'}`}
                         >
                             Home
                         </Link>
                     </li>
 
-                    <li>
+                    <li onClick={closeMenu}>
+
                         <Link
                             to="/About"
-                            className={`border-b-2 transition-all duration-300  ${isActive('/About') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]'}`}
+                            className={`border-b-2 transition-all duration-300  ${isActive('/About') ? 'text-main border-main' : 'border-transparent hover:text-main hover:border-main'}`}
                         >
                             About
                         </Link>
                     </li>
-                    <li>
+                    <li onClick={closeMenu}>
+
                         <Link
                             to="/Contact"
-                            className={`border-b-2 transition-all duration-300  ${isActive('/Contact') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]'}`}
+                            className={`border-b-2 transition-all duration-300  ${isActive('/Contact') ? 'text-main border-main' : 'border-transparent hover:text-main hover:border-main'}`}
                         >
                             Contact
                         </Link>
                     </li>
 
                 </ul>
-                <div className='flex items-center justify-center gap-2 my-5 font-semibold'>
-                    <Link to={'/login'}>
-                        <button className={` bg-transparent hover:bg-[#8957E8] text-black hover:text-white border-[#8957E8]  duration-300 lg:block border   w-full p-[5px] text-[0.95rem] px-6 rounded-md`}>
+                <div className='flex items-center justify-center gap-2 my-5 font-semibold w-[14rem]'>
+                    <Link to={'/login'} onClick={closeMenu}>
+                        <button className={` bg-transparent hover:bg-main text-black hover:text-white border-main  duration-300 lg:block border   w-full p-[5px] text-[0.95rem] px-6 rounded-md`}>
                             Login
                         </button>
                     </Link>
-                    <Link to={'/register'}>
-                        <button className={` hover:bg-transparent bg-[#8957E8] border-[#8957E8] text-white hover:text-black duration-300 border w-full p-[5px] text-[0.95rem] px-6 rounded-md`}>
+                    <Link to={'/register'} onClick={closeMenu}>
+                        <button className={` hover:bg-transparent bg-main border-main text-white hover:text-black duration-300 border w-full p-[5px] text-[0.95rem] px-6 rounded-md`}>
                             Sign up
                         </button>
                     </Link>
                 </div>
                 <div className='text-[1.68rem] w-fit mx-auto mb-6 flex items-center gap-3'>
-                    <Link to={""} target='_blank' className=''>
+                    <Link to={""} target='_blank' className='' onClick={closeMenu}>
                         <FaInstagramSquare />
                     </Link>
-                    <Link to={""} className=''>
+                    <Link to={""} className='' onClick={closeMenu}>
                         <FaFacebookSquare />
                     </Link>
-                    <Link to={""} className=''>
+                    <Link to={""} className='' onClick={closeMenu}>
                         <FaSquareXTwitter />
                     </Link>
-                    <Link to={"https://wa.me/"} target='_blank' className=''>
+                    <Link to={"https://wa.me/"} target='_blank' className='' onClick={closeMenu}>
                         <FaWhatsappSquare />
                     </Link>
-                    <Link to={"tel:+"} className=''>
+                    <Link to={"tel:+"} className='' onClick={closeMenu}>
                         <FaSquarePhone />
                     </Link>
                 </div>

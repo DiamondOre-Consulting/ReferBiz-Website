@@ -3,6 +3,7 @@ import { MdOutlineSearch } from "react-icons/md";
 import { useDispatch } from 'react-redux'
 import { getVendorListByLocation } from '../../Redux/Slices/vendorSlice';
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner';
 
 const Hero = () => {
 
@@ -13,6 +14,10 @@ const Hero = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
+        if (!locationValue) {
+            return toast.error("Please enter location!")
+        }
+
         const res = await dispatch(getVendorListByLocation({ nearByLocation: locationValue }))
 
         if (res.payload.success) {
@@ -22,9 +27,9 @@ const Hero = () => {
     }
 
     return (
-        <div className="bg-gradient-to-r flex relative overflow-hidden items-center justify-center from-[#a345d5] via-[#4c6ad5] to-[#a348d4] font-poppins min-h-[100vh]">
-            <div className='absolute bg-[#a747db] blur-2xl animate-pulse duration-700 rounded-full w-[25vw] h-[50vh] top-0 left-0'></div>
-            <div className='absolute bg-[#a247d3] blur-3xl animate-pulse rounded-full w-[25vw] h-[50vh] bottom-0 right-0'></div>
+        <div className="bg-gradient-to-r flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
+            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
+            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
 
             <main
                 className={`relative h-full backdrop-blur-md w-full overflow-hidden z-[100] `}
@@ -47,7 +52,7 @@ const Hero = () => {
                                 value={locationValue}
                                 onChange={(e) => setLocationValue(e.target.value)}
                                 placeholder='Enter location...' className='px-4 w-[16rem] sm:w-[20rem] text-black outline-none' />
-                            <button type='submit' className="p-[0.65rem] px-5 text-[1.1rem] flex items-center justify-center gap-2 bg-black rounded-full tracking-wide bg-red relative z-[10000]">
+                            <button type='submit' className="p-[0.65rem] px-5 text-[1.1rem] flex items-center justify-center gap-2 bg-light rounded-full tracking-wide bg-red relative z-[10000]">
                                 <MdOutlineSearch className='text-[1.3rem]' /> Search
                             </button>
                         </form>

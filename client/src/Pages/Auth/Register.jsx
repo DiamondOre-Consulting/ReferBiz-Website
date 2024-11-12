@@ -2,8 +2,14 @@ import React, { useState, Fragment } from "react";
 
 import { IoLogoFacebook } from "react-icons/io5";
 import { FaGoogle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { VscEye, VscEyeClosed } from "react-icons/vsc";
 
+import { toast } from "sonner";
+import { createAccount } from "../../Redux/Slices/authSlice";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const SocialLoginButton = () => (
     <Fragment>
@@ -20,78 +26,176 @@ const SocialLoginButton = () => (
 
 const SignUpForm = () => {
 
+    const [eye, setEye] = useState(true)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
-    const handleSubmit = (e) => {
+    const [phoneNumber, setPhoneNumber] = useState('');
+
+    const [registerData, setRegisterData] = useState({
+        userEmail: "",
+        fullName: "",
+        userPassword: "",
+        confirmPassword: "",
+        referralCode: "",
+    })
+
+    function handleUserInput(e) {
+        const { name, value } = e.target
+        setRegisterData({
+            ...registerData,
+            [name]: value
+        })
+    }
+
+    const handleEyeClick = () => {
+        setEye(!eye)
+    }
+
+    const register = async (e) => {
         e.preventDefault()
+        const { userEmail, userPassword, fullName, confirmPassword, referralCode } = registerData
+        if (!userEmail || !userPassword || !fullName || !confirmPassword) {
+            return toast.error('Please fill all the fields!')
+        }
 
+        if (phoneNumber) {
+            if (!phoneNumber.match(/^(\+?\d{1,3}[-.\s]?)?(\(?\d{1,4}\)?[-.\s]?)?[\d-.\s]{7,14}$/)) {
+                return toast.error('Phone number is invalid!')
+            }
+        }
+
+        if (!userEmail.match(/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/)) {
+            return toast.error('Email is Invalid!')
+        }
+
+        if (userPassword.length < 8) {
+            return toast.error('Password must contain Minimum eight characters!')
+        }
+
+        if (userPassword !== confirmPassword) {
+            return toast.error('Password and confirm password must be same!')
+        }
+
+        const response = await dispatch(createAccount(registerData))
+        console.log(response)
+
+        if (response?.payload?.success) {
+            navigate("/");
+            setRegisterData({
+                userEmail: "",
+                userPassword: "",
+                fullName: ""
+            })
+        }
     }
 
     return (
-        <form noValidate onSubmit={handleSubmit}>
+        <form noValidate onSubmit={register}>
             <div className="flex flex-wrap">
-                <div className="w-full">
+                <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="first-name" className="mb-1 text-[0.85rem]  font-semibold">
+                        <label htmlFor="fullName" className="mb-1 text-[0.85rem]  font-semibold">
                             Full Name
                         </label>
                         <input
                             type="text"
                             className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
-                            id="first-name"
+                            id="fullName"
                             placeholder="Your Full Name"
+                            name="fullName"
+                            onChange={handleUserInput}
+                            value={registerData?.fullName}
                         />
                     </div>
                 </div>
 
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="first-name" className="mb-1 text-[0.85rem]  font-semibold">
-                            Phone Number
-                        </label>
-                        <input
-                            type="number"
-                            className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
-                            id="first-name"
-                            placeholder="Your Phone Number"
-                        />
-                    </div>
-                </div>
-                <div className="w-full lg:w-1/2">
-                    <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="email" className="mb-1 text-[0.85rem]  font-semibold">
+                        <label htmlFor="userEmail" className="mb-1 text-[0.85rem]  font-semibold">
                             Email
                         </label>
                         <input
                             type="email"
                             className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
-                            id="email"
-                            placeholder="Email"
+                            id="userEmail"
+                            placeholder="Your email..."
+                            name="userEmail"
+                            onChange={handleUserInput}
+                            value={registerData?.userEmail}
+                        />
+                    </div>
+                </div>
+                <div className="w-full">
+                    <div className="flex flex-col mx-2 mb-6">
+                        <label htmlFor="phoneNumber" className="mb-1 text-[0.85rem]  font-semibold">
+                            Phone Number
+                        </label>
+                        <PhoneInput
+                            country={'in'}
+                            value={phoneNumber}
+                            onChange={setPhoneNumber}
+                            inputProps={{
+                                name: 'phoneNumber',
+                                required: true,
+                                autoFocus: true,
+                            }}
+                            containerClass="mb-4 w-full"
+                            inputClass="focus:outline-none focus:border-blue-700 border-gray-300 text-gray-800 rounded-md w-full py-2 px-3"
+                            buttonClass="bg-gray-200 focus:outline-none focus:border focus:border-blue-600 rounded-l-md"
+                            dropdownClass="custom-dropdown bg-white shadow-lg"
                         />
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">
-                    <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="password" className="mb-1 text-[0.85rem]  font-semibold">
+                    <div className="relative flex flex-col mx-2 mb-6 overflow-hidden">
+                        <label htmlFor="userPassword" className="mb-1 text-[0.85rem]  font-semibold">
                             Password
+                        </label>
+                        <input
+                            type={`${eye ? 'password' : 'text'}`}
+                            className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
+                            id="userPassword"
+                            placeholder="Password"
+                            name="userPassword"
+                            onChange={handleUserInput}
+                            value={registerData?.userPassword}
+                        />
+                        <div className='absolute bottom-0 right-0 p-[0.64rem] bg-transparent cursor-pointer text-[1.2rem] rounded-r-lg' onClick={handleEyeClick}>
+                            {eye ? <VscEyeClosed /> :
+                                <VscEye />}
+                        </div>
+                    </div>
+                </div>
+                <div className="w-full lg:w-1/2">
+                    <div className="flex flex-col mx-2 mb-6">
+                        <label htmlFor="confirmPassword" className="mb-1 text-[0.85rem]  font-semibold">
+                            Confirm Password
                         </label>
                         <input
                             type="password"
                             className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
-                            id="password"
-                            placeholder="Password"
+                            id="confirmPassword"
+                            placeholder="Confirm Password"
+                            name="confirmPassword"
+                            onChange={handleUserInput}
+                            value={registerData?.confirmPassword}
                         />
                     </div>
                 </div>
-                <div className="w-full lg:w-1/2">
+                <div className="w-full ">
                     <div className="flex flex-col mx-2 mb-6">
-                        <label htmlFor="con-pass" className="mb-1 text-[0.85rem]  font-semibold">
-                            Confirm Password
+                        <label htmlFor="referralCode" className="mb-1 text-[0.85rem]  font-semibold">
+                            Refer code
                         </label>
                         <input
                             type="text"
                             className="px-4 leading-10 rounded-md bg-blue-50 focus:outline-none focus:border focus:border-blue-600 "
-                            id="con-pass"
-                            placeholder="Confirm Password"
+                            id="referralCode"
+                            placeholder="Refer code"
+                            name="referralCode"
+                            onChange={handleUserInput}
+                            value={registerData?.referralCode}
                         />
                     </div>
                 </div>

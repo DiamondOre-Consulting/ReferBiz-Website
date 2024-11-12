@@ -42,7 +42,7 @@ const connectDB = async () => {
 connectDB();
 
 app.use("/api/vendor", vendorRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/user", authRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });

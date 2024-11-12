@@ -6,7 +6,7 @@ const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "None",
+  // sameSite: "None",
 };
 
 const register = async (req, res, next) => {
@@ -124,4 +124,18 @@ const logout = (req, res, next) => {
     return res.status(500).json({ success: false, message: e.message });
   }
 };
-export { register, login, logout };
+const profile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    console.log(user);
+    res.status(200).json({
+      success: true,
+      message: "",
+      user,
+    });
+  } catch (err) {
+    return next(new AppError("Failed to fetch" + err.message, 500));
+  }
+};
+export { register, login, logout, profile };

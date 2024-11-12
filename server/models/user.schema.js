@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-
+//data
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -77,7 +77,6 @@ userSchema.pre("save", async function (next) {
   this.userPassword = await bcrypt.hash(this.userPassword, 10);
 });
 
-
 userSchema.methods = {
   generateJWTToken: async function () {
     return await jwt.sign(
@@ -94,9 +93,8 @@ userSchema.methods = {
     );
   },
   comparePassword: async function (plainPassword) {
-    return await bcrypt.compare(plainPassword, this.userPassword)
+    return await bcrypt.compare(plainPassword, this.userPassword);
   },
-
 };
 
 export default mongoose.model("User", userSchema);

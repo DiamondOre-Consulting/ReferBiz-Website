@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import axiosInstance from '../../Helper/axiosInstance';
 
 const initialState = {
-    isLoggedIn: localStorage.getItem('isLoggedIn') === true || false,
+    isLoggedIn: localStorage.getItem('isLoggedIn') === 'true' || false,
     data: localStorage.getItem('data') !== "undefined" ? JSON.parse(localStorage.getItem('data')) : {},
 };
 
@@ -48,12 +48,44 @@ export const logout = createAsyncThunk('/user/logout', async () => {
     }
 });
 
+export const userProfile = createAsyncThunk('/user/details', async () => {
+    try {
+        const res = axiosInstance.get("/user/me");
+        return (await res).data;
+    } catch (e) {
+        toast.error(e?.message);
+        throw e;
+    }
+});
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-        builder
+        builder.addCase(loginAccount.fulfilled, (state, action) => {
+            localStorage.setItem('data', JSON.stringify(action.payload.user));
+            localStorage.setItem('isLoggedIn', true);
+            state.isLoggedIn = true;
+            state.data = action.payload.user;
+        })
+            .addCase(createAccount.fulfilled, (state, action) => {
+                localStorage.setItem('data', JSON.stringify(action.payload.user));
+                localStorage.setItem('isLoggedIn', true);
+                state.isLoggedIn = true;
+                state.data = action.payload.user;
+            })
+            .addCase(logout.fulfilled, (state) => {
+                localStorage.clear();
+                state.data = {};
+                state.isLoggedIn = false;
+            })
+            .addCase(userProfile.fulfilled, (state, action) => {
+                localStorage.setItem('data', JSON.stringify(action.payload.user));
+                localStorage.setItem('isLoggedIn', true);
+                state.isLoggedIn = true;
+                state.data = action.payload.user;
+            })
 
     }
 });

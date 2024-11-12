@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FaFacebookSquare, FaInstagramSquare, FaWhatsappSquare } from 'react-icons/fa';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaFacebookSquare, FaInstagramSquare, FaUser, FaWhatsappSquare } from 'react-icons/fa';
 import { FaSquarePhone, FaSquareXTwitter } from 'react-icons/fa6';
+import { useDispatch, useSelector } from 'react-redux';
+import { FiLogOut } from "react-icons/fi";
+import { logout } from '../Redux/Slices/authSlice';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isScrolled, setIsScrolled] = useState(false);
+    const dispatch = useDispatch()
     const menuRef = useRef();
     const location = useLocation();
+    const navigate = useNavigate()
 
-    const debounce = useCallback((func, delay) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), delay);
-        };
-    }, []);
+
 
     const toggleMenu = (event) => {
         event.stopPropagation();
@@ -40,39 +38,36 @@ const Header = () => {
         };
     }, [isOpen]);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-
-        const debouncedHandleScroll = debounce(handleScroll, 50);
-        window.addEventListener('scroll', debouncedHandleScroll);
-
-        return () => {
-            window.removeEventListener('scroll', debouncedHandleScroll);
-        };
-    }, [debounce]);
 
     const isActive = (path) => location.pathname === path;
 
+    const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn)
+    const userData = useSelector((state) => state?.auth?.data)
+
+    console.log(isLoggedIn)
+
+    const handleLogout = async () => {
+        const response = await dispatch(logout())
+        if (response?.payload?.success) {
+            navigate('/')
+        }
+    }
     return (
         <>
-            <div className={`fixed w-full top-0 z-[10001] ${!isScrolled ? 'pb-0 bg-transparent backdrop-blur-sm' : 'py-5 backdrop-blur-sm bg-transparent'}`}>
+            <div className={`fixed w-full top-0 z-[10001] py-3 pb-1 backdrop-blur-sm bg-transparent`}>
                 <header
-                    className={`transition-all overflow-x-hidden duration-300 z-[10002] ease-in-out ${!isScrolled
-                        ? 'bg-transparent backdrop-blur-lg text-white w-full  py-3 border-b border-[#ffffff42] rounded-none'
-                        : 'bg-white py-2 text-black w-[96%] md:w-[97%]'
-                        }  px-4 rounded-lg mx-auto`}
+                    className={`transition-all overflow-x-hidden shadow-[0px_0px_10px_-3px_#000] duration-300 z-[10002] ease-in-out backdrop-blur-md bg-[#fefefed0] py-[0.6rem] text-black w-[97%] md:w-[98%]
+                        px-4 rounded-lg mx-auto`}
                 >
                     <nav className="flex items-center justify-between">
                         <Link to={'/'} className="text-xl font-bold w-[14rem]">
-                            <img className='lg:w-[6.5rem] w-[6rem]' src="https://www.referbiz.in/assets/RB_100_New-db747977.png" alt="" />
+                            <img className=' w-[5rem]' src="https://www.referbiz.in/assets/RB_100_New-db747977.png" alt="Logo" />
                         </Link>
                         <ul className="hidden space-x-6 font-semibold lg:gap-10 lg:flex lg:items-center sora-500">
                             <li>
                                 <Link
                                     to="/"
-                                    className={`border-b-2 transition-all duration-300  ${isScrolled ? (isActive('/') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]') : (isActive('/') ? 'text-gray-200 border-gray-200' : 'border-transparent hover:text-gray-200 hover:border-gray-200')}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     Home
                                 </Link>
@@ -81,7 +76,7 @@ const Header = () => {
                             <li>
                                 <Link
                                     to="/About"
-                                    className={`border-b-2 transition-all duration-300  ${isScrolled ? (isActive('/About') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]') : (isActive('/About') ? 'text-gray-200 border-gray-200' : 'border-transparent hover:text-gray-200 hover:border-gray-200')}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/About') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     About
                                 </Link>
@@ -89,7 +84,7 @@ const Header = () => {
                             <li>
                                 <Link
                                     to="/Contact"
-                                    className={`border-b-2 transition-all duration-300  ${isScrolled ? (isActive('/Contact') ? 'text-[#8957E8] border-[#8957E8]' : 'border-transparent hover:text-[#8957E8] hover:border-[#8957E8]') : (isActive('/Contact') ? 'text-gray-200 border-gray-200' : 'border-transparent hover:text-gray-200 hover:border-gray-200')}`}
+                                    className={`border-b-2 transition-all duration-300  ${isActive('/Contact') ? 'text-[#8957E8] border-[#8957E8]' : 'text-gray-800 border-gray-800 border-b-transparent'}`}
                                 >
                                     Contact
                                 </Link>
@@ -102,18 +97,27 @@ const Header = () => {
                                 </Link>
                             </li>
                         </ul>
-                        <div className='flex items-center justify-center gap-2 font-semibold'>
+                        {isLoggedIn ? <div className='flex items-center justify-center gap-4'>
+                            <Link to={'/profile'}>
+                                <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-2 shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
+
+                            </Link>
+
+                            <Link to={'/logout'} onClick={handleLogout} className={` hidden lg:block duration-300 text-black border bg-[#8a57e81e] border-[#8957E8] p-[9px] px-[6px] text-[1.4rem] rounded-md`}>
+                                <FiLogOut />
+                            </Link>
+                        </div> : <div className='flex items-center justify-center gap-2 font-semibold'>
                             <Link to={'/login'}>
-                                <button className={` hidden ${isScrolled ? "bg-transparent hover:bg-[#8957E8] text-black hover:text-white border-[#8957E8]" : "bg-transparent hover:bg-[#ffffff42] border-[#ffffff42] text-white"}  duration-300 lg:block border   w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden duration-300 lg:block border-2 border-[#8957E8] bg-[#8a57e823] w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Login
                                 </button>
                             </Link>
                             <Link to={'/register'}>
-                                <button className={` hidden lg:block ${!isScrolled ? " bg-[#ffffff42] hover:bg-transparent border border-[#ffffff42]" : " hover:bg-transparent bg-[#8957E8] border-[#8957E8] border text-white hover:text-black"}  duration-300   text-white w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden lg:block border-2 border-[#4E69D6] bg-[#4e69d63e]  duration-300   text-black w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Sign up
                                 </button>
                             </Link>
-                        </div>
+                        </div>}
 
                         <div className="lg:hidden">
                             <button aria-label="Menu icon" onClick={toggleMenu} className="">
@@ -141,7 +145,7 @@ const Header = () => {
             {/* Mobile Menu */}
             <div
                 ref={menuRef}
-                className={`fixed flex flex-col justify-between w-[15rem] transition-all duration-500 right-2  sm:right-4 rounded-lg h-auto bg-[#f5f7ff] border-2 border-gray-300 text-gray-800 shadow-lg  transform ${isOpen ? !isScrolled ? 'open-menu z-[10001] top-[3.8rem] sm:top-[4.5rem] md:top-[5.4rem]' : 'open-menu top-[5.8rem] z-[10001] mr-1 sm:mr-0 sm:top-[5.7rem] md:top-[6.2rem]' : 'close-menu top-[-25.8rem] sm:top-[-25.7rem] z-[35]  border-0'} lg:hidden `}
+                className={`fixed flex flex-col justify-between w-[15rem] transition-all duration-500 right-2  sm:right-4 rounded-lg h-auto bg-[#f5f7ff] border-2 border-gray-300 text-gray-800 shadow-lg  transform ${isOpen ? 'open-menu top-[5.8rem] z-[10001] mr-1 sm:mr-0 sm:top-[5.7rem] md:top-[6.2rem]' : 'close-menu top-[-25.8rem] sm:top-[-25.7rem] z-[35]  border-0'} lg:hidden `}
             >
                 <ul className="px-4 mt-8 space-y-4 font-semibold sora-500">
                     <li>

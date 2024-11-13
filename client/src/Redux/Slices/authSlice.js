@@ -75,10 +75,31 @@ export const editProfile = createAsyncThunk('user/update-profile', async (data) 
     }
 });
 
-
 export const changePassword = createAsyncThunk('user/update-password', async (data) => {
     try {
         let res = axiosInstance.post('user/change-password', data);
+        res = await res;
+        toast.success(res?.data.message);
+        return res.data;
+    } catch (e) {
+        return toast.error(e?.response?.data?.message);
+    }
+});
+
+export const forgotPassword = createAsyncThunk('user/forgot-password', async (data) => {
+    try {
+        let res = axiosInstance.post('user/forgot-password', data);
+        res = await res;
+        toast.success(res?.data.message);
+        return res.data;
+    } catch (e) {
+        return toast.error(e?.response?.data?.message);
+    }
+});
+
+export const resetPassword = createAsyncThunk('user/forgot-password', async (data) => {
+    try {
+        let res = axiosInstance.post('user/reset-password', data);
         res = await res;
         toast.success(res?.data.message);
         return res.data;

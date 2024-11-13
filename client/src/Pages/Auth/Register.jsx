@@ -25,7 +25,7 @@ const SocialLoginButton = () => (
 );
 
 const SignUpForm = () => {
-
+    const [loaderActive, setLoaderActive] = useState(false)
     const [eye, setEye] = useState(true)
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -58,7 +58,7 @@ const SignUpForm = () => {
 
     const register = async (e) => {
         e.preventDefault()
-
+        setLoaderActive(true)
         setRegisterData({
             ...registerData,
             phoneNumber: phone
@@ -66,6 +66,7 @@ const SignUpForm = () => {
 
         const { userEmail, userPassword, fullName, confirmPassword, referralCode, phoneNumber } = registerData
         if (!userEmail || !userPassword || !fullName || !confirmPassword) {
+            setLoaderActive(false)
             return toast.error('Please fill all the fields!')
         }
 
@@ -73,19 +74,23 @@ const SignUpForm = () => {
 
         if (phoneNumber) {
             if (!phoneNumber.match(/^(\+?\d{1,3}[-.\s]?)?(\(?\d{1,4}\)?[-.\s]?)?[\d-.\s]{7,14}$/)) {
+                setLoaderActive(false)
                 return toast.error('Phone number is invalid!')
             }
         }
 
         if (!userEmail.match(/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/)) {
+            setLoaderActive(false)
             return toast.error('Email is Invalid!')
         }
 
         if (userPassword.length < 8) {
+            setLoaderActive(false)
             return toast.error('Password must contain Minimum eight characters!')
         }
 
         if (userPassword !== confirmPassword) {
+            setLoaderActive(false)
             return toast.error('Password and confirm password must be same!')
         }
 
@@ -93,12 +98,15 @@ const SignUpForm = () => {
         console.log(response)
 
         if (response?.payload?.success) {
+            setLoaderActive(false)
             navigate("/");
             setRegisterData({
                 userEmail: "",
                 userPassword: "",
                 fullName: ""
             })
+        } else {
+            setLoaderActive(false)
         }
     }
 
@@ -213,11 +221,8 @@ const SignUpForm = () => {
                 </div>
             </div>
 
-            <button
-                type="submit"
-                className="w-full py-3 text-white bg-indigo-800 rounded px-7"
-            >
-                Sign Up
+            <button className="w-full flex items-center justify-center gap-4 px-6 py-[0.6rem] text-white bg-indigo-900 rounded">
+                Sign up{loaderActive && <div className='ml-4 ease-in-out mt-1 size-[1.2rem] border-[2.4px] border-y-[#57575769] animate-spin rounded-full bottom-0'></div>}
             </button>
 
             <div className="relative">

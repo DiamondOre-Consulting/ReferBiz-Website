@@ -33,8 +33,6 @@ const Profile = () => {
         }
     };
 
-    console.log(data)
-
     const [profileData, setProfileData] = useState({
         userName: data?.fullName || "",
         fullName: data?.fullName || "",

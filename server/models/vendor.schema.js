@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
 const Schema = mongoose.Schema;
 
 const vendorSchema = new Schema({
@@ -54,16 +57,20 @@ const vendorSchema = new Schema({
     type: Number,
     default: 0,
   },
-  totalProducts: [
+  // New products field with category and items
+  products: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Product",
-    },
-  ],
-  totalReferrals: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      category: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      categoryList: [
+        {
+          type: String,
+          trim: true,
+        },
+      ],
     },
   ],
   createdAt: {
@@ -71,5 +78,24 @@ const vendorSchema = new Schema({
     default: Date.now,
   },
 });
+
+vendorSchema.methods = {
+  generateJWTToken: async function () {
+    return await jwt.sign(
+      {
+        id: this._id,
+        email: this.email,
+        role: this.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRY,
+      }
+    );
+  },
+  comparePassword: async function (plainPassword) {
+    return await bcrypt.compare(plainPassword, this.vendorPassword);
+  },
+};
 
 export default mongoose.model("Vendor", vendorSchema);

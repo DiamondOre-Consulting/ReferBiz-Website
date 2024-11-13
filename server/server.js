@@ -8,11 +8,7 @@ import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
 
-
-
-
 const app = express();
-
 
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 5000;
@@ -21,12 +17,10 @@ config();
 const res = cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-})
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-
-
-console.log(res)
+console.log(res);
 
 app.use(cookieParser());
 app.use(
@@ -57,7 +51,6 @@ const connectDB = async () => {
 };
 
 connectDB();
-
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);

@@ -4,7 +4,6 @@ import fs from "fs/promises";
 import cloudinary from "cloudinary";
 import CustomError from "../utils/error.utils.js";
 import sendEmail from "../utils/email.utils.js";
-import bcrypt from 'bcryptjs'
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -85,7 +84,7 @@ const login = async (req, res, next) => {
       return next(new CustomError("Email and Password is required", 400));
     }
 
-    console.log(userPassword)
+    console.log(userPassword);
 
     const user = await User.findOne({
       userEmail,
@@ -170,7 +169,7 @@ const changePassword = async (req, res, next) => {
       return next(new CustomError("Old Password is wrong", 400));
     }
 
-    user.userPassword = await newPassword
+    user.userPassword = await newPassword;
     await user.save();
 
     res.status(200).json({
@@ -329,7 +328,7 @@ const forgotPassword = async (req, res, next) => {
 
 const verifyOTP = async (req, res, next) => {
   try {
-    const { userEmail, otp, newPassword } = req.body
+    const { userEmail, otp, newPassword } = req.body;
 
     if (!userEmail) {
       return next(new CustomError("Email is Required", 400));
@@ -349,28 +348,37 @@ const verifyOTP = async (req, res, next) => {
       return next(new CustomError("Email is not registered", 400));
     }
 
-    console.log(otp)
-    console.log(user.otp)
+    console.log(otp);
+    console.log(user.otp);
 
     if (user.otp == otp) {
       if (Date.now() < user.otpExpiry) {
         user.userPassword = await newPassword;
       } else {
-        return next(new CustomError("OTP is expired! Resend OTP"))
+        return next(new CustomError("OTP is expired! Resend OTP"));
       }
     } else {
-      return next(new CustomError("OTP is wrong!"))
+      return next(new CustomError("OTP is wrong!"));
     }
 
-    await user.save()
+    await user.save();
 
     res.status(200).json({
       success: true,
-      message: "Password reset successfully!"
-    })
+      message: "Password reset successfully!",
+    });
   } catch (e) {
-    return next(new CustomError(e.message, 500))
+    return next(new CustomError(e.message, 500));
   }
-}
+};
 
-export { register, login, logout, profile, updateProfile, changePassword, forgotPassword, verifyOTP };
+export {
+  register,
+  login,
+  logout,
+  profile,
+  updateProfile,
+  changePassword,
+  forgotPassword,
+  verifyOTP,
+};

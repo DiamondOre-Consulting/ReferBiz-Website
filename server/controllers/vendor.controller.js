@@ -1,7 +1,63 @@
 import Vendor from "../models/vendor.schema.js";
 import CustomError from "../utils/error.utils.js";
 
+const cookieOption = {
+  secure: process.env.NODE_ENV === "production" ? true : false,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
+  // sameSite: "None",
+};
 const vendorController = {
+  login: async (req, res, next) => {
+    try {
+      const { vendorEmail, vendorPassword } = req.body;
+
+      if (!vendorEmail || !vendorPassword) {
+        return next(new CustomError("Email and Password is required", 400));
+      }
+
+      const vendor = await Vendor.findOne({
+        vendorEmail,
+      }).select("+vendorPassword");
+
+      if (!vendor) {
+        return next(new CustomError("Email is not registered", 401));
+      }
+
+      // const passwordCheck = await vendor.comparePassword(vendorPassword);
+      if (vendor.vendorPassword !== vendorPassword) {
+        return next(new CustomError("Password is wrong", 400));
+      }
+
+      const token = await vendor.generateJWTToken();
+      res.cookie("token", token, cookieOption);
+
+      res.status(200).json({
+        success: true,
+        message: "Login Successfull!",
+        vendor,
+        token,
+      });
+    } catch (err) {
+      return next(new CustomError(err.message, 500));
+    }
+  },
+  logout: async (req, res, next) => {
+    const token = "";
+    const cookiesOption = {
+      logoutAt: new Date(),
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    };
+
+    try {
+      res.cookie("token", token, cookiesOption);
+      res.status(200).json({ success: true, message: "Logged out" });
+    } catch (e) {
+      return res.status(500).json({ success: false, message: e.message });
+    }
+  },
   getVendorsByCategories: async (req, res, next) => {
     const { categories } = req.body;
 

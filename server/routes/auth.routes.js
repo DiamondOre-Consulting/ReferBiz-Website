@@ -23,9 +23,7 @@ router.put(
   updateProfile
 );
 router.post("/change-password", isLoggedIn, changePassword);
-router.post("/forgot-password", isLoggedIn, forgotPassword);
-router.post("/reset-password", isLoggedIn, verifyOTP);
-
-
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", verifyOTP);
 
 export default router;

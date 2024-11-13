@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
 import cloudinary from "cloudinary";
 import CustomError from "../utils/error.utils.js";
+import sendEmail from "../utils/email.utils.js";
+import bcrypt from 'bcryptjs'
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -83,6 +85,8 @@ const login = async (req, res, next) => {
       return next(new CustomError("Email and Password is required", 400));
     }
 
+    console.log(userPassword)
+
     const user = await User.findOne({
       userEmail,
     }).select("+userPassword");
@@ -125,6 +129,7 @@ const logout = (req, res, next) => {
     return res.status(500).json({ success: false, message: e.message });
   }
 };
+
 const profile = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -165,7 +170,7 @@ const changePassword = async (req, res, next) => {
       return next(new CustomError("Old Password is wrong", 400));
     }
 
-    user.userPassword = await bcrypt.hash(newPassword, 10);
+    user.userPassword = await newPassword
     await user.save();
 
     res.status(200).json({
@@ -253,9 +258,10 @@ const forgotPassword = async (req, res, next) => {
   const otp = uuid.replace(/\D/g, "").slice(0, 4);
   user.otp = await otp;
   user.otpExpiry = (await Date.now()) + 2 * 60 * 1000;
+
   await user.save();
 
-  const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  // const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
   const subject = "🔒 Password Reset Request";
   const message = `
  <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="width: 100%; max-width: 24rem; background-color: #f4f4f4; border-radius: 8px; padding: 20px; box-sizing: border-box; color-scheme: light dark; background-color: #ffffff; background-color: #1a1a1a;">
@@ -269,15 +275,15 @@ const forgotPassword = async (req, res, next) => {
       </p>
 
       <p style="font-weight: 400; text-align: center; margin: 20px 0; color: #555555; color: #cccccc;">
-        It seems you’ve requested to reset your password. Let’s get you back on track! Click the button below to securely reset your password:
+        It seems you’ve requested to reset your password. Let’s get you back on track! Use this OTP
       </p>
 
-      <a href="${resetPasswordURL}" style="display: inline-block; background-color: #0074f9; background-image: linear-gradient(to top right, #1751fe, #0074f9, #0199ff); border: none; color: white; border-radius: 0.375rem; padding: 12px 25px; font-weight: bold; font-size: 1.1rem; margin: 15px 0; letter-spacing: 0.05rem; text-decoration: none;">
-        Reset My Password
-      </a>
+     <p style="font-weight: 400; text-align: center; margin: 20px 0; color: #555555; color: #cccccc;">
+        <strong>${otp}</strong>
+      </p>
 
       <p style="font-weight: 400; text-align: center; margin: 20px 0; color: #555555; color: #cccccc;">
-        If you did not request a password reset, no worries—just ignore this userEmail, and your password will remain unchanged.
+        If you did not request a password reset, no worries—just ignore this Email, and your password will remain unchanged.
       </p>
 
       <div style="text-align: center; margin-top: 20px;">
@@ -286,21 +292,21 @@ const forgotPassword = async (req, res, next) => {
         </p>
 
         <img src="https://img.icons8.com/ios-filled/50/0074f9/shield.png" alt="Shield Icon" style="width: 30px; margin: 10px 0;">
-        <p style="margin: 0; color: #0074f9; font-weight: bold;">Ease Book India</p>
+        <p style="margin: 0; color: #0074f9; font-weight: bold;">Refer Biz</p>
         <p style="margin: 0; color: #555555; color: #cccccc;">Support Team</p>
       </div>
 
       <div style="text-align: center; margin-top: 20px;">
-        <a href="https://www.facebook.com/profile.php?id=100068605444659" style="text-decoration: none; margin: 0 10px;">
+        <a href="" style="text-decoration: none; margin: 0 10px;">
           <img src="https://img.icons8.com/ios-filled/30/0074f9/facebook.png" alt="Facebook" style="width: 25px; display: inline-block;">
         </a>
-        <a href="https://x.com/__its_akash18" style="text-decoration: none; margin: 0 10px;">
+        <a href="" style="text-decoration: none; margin: 0 10px;">
           <img src="https://img.icons8.com/ios-filled/30/0074f9/x.png" alt="X (formerly Twitter)" style="width: 25px; display: inline-block;">
         </a>
-        <a href="https://www.instagram.com/__its_akash.18" style="text-decoration: none; margin: 0 10px;">
+        <a href="" style="text-decoration: none; margin: 0 10px;">
           <img src="https://img.icons8.com/ios-filled/30/0074f9/instagram.png" alt="Instagram" style="width: 25px; display: inline-block;">
         </a>
-        <a href="https://www.linkedin.com/in/itsakash18/" style="text-decoration: none; margin: 0 10px;">
+        <a href="" style="text-decoration: none; margin: 0 10px;">
           <img src="https://img.icons8.com/ios-filled/30/0074f9/linkedin.png" alt="LinkedIn" style="width: 25px; display: inline-block;">
         </a>
       </div>
@@ -316,12 +322,55 @@ const forgotPassword = async (req, res, next) => {
       message: "Password reset link has been sent to your userEmail",
     });
   } catch (e) {
-    user.forgetPasswordExpiry = undefined;
-    user.forgetPasswordToken = undefined;
-
     await user.save();
     return next(new CustomError(e.message, 500));
   }
 };
 
-export { register, login, logout, profile, updateProfile, changePassword };
+const verifyOTP = async (req, res, next) => {
+  try {
+    const { userEmail, otp, newPassword } = req.body
+
+    if (!userEmail) {
+      return next(new CustomError("Email is Required", 400));
+    }
+
+    if (!otp) {
+      return next(new CustomError("OTP is required", 400));
+    }
+
+    if (!newPassword) {
+      return next(new CustomError("New password is required", 400));
+    }
+
+    const user = await User.findOne({ userEmail });
+
+    if (!user) {
+      return next(new CustomError("Email is not registered", 400));
+    }
+
+    console.log(otp)
+    console.log(user.otp)
+
+    if (user.otp == otp) {
+      if (Date.now() < user.otpExpiry) {
+        user.userPassword = await newPassword;
+      } else {
+        return next(new CustomError("OTP is expired! Resend OTP"))
+      }
+    } else {
+      return next(new CustomError("OTP is wrong!"))
+    }
+
+    await user.save()
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully!"
+    })
+  } catch (e) {
+    return next(new CustomError(e.message, 500))
+  }
+}
+
+export { register, login, logout, profile, updateProfile, changePassword, forgotPassword, verifyOTP };

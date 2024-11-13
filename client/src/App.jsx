@@ -9,20 +9,21 @@ import Contact from './Pages/Contact'
 import VendorList from './Pages/VendorList'
 import VendorDetail from './Pages/VendorDetail'
 import Profile from './Pages/Auth/Profile'
+import PageNotFound from './Pages/PageNotFound'
 
 const App = () => {
   return (
     <>
       <Header />
       <Routes>
+        <Route path='/*' element={<PageNotFound />} />
         <Route element={<RequireAuth />}>
           <Route path='/vendor-detail' element={<VendorDetail />} />
-          <Route path='/:fullName' element={<Profile />} />
+          <Route path='/profile/:fullName' element={<Profile />} />
         </Route>
         <Route path='/' element={<Home />} />
         <Route path='/vendor-list' element={<VendorList />} />
         <Route path='/contact' element={<Contact />} />
-
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
       </Routes >

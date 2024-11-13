@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loginAccount } from "../../Redux/Slices/authSlice";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const SocialLoginButton = () => (
     <Fragment>
@@ -106,7 +107,7 @@ const SignInForm = () => {
             </div>
 
             <button className="w-full px-6 py-[0.6rem] text-white bg-indigo-900 rounded">
-                Log In
+                Log In <AiOutlineLoading3Quarters />
             </button>
             <button className="w-full px-4 py-2 rounded-lg hover:text-blue-600">
                 Forget your password?

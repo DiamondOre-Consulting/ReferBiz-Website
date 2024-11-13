@@ -91,7 +91,7 @@ const Header = () => {
 
                         </ul>
                         {isLoggedIn ? <div className='flex items-center justify-end gap-4 w-[14rem] '>
-                            <Link to={`/${userData?.fullName}`}>
+                            <Link to={`/profile/${userData?.fullName}`}>
                                 <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-2 shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
                             </Link>
 

@@ -5,6 +5,8 @@ import {
   profile,
   updateProfile,
   changePassword,
+  forgotPassword,
+  verifyOTP,
 } from "../controllers/auth.controller.js";
 import isLoggedIn from "../middlewares/auth.middleware.js";
 import { Router } from "express";
@@ -20,6 +22,10 @@ router.put(
   upload.single("userImage"),
   updateProfile
 );
-router.post("/changePassword", isLoggedIn, changePassword);
+router.post("/change-password", isLoggedIn, changePassword);
+router.post("/forgot-password", isLoggedIn, forgotPassword);
+router.post("/reset-password", isLoggedIn, verifyOTP);
+
+
 
 export default router;

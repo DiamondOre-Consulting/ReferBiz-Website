@@ -1,8 +1,8 @@
 import User from "../models/user.schema.js";
-import AppError from "../utils/error.utils.js";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
-import cloudinary from 'cloudinary'
+import cloudinary from "cloudinary";
+import CustomError from "../utils/error.utils.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
       req.body;
 
     if (!fullName || !userEmail || !userPassword) {
-      return next(new AppError("All Fields are required", 400));
+      return next(new CustomError("All Fields are required", 400));
     }
 
     let namePart = fullName.substring(0, 3).toUpperCase();
@@ -31,14 +31,14 @@ const register = async (req, res, next) => {
       if (referedUser) {
         referredBy = referedUser._id;
       } else {
-        return next(new AppError("Your referal code is invalid", 400));
+        return next(new CustomError("Your referal code is invalid", 400));
       }
     }
     console.log(2);
 
     const uniqueEmail = await User.findOne({ userEmail });
     if (uniqueEmail) {
-      return next(new AppError("Email is already registered", 400));
+      return next(new CustomError("Email is already registered", 400));
     }
 
     console.log(1);
@@ -57,7 +57,7 @@ const register = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(new AppError("Registration Failed!", 400));
+      return next(new CustomError("Registration Failed!", 400));
     }
     console.log(3);
 
@@ -71,7 +71,7 @@ const register = async (req, res, next) => {
       user,
     });
   } catch (err) {
-    return next(new AppError(err.message, 500));
+    return next(new CustomError(err.message, 500));
   }
 };
 
@@ -80,7 +80,7 @@ const login = async (req, res, next) => {
     const { userEmail, userPassword } = req.body;
 
     if (!userEmail || !userPassword) {
-      return next(new AppError("Email and Password is required", 400));
+      return next(new CustomError("Email and Password is required", 400));
     }
 
     const user = await User.findOne({
@@ -88,12 +88,12 @@ const login = async (req, res, next) => {
     }).select("+userPassword");
 
     if (!user) {
-      return next(new AppError("Email is not registered", 401));
+      return next(new CustomError("Email is not registered", 401));
     }
 
     const passwordCheck = await user.comparePassword(userPassword);
     if (!passwordCheck) {
-      return next(new AppError("Password is wrong", 400));
+      return next(new CustomError("Password is wrong", 400));
     }
 
     const token = await user.generateJWTToken();
@@ -105,7 +105,7 @@ const login = async (req, res, next) => {
       user,
     });
   } catch (err) {
-    return next(new AppError(err.message, 500));
+    return next(new CustomError(err.message, 500));
   }
 };
 
@@ -136,7 +136,44 @@ const profile = async (req, res, next) => {
       user,
     });
   } catch (err) {
-    return next(new AppError("Failed to fetch" + err.message, 500));
+    return next(new CustomError("Failed to fetch" + err.message, 500));
+  }
+};
+
+const changePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const { id } = req.user;
+
+    if (!oldPassword || !newPassword) {
+      return next(new CustomError("All fields are required", 400));
+    }
+
+    if (oldPassword === newPassword) {
+      return next(new CustomError("New password is same as old password", 400));
+    }
+
+    const user = await User.findById(id).select("+password");
+
+    if (!user) {
+      return next(new CustomError("User does not exist", 400));
+    }
+
+    const passwordValid = await user.comparePassword(oldPassword);
+
+    if (!passwordValid) {
+      return next(new CustomError("Old Password is wrong", 400));
+    }
+
+    user.userPassword = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({
+      status: true,
+      message: "Password Changed successfully",
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
   }
 };
 
@@ -148,7 +185,7 @@ const updateProfile = async (req, res, next) => {
     const user = await User.findById(id);
 
     if (!user) {
-      return next(new AppError("User does not exist", 400));
+      return next(new CustomError("User does not exist", 400));
     }
 
     if (fullName) {
@@ -163,8 +200,7 @@ const updateProfile = async (req, res, next) => {
       }
       console.log("to ");
       try {
-
-        console.log(req.file.path)
+        console.log(req.file.path);
 
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
           folder: "lms",
@@ -183,7 +219,7 @@ const updateProfile = async (req, res, next) => {
         }
         console.log("res1", result);
       } catch (err) {
-        return next(new AppError("File can not get uploaded", 500));
+        return next(new CustomError("File can not get uploaded", 500));
       }
     }
 
@@ -194,8 +230,98 @@ const updateProfile = async (req, res, next) => {
       message: "User Detail updated successfully",
     });
   } catch (e) {
-    return next(new AppError(e.message, 500));
+    return next(new CustomError(e.message, 500));
   }
 };
 
-export { register, login, logout, profile, updateProfile };
+const forgotPassword = async (req, res, next) => {
+  const { userEmail } = req.body;
+
+  console.log(userEmail);
+  if (!userEmail) {
+    return next(new CustomError("Email is Required", 400));
+  }
+
+  const user = await User.findOne({ userEmail });
+
+  if (!user) {
+    return next(new CustomError("Email is not registered", 400));
+  }
+
+  const uuid = uuidv4();
+
+  const otp = uuid.replace(/\D/g, "").slice(0, 4);
+  user.otp = await otp;
+  user.otpExpiry = (await Date.now()) + 2 * 60 * 1000;
+  await user.save();
+
+  const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  const subject = "🔒 Password Reset Request";
+  const message = `
+ <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="width: 100%; max-width: 24rem; background-color: #f4f4f4; border-radius: 8px; padding: 20px; box-sizing: border-box; color-scheme: light dark; background-color: #ffffff; background-color: #1a1a1a;">
+  <tr>
+    <td style="text-align: center; padding: 20px 0;">
+      
+      <img src="https://img.icons8.com/ios-filled/50/0074f9/lock.png" alt="Lock Icon" style="width: 40px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">
+
+      <p style="font-size: 1.2rem; font-weight: bold; margin: 0; color: #000000; color: #ffffff;">
+        Hello, <span style="color: #0074f9;">${user.fullName}</span>
+      </p>
+
+      <p style="font-weight: 400; text-align: center; margin: 20px 0; color: #555555; color: #cccccc;">
+        It seems you’ve requested to reset your password. Let’s get you back on track! Click the button below to securely reset your password:
+      </p>
+
+      <a href="${resetPasswordURL}" style="display: inline-block; background-color: #0074f9; background-image: linear-gradient(to top right, #1751fe, #0074f9, #0199ff); border: none; color: white; border-radius: 0.375rem; padding: 12px 25px; font-weight: bold; font-size: 1.1rem; margin: 15px 0; letter-spacing: 0.05rem; text-decoration: none;">
+        Reset My Password
+      </a>
+
+      <p style="font-weight: 400; text-align: center; margin: 20px 0; color: #555555; color: #cccccc;">
+        If you did not request a password reset, no worries—just ignore this userEmail, and your password will remain unchanged.
+      </p>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="margin: 0; font-size: 1rem; color: #000000; color: #ffffff;">
+          Stay safe,
+        </p>
+
+        <img src="https://img.icons8.com/ios-filled/50/0074f9/shield.png" alt="Shield Icon" style="width: 30px; margin: 10px 0;">
+        <p style="margin: 0; color: #0074f9; font-weight: bold;">Ease Book India</p>
+        <p style="margin: 0; color: #555555; color: #cccccc;">Support Team</p>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="https://www.facebook.com/profile.php?id=100068605444659" style="text-decoration: none; margin: 0 10px;">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/facebook.png" alt="Facebook" style="width: 25px; display: inline-block;">
+        </a>
+        <a href="https://x.com/__its_akash18" style="text-decoration: none; margin: 0 10px;">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/x.png" alt="X (formerly Twitter)" style="width: 25px; display: inline-block;">
+        </a>
+        <a href="https://www.instagram.com/__its_akash.18" style="text-decoration: none; margin: 0 10px;">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/instagram.png" alt="Instagram" style="width: 25px; display: inline-block;">
+        </a>
+        <a href="https://www.linkedin.com/in/itsakash18/" style="text-decoration: none; margin: 0 10px;">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/linkedin.png" alt="LinkedIn" style="width: 25px; display: inline-block;">
+        </a>
+      </div>
+
+    </td>
+  </tr>
+</table>`;
+
+  try {
+    await sendEmail(userEmail, subject, message);
+    res.status(200).json({
+      success: true,
+      message: "Password reset link has been sent to your userEmail",
+    });
+  } catch (e) {
+    user.forgetPasswordExpiry = undefined;
+    user.forgetPasswordToken = undefined;
+
+    await user.save();
+    return next(new CustomError(e.message, 500));
+  }
+};
+
+export { register, login, logout, profile, updateProfile, changePassword };

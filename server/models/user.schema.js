@@ -68,6 +68,12 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  otp: {
+    type: Number,
+  },
+  otpExpiry: {
+    type: Date,
+  },
 });
 
 userSchema.pre("save", async function (next) {

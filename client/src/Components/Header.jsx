@@ -45,6 +45,8 @@ const Header = () => {
     const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn)
     const userData = useSelector((state) => state?.auth?.data)
 
+    console.log(isLoggedIn)
+
     const handleLogout = async () => {
         const response = await dispatch(logout())
         if (response?.payload?.success) {
@@ -88,7 +90,6 @@ const Header = () => {
                                     Contact
                                 </Link>
                             </li>
-
                         </ul>
                         {isLoggedIn ? <div className='flex items-center justify-end gap-4 w-[14rem] '>
                             <Link to={`/profile/${userData?.fullName}`}>

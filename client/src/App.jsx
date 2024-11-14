@@ -10,6 +10,7 @@ import VendorList from './Pages/VendorList'
 import VendorDetail from './Pages/VendorDetail'
 import Profile from './Pages/Auth/Profile'
 import PageNotFound from './Pages/PageNotFound'
+import VendorLogin from './Pages/Auth/VendorAuth.jsx/VendorLogin'
 
 const App = () => {
   return (
@@ -17,7 +18,7 @@ const App = () => {
       <Header />
       <Routes>
         <Route path='/*' element={<PageNotFound />} />
-        <Route element={<RequireAuth />}>
+        <Route element={<RequireAuth allowedRoles={["USER"]} />}>
           <Route path='/vendor-detail' element={<VendorDetail />} />
           <Route path='/profile/:fullName' element={<Profile />} />
         </Route>
@@ -26,6 +27,14 @@ const App = () => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/vendor/login' element={<VendorLogin />} />
+
+        <Route element={<RequireAuth allowedRoles={["VENDOR"]} />}>
+          <Route path='/vendor-detail' element={<VendorDetail />} />
+          <Route path='/profile/:fullName' element={<Profile />} />
+        </Route>
+
+
       </Routes >
     </>
   )

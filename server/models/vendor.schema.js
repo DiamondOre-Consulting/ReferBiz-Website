@@ -42,6 +42,27 @@ const vendorSchema = new Schema({
     },
     coordinates: [Number],
   },
+  vendorImage: {
+    publicId: {
+      type: "String",
+    },
+    secure_url: {
+      type: "String",
+    },
+  },
+  phoneNumber: {
+    type: Number,
+  },
+  fullName: {
+    type: String,
+    trim: true,
+  },
+  otp: {
+    type: Number,
+  },
+  otpExpiry: {
+    type: Date,
+  },
   businessCategory: {
     type: String,
     trim: true,
@@ -62,7 +83,6 @@ const vendorSchema = new Schema({
     type: Number,
     default: 0,
   },
-  // New products field with category and items
   products: [
     {
       category: {

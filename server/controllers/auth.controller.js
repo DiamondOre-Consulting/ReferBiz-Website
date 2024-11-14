@@ -207,13 +207,12 @@ const updateProfile = async (req, res, next) => {
         console.log(req.file.path);
 
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "lms",
+          folder: "Referbiz",
           width: 250,
           height: 250,
           gravity: "faces",
           crop: "fill",
         });
-        console.log("res", result);
 
         if (result) {
           user.userImage.publicId = result.public_id;
@@ -221,7 +220,6 @@ const updateProfile = async (req, res, next) => {
 
           fs.rm(`uploads/${req.file.filename}`);
         }
-        console.log("res1", result);
       } catch (err) {
         return next(new CustomError("File can not get uploaded", 500));
       }
@@ -241,7 +239,6 @@ const updateProfile = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   const { userEmail } = req.body;
 
-  console.log(userEmail);
   if (!userEmail) {
     return next(new CustomError("Email is Required", 400));
   }

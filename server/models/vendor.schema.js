@@ -17,6 +17,11 @@ const vendorSchema = new Schema({
     trim: true,
     lowercase: true,
   },
+  role: {
+    type: String,
+    enum: ["USER", "ADMIN", "VENDOR"],
+    default: "VENDOR",
+  },
   vendorPassword: {
     type: String,
     required: [true, "Password is required"],

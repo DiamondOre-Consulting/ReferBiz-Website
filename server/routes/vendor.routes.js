@@ -1,12 +1,17 @@
 import express from "express";
-import vendorController from "../controllers/vendor.controller.js";
 import isLoggedIn from "../middlewares/auth.middleware.js";
-
+import {
+  login,
+  logout,
+  getVendorsByCategories,
+  getVendorsByLocation,
+  getVendors,
+} from "../controllers/vendor.controller.js";
 const router = express.Router();
-router.get("/allVendors", vendorController.getVendors);
-router.post("/categories", vendorController.getVendorsByCategories);
-router.post("/nearby", vendorController.getVendorsByLocation);
-router.post("/login", vendorController.login);
-router.get("/logout", isLoggedIn, vendorController.logout);
+router.get("/allVendors", getVendors);
+router.post("/categories", getVendorsByCategories);
+router.post("/nearby", getVendorsByLocation);
+router.post("/login", login);
+router.get("/logout", isLoggedIn, logout);
 
 export default router;

@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import vendorRouter from "./routes/vendor.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
@@ -54,6 +55,7 @@ connectDB();
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);
+app.use("/api/admin", adminRouter);
 app.get("/", (req, res) => {
   res.send("API is running");
 });

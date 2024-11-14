@@ -3,7 +3,6 @@ import isLoggedIn from "../middlewares/auth.middleware.js";
 import {
   login,
   logout,
-  getVendorsByCategories,
   getVendorsByLocation,
   getVendors,
   updateProfile,

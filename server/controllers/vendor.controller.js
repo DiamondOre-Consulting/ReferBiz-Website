@@ -385,6 +385,111 @@ const verifyOTP = async (req, res, next) => {
   }
 };
 
+const addProduct = async (req, res, next) => {
+  const { category, item } = req.body;
+  const userId = req.user.id;
+  console.log("id", req.user.id);
+  if (!category) {
+    return next(
+      new CustomError("Catagory is not found. Please enter catagory", 404)
+    );
+  }
+  if (!item) {
+    return next(
+      new CustomError(
+        "Item  is not found that you want to add . Please enter item",
+        404
+      )
+    );
+  }
+  try {
+    const vendor = await Vendor.findById(userId);
+    console.log("vendor", vendor);
+
+    const categoryExists = vendor.products.find(
+      (prod) => prod.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (categoryExists) {
+      if (!categoryExists.categoryList.includes(item)) {
+        categoryExists.categoryList.push(item);
+        await vendor.save();
+        return res.status(200).json({
+          message: "Item added to the existing category successfully.",
+          vendor,
+        });
+      }
+    } else {
+      const newCategory = {
+        category,
+        categoryList: item,
+      };
+
+      vendor.products.push(newCategory);
+      await vendor.save();
+      return res.status(200).json({
+        message: "New category created and item added successfully.",
+        vendor,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+  }
+};
+
+const deleteProduct = async (req, res, next) => {
+  const { category, item } = req.body;
+  const vendorId = req.user.id;
+
+  if (!category || !item || typeof item !== "string") {
+    return next(
+      new CustomError(
+        "Invalid input. Please provide vendorId, category, and item.",
+        404
+      )
+    );
+  }
+
+  try {
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return next(new CustomError("Vendor Not Found", 404));
+    }
+
+    const categoryFound = vendor.products.find(
+      (prod) => prod.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (!categoryFound) {
+      return next(new CustomError("CategoryFound Not Found", 404));
+    }
+
+    const itemIndex = categoryFound.categoryList.findIndex(
+      (subCategory) => subCategory.toLowerCase() === item.toLowerCase()
+    );
+
+    if (itemIndex === -1) {
+      return next(new CustomError("Item Not Found", 404));
+    }
+
+    categoryFound.categoryList.splice(itemIndex, 1);
+
+    await vendor.save();
+
+    return res
+      .status(200)
+      .json({ message: "Item deleted successfully.", vendor });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+  }
+};
+
 export {
   login,
   logout,
@@ -396,4 +501,6 @@ export {
   updateProfile,
   changePassword,
   verifyOTP,
+  addProduct,
+  deleteProduct,
 };

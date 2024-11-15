@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import cloudinary from "cloudinary";
 import CustomError from "../utils/error.utils.js";
 import sendEmail from "../utils/email.utils.js";
+import Vendor from "../models/vendor.schema.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -368,6 +369,103 @@ const verifyOTP = async (req, res, next) => {
     return next(new CustomError(e.message, 500));
   }
 };
+const getAllCategories = async (req, res) => {
+  try {
+    const vendors = await Vendor.find({}, "products");
+
+    const categorySet = new Set();
+
+    vendors.forEach((vendor) => {
+      vendor.products.forEach((product) => {
+        categorySet.add(product.category);
+      });
+    });
+
+    const categories = Array.from(categorySet);
+
+    return res.status(200).json({ categories });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+  }
+};
+
+const getItemsByCategory = async (req, res) => {
+  const { category } = req.params;
+
+  if (!category) {
+    return res.status(400).json({ message: "Category is required" });
+  }
+
+  try {
+    const vendors = await Vendor.find(
+      { "products.category": category },
+      "products"
+    );
+
+    const itemSet = new Set();
+
+    vendors.forEach((vendor) => {
+      vendor.products.forEach((product) => {
+        if (product.category === category) {
+          product.categoryList.forEach((item) => {
+            itemSet.add(item);
+          });
+        }
+      });
+    });
+
+    const items = Array.from(itemSet);
+
+    return res.status(200).json({ category, items });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+  }
+};
+
+const searchVendorsByCategory = async (req, res, next) => {
+  const { category } = req.body;
+
+  try {
+    const vendors = await Vendor.find({
+      "products.category": { $regex: new RegExp(category, "i") },
+    });
+
+    if (!vendors.length) {
+      return next(new CustomError("No vendors found for this category", 404));
+    }
+
+    res.status(200).json(vendors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const searchVendorsBySubCategory = async (req, res, next) => {
+  const { category, item } = req.body;
+
+  try {
+    const vendors = await Vendor.find({
+      "products.category": { $regex: new RegExp(category, "i") },
+      "products.categoryList": { $regex: new RegExp(item, "i") },
+    });
+
+    if (!vendors.length) {
+      return next(
+        new CustomError("No vendors found for this Subcategory", 404)
+      );
+    }
+
+    res.status(200).json(vendors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 export {
   register,
@@ -378,4 +476,8 @@ export {
   changePassword,
   forgotPassword,
   verifyOTP,
+  searchVendorsByCategory,
+  searchVendorsBySubCategory,
+  getAllCategories,
+  getItemsByCategory,
 };

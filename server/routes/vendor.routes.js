@@ -10,6 +10,8 @@ import {
   forgotPassword,
   verifyOTP,
   vendorProfile,
+  addProduct,
+  deleteProduct,
 } from "../controllers/vendor.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
@@ -25,6 +27,8 @@ router.put(
   upload.single("vendorImage"),
   updateProfile
 );
+router.post("/add-product", isLoggedIn, addProduct);
+router.post("/delete-product", isLoggedIn, deleteProduct);
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);

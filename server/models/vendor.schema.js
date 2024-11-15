@@ -7,7 +7,6 @@ const Schema = mongoose.Schema;
 const vendorSchema = new Schema({
   businessName: {
     type: String,
-    required: [true, "Business name is required"],
     trim: true,
   },
   vendorEmail: {

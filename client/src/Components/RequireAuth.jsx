@@ -1,15 +1,16 @@
-import React from 'react'
+// RequireAuth.js
+import { Navigate, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
 
 const RequireAuth = ({ allowedRoles }) => {
+    const role = useSelector((state) => state?.auth?.role)
 
-    const { isLoggedIn, role } = useSelector((state) => state?.auth)
+    // Redirect logic based on role
+    if (role && !allowedRoles.includes(role)) {
+        return role === "VENDOR" ? <Navigate to="/vendor/dashboard" replace /> : <Navigate to="/" replace />
+    }
 
-    console.log(role)
-    return isLoggedIn && allowedRoles?.find((myRole) => myRole == role) ? (
-        <Outlet />
-    ) : isLoggedIn ? (<Navigate to='/denied' />) : (<Navigate to="/login" />)
+    return allowedRoles.includes(role) ? <Outlet /> : <Navigate to="/login" replace />
 }
 
 export default RequireAuth

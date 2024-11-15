@@ -1,10 +1,14 @@
 import React from 'react'
+import Header from '../Components/Header'
 
 const VendorDetail = () => {
     return (
-        <div>
-            vendor detail
-        </div>
+        <>
+            <Header />
+            <div>
+                vendor detail
+            </div>
+        </>
     )
 }
 

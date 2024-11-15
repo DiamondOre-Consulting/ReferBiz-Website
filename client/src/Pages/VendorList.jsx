@@ -5,6 +5,7 @@ import { GiBiceps, GiTakeMyMoney } from "react-icons/gi";
 import BreadCrumbs from '../Components/BreadCrumbs';
 import { MdCurrencyRupee } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import Header from '../Components/Header';
 
 const VendorList = () => {
 
@@ -52,6 +53,7 @@ const VendorList = () => {
     return (
 
         <>
+            <Header />
             <BreadCrumbs headText={"Our Vendors"} items={breadcrumbItems} />
 
             <div className="container relative z-20 px-4 mx-auto text-white">

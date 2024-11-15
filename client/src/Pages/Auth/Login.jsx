@@ -8,19 +8,19 @@ import { useDispatch } from "react-redux";
 import { forgotPassword, loginAccount, resetPassword } from "../../Redux/Slices/authSlice";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import OTPInput from 'react-otp-input'
+import Header from "../../Components/Header";
 
 
 const SocialLoginButton = () => (
-    <Fragment>
-        <button className="flex items-center justify-center w-full px-6 py-3 mt-4 text-white bg-blue-600 rounded">
-            <IoLogoFacebook className="mr-2 text-white " />
-            <span className="text-center">Continue with Facebook</span>
+    <div className="flex items-center justify-center gap-4">
+        <button className="flex items-center justify-center p-3 text-white bg-blue-600 rounded">
+            <IoLogoFacebook className="text-white " />
         </button>
-        <button className="flex items-center justify-center w-full px-6 py-3 mt-4 text-white bg-red-500 rounded">
-            <FaGoogle className="mr-2 text-white " />
-            <span className="text-center">Continue with Google</span>
+        <button className="flex items-center justify-center p-3 text-white bg-red-500 rounded">
+            <FaGoogle className="text-white " />
         </button>
-    </Fragment>
+        <Link to={"/vendor/login"} className="bg-[#EA991A] p-2 px-3 text-white rounded">Login as Vendor</Link>
+    </div>
 );
 
 const AuthForm = () => {
@@ -153,6 +153,7 @@ const AuthForm = () => {
 
     return (
         <>
+
             {resetActive ?
                 (otpActive ?
                     <div className="p-4 py-8 bg-white shadow-xl rounded-xl md:p-10">
@@ -323,28 +324,31 @@ const Login = () => {
 
 
     return (
-        <section className="bg-gradient-to-r pt-10 flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
-            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
-            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
-            <div className="container relative px-4 mx-auto mt-10">
-                <div className="grid h-full grid-cols-6 gap-6">
-                    <div className="col-span-6 md:col-span-2 lg:col-span-3">
-                        <div
-                            className="bg-cover bg-center bg-no-repeat min-h-[140px] rounded-xl hidden md:block w-full md:w-[200%] lg:w-[150%] h-full"
-                            style={{
-                                backgroundImage:
-                                    `url(https://www.referbiz.in/assets/Employees-511dd0dc.jpg)`,
-                            }}
-                        ></div>
-                    </div>
-                    <div className="z-10 col-span-6 py-6 md:col-span-4 lg:col-span-3">
-                        <div className="w-full h-full max-w-[29rem] mx-auto">
-                            <AuthForm />
+        <>
+            <Header />
+            <section className="bg-gradient-to-r pt-10 flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
+                <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
+                <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
+                <div className="container relative px-4 mx-auto mt-10">
+                    <div className="grid h-full grid-cols-6 gap-6">
+                        <div className="col-span-6 md:col-span-2 lg:col-span-3">
+                            <div
+                                className="bg-cover bg-center bg-no-repeat min-h-[140px] rounded-xl hidden md:block w-full md:w-[200%] lg:w-[150%] h-full"
+                                style={{
+                                    backgroundImage:
+                                        `url(https://www.referbiz.in/assets/Employees-511dd0dc.jpg)`,
+                                }}
+                            ></div>
+                        </div>
+                        <div className="z-10 col-span-6 py-6 md:col-span-4 lg:col-span-3">
+                            <div className="w-full h-full max-w-[29rem] mx-auto">
+                                <AuthForm />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </>
     );
 };
 

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { createAccount } from "../../Redux/Slices/authSlice";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import Header from "../../Components/Header";
 
 const SocialLoginButton = () => (
     <Fragment>
@@ -239,40 +240,43 @@ const SignUpForm = () => {
 
 const Register = () => {
     return (
-        <section className="bg-gradient-to-r pt-10 flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
-            <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
-            <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
-            <div className="container relative px-4 mx-auto mt-10">
-                <div className="grid h-full grid-cols-6 gap-6">
-                    <div className="col-span-6 md:col-span-2 lg:col-span-3">
-                        <div
-                            className="bg-cover bg-center bg-no-repeat min-h-[150px] rounded-md hidden md:block w-full md:w-[200%] lg:w-[150%] h-full"
-                            style={{
-                                backgroundImage:
-                                    "url(https://www.referbiz.in/assets/Employees-511dd0dc.jpg)",
-                            }}
-                        ></div>
-                    </div>
-                    <div className="col-span-6 py-6 md:col-span-4 lg:col-span-3">
-                        <div className="flex items-center justify-center w-full h-full">
-                            <div className="p-4 py-6 bg-white rounded-lg shadow-xl md:p-8">
-                                <h2 className="mb-3 text-2xl font-bold text-indigo-900 ">
-                                    Welcome to Refer Biz
-                                </h2>
-                                <div className="flex items-center mb-5">
-                                    <p className="mb-0 mr-2 opacity-50">
-                                        Already have an account?
-                                    </p>
-                                    <Link href="/login">Sign In</Link>
-                                </div>
+        <>
+            <Header />
+            <section className="bg-gradient-to-r pt-10 flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
+                <div className='absolute bg-[#082ec4] blur-3xl  rounded-full w-[30vw] h-[50vh] top-[-6rem] left-[-1rem]'></div>
+                <div className='absolute bg-[#082ec4d4] blur-3xl rounded-full w-[30vw] h-[50vh] bottom-[-6rem] right-0'></div>
+                <div className="container relative px-4 mx-auto mt-10">
+                    <div className="grid h-full grid-cols-6 gap-6">
+                        <div className="col-span-6 md:col-span-2 lg:col-span-3">
+                            <div
+                                className="bg-cover bg-center bg-no-repeat min-h-[150px] rounded-md hidden md:block w-full md:w-[200%] lg:w-[150%] h-full"
+                                style={{
+                                    backgroundImage:
+                                        "url(https://www.referbiz.in/assets/Employees-511dd0dc.jpg)",
+                                }}
+                            ></div>
+                        </div>
+                        <div className="col-span-6 py-6 md:col-span-4 lg:col-span-3">
+                            <div className="flex items-center justify-center w-full h-full">
+                                <div className="p-4 py-6 bg-white rounded-lg shadow-xl md:p-8">
+                                    <h2 className="mb-3 text-2xl font-bold text-indigo-900 ">
+                                        Welcome to Refer Biz
+                                    </h2>
+                                    <div className="flex items-center mb-5">
+                                        <p className="mb-0 mr-2 opacity-50">
+                                            Already have an account?
+                                        </p>
+                                        <Link href="/login">Sign In</Link>
+                                    </div>
 
-                                <SignUpForm />
+                                    <SignUpForm />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </>
     );
 };
 

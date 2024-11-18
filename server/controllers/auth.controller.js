@@ -396,7 +396,7 @@ const getAllCategories = async (req, res) => {
 };
 
 const getItemsByCategory = async (req, res) => {
-  const { category } = req.params;
+  const { location, category } = req.params;
 
   if (!category) {
     return res.status(400).json({ message: "Category is required" });
@@ -404,7 +404,8 @@ const getItemsByCategory = async (req, res) => {
 
   try {
     const vendors = await Vendor.find(
-      { "products.category": category },
+      { "products.category": category, nearByLocation: location },
+
       "products"
     );
 
@@ -422,7 +423,9 @@ const getItemsByCategory = async (req, res) => {
 
     const items = Array.from(itemSet);
 
-    return res.status(200).json({ category, items });
+    return res
+      .status(200)
+      .json({ success: true, message: "SubCategory list", category, items });
   } catch (error) {
     console.error(error);
     return res
@@ -453,12 +456,13 @@ const searchVendorsByCategory = async (req, res, next) => {
 };
 
 const searchVendorsBySubCategory = async (req, res, next) => {
-  const { category, item } = req.body;
+  const { location, category, item } = req.params;
 
   try {
     const vendors = await Vendor.find({
       "products.category": { $regex: new RegExp(category, "i") },
       "products.categoryList": { $regex: new RegExp(item, "i") },
+      nearByLocation: location,
     });
 
     if (!vendors.length) {

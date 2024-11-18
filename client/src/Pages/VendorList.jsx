@@ -11,27 +11,36 @@ import Header from "../Components/Header";
 import {
   getCategoryList,
   getVendorByCategory,
+  getSubCategoryList,
 } from "../Redux/Slices/vendorSlice";
 
 const VendorList = () => {
   const [searchInput, setSearchInput] = useState("");
+  const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   console.log(filteredSuggestions);
   const getLocation = useLocation();
   const vendorList = useSelector((state) => state.vendor.vendorList);
   const [vendorDataList, setVendorDataList] = useState(vendorList);
   const categoryList = useSelector((state) => state?.vendor?.categoryList);
+  const subCategoryList = useSelector(
+    (state) => state?.vendor?.subCategoryList
+  );
   const vendorListByCategories = useSelector(
     (state) => state?.vendor?.vendorListByCategories
   );
   const dispatch = useDispatch();
   console.log(categoryList);
+  console.log("sub", subCategoryList);
   const location = getLocation?.state?.location;
 
   console.log(vendorListByCategories);
   const navigate = useNavigate();
   const fetchCategoryList = async () => {
     await dispatch(getCategoryList(location));
+  };
+  const fetchSubCategoryList = async (category) => {
+    await dispatch(getSubCategoryList({ location, category }));
   };
   const fetchVendorListByCategory = async (category) => {
     const res = await dispatch(getVendorByCategory({ category, location }));
@@ -128,29 +137,53 @@ const VendorList = () => {
                 </div> */}
 
         <div className="relative w-1/2 mx-auto mt-10">
-          <input
-            type="text"
-            value={searchInput}
-            onChange={handleInputChange}
-            placeholder="Search for a category..."
-            className="w-full px-4 py-2 border rounded bg-gray-800 text-gray-200 text-black shadow focus:outline-none"
-          />
-          {filteredSuggestions.length > 0 && (
-            <ul className="absolute w-full bg-gray-800 text-gray-200 border rounded shadow mt-1 max-h-40 overflow-y-auto">
-              {filteredSuggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  onClick={() => {
-                    handleSuggestionClick(suggestion);
-                    fetchVendorListByCategory(suggestion);
-                  }}
-                  className="px-4 py-2 cursor-pointer bg-gray-800 text-gray-200 hover:bg-gray-600"
-                >
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="flex gap-2">
+            <div>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={handleInputChange}
+                placeholder="Search for a category..."
+                className="w-full px-4 py-2 border rounded bg-gray-800 text-gray-200 text-black shadow focus:outline-none"
+              />
+              {filteredSuggestions.length > 0 && (
+                <ul className="absolute w-full bg-gray-800 text-gray-200 border rounded shadow mt-1 max-h-40 overflow-y-auto">
+                  {filteredSuggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        handleSuggestionClick(suggestion);
+                        fetchVendorListByCategory(suggestion);
+                        fetchSubCategoryList(suggestion);
+                        setIsSubCategoryOpen(true);
+                      }}
+                      className="px-4 py-2 cursor-pointer bg-gray-800 text-gray-200 hover:bg-gray-600"
+                    >
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              {isSubCategoryOpen && subCategoryList.length > 0 && (
+                <ul className="absolute w-full bg-gray-800 text-gray-200 border rounded shadow mt-1 max-h-40 overflow-y-auto">
+                  {subCategoryList.map((subCategory, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        // handleSubCategoryClick(subCategory); // New function to handle sub-category selection
+                        setIsSubCategoryOpen(false); // Close dropdown after selection
+                      }}
+                      className="px-4 py-2 cursor-pointer bg-gray-800 text-gray-200 hover:bg-gray-600"
+                    >
+                      {subCategory}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="container grid grid-cols-1 gap-6 mx-auto mt-6 sm:grid-cols-2 w-fit lg:grid-cols-3">

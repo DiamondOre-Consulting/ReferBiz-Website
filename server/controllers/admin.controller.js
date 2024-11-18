@@ -1,8 +1,10 @@
 import Vendor from "../models/vendor.schema.js";
 import CustomError from "../utils/error.utils.js";
 import Admin from "../models/admin.schema.js";
+import User from "../models/user.schema.js";
 import { v4 as uuidv4 } from "uuid";
 import sendEmail from "../utils/email.utils.js";
+import vendorSchema from "../models/vendor.schema.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -377,6 +379,68 @@ const verifyOTP = async (req, res, next) => {
   }
 };
 
+const usersList = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, searchQuery = '' } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    const startIndex = (pageNum - 1) * limitNum;
+
+    const list = await User.find({
+      fullName: { $regex: searchQuery, $options: 'i' }
+    })
+      .skip(startIndex)
+      .limit(limitNum);
+
+    const totalCount = await User.countDocuments({
+      fullName: { $regex: searchQuery, $options: 'i' }
+    });
+
+    res.status(200).json({
+      status: true,
+      message: 'Users list',
+      list,
+      totalPages: Math.ceil(totalCount / limitNum),
+      currentPage: pageNum,
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
+  }
+}
+
+const vendorsList = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, searchQuery = '' } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    const startIndex = (pageNum - 1) * limitNum;
+
+    const list = await vendorSchema.find({
+      fullName: { $regex: searchQuery, $options: 'i' }
+    })
+      .skip(startIndex)
+      .limit(limitNum);
+
+    const totalCount = await vendorSchema.countDocuments({
+      fullName: { $regex: searchQuery, $options: 'i' }
+    });
+
+    res.status(200).json({
+      status: true,
+      message: 'Vendors list',
+      list,
+      totalPages: Math.ceil(totalCount / limitNum),
+      currentPage: pageNum,
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
+  }
+}
+
 export {
   vendorRegister,
   adminLogin,
@@ -387,4 +451,6 @@ export {
   changePassword,
   profile,
   logout,
+  usersList,
+  vendorsList
 };

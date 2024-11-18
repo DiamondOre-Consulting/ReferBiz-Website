@@ -15,8 +15,8 @@ import isLoggedIn from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.post("/vendor-register", isLoggedIn, vendorRegister);
-router.post("/admin-login", adminLogin);
-router.post("/admin-register", adminRegister);
+router.post("/login", adminLogin);
+router.post("/register", adminRegister);
 router.get("/logout", isLoggedIn, logout);
 router.get("/", isLoggedIn, profile);
 router.put("/update/:id", isLoggedIn, updateProfile);

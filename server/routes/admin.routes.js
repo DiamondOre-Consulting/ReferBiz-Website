@@ -8,6 +8,8 @@ import {
   changePassword,
   profile,
   logout,
+  usersList,
+  vendorsList,
 } from "../controllers/admin.controller.js";
 import express from "express";
 
@@ -23,5 +25,8 @@ router.put("/update/:id", isLoggedIn, updateProfile);
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);
+router.get('/user-list', isLoggedIn, usersList)
+router.get('/vendor-list', isLoggedIn, vendorsList)
+
 
 export default router;

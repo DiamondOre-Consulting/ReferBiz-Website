@@ -8,6 +8,7 @@ import adminRouter from "./routes/admin.routes.js";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
+import morgan from "morgan";
 
 const app = express();
 
@@ -22,6 +23,9 @@ const res = cloudinary.v2.config({
 });
 
 console.log(res);
+
+app.use(morgan('dev'))
+
 
 app.use(cookieParser());
 app.use(

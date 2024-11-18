@@ -91,7 +91,7 @@ const HomeLayout = ({ children }) => {
                         </li>
                         <div className='h-[82vh] overflow-y-scroll scrollbar scrollbar-none'>
                             <li className='mt-4'>
-                                <NavLink to={'/vendor/dashboard'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <TfiDashboard />
                                     Dashboard
                                 </NavLink>
@@ -110,28 +110,40 @@ const HomeLayout = ({ children }) => {
                             </li>
 
                             <li>
-                                <NavLink to={'/car-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/vendor-register'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <FaRegUser />
-                                    Vendor Profile
+                                    Register Vendor
                                 </NavLink>
                             </li>
 
                             <li>
-                                <NavLink to={'/users-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/category-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <IoGiftOutline />
-                                    Products list
+                                    Category list
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to={'/boatman-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/vendor-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <PiUsersThreeBold />
-                                    Customer list
+                                    Vendor list
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to={'/enquiry'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/user-list'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                    <PiUsersThreeBold />
+                                    User list
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink to={'/vendor/enquiry'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <FaPersonCircleQuestion />
-                                    Enquiry
+                                    Vendor Enquiry
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink to={'/user/enquiry'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                    <FaPersonCircleQuestion />
+                                    User Enquiry
                                 </NavLink>
                             </li>
                             <li>

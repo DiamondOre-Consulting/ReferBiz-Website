@@ -17,7 +17,7 @@ import {
 import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
 router.get("/", isLoggedIn, vendorProfile);
-router.put("/update-status/:id", updateStatus);
+router.put("/update-status/:id", isLoggedIn, updateStatus);
 router.get("/allVendors", getVendors);
 router.post("/nearby", getVendorsByLocation);
 router.post("/login", login);

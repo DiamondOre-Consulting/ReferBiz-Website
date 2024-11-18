@@ -21,6 +21,11 @@ const vendorSchema = new Schema({
     enum: ["USER", "ADMIN", "VENDOR"],
     default: "VENDOR",
   },
+  status: {
+    type: String,
+    enum: ["OPEN", "CLOSE", "BLOCKED"],
+    default: "OPEN",
+  },
   vendorPassword: {
     type: String,
     required: [true, "Password is required"],

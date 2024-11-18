@@ -370,8 +370,9 @@ const verifyOTP = async (req, res, next) => {
   }
 };
 const getAllCategories = async (req, res) => {
+  const { location } = req.params;
   try {
-    const vendors = await Vendor.find({}, "products");
+    const vendors = await Vendor.find({ nearByLocation: location }, "products");
 
     const categorySet = new Set();
 
@@ -383,7 +384,9 @@ const getAllCategories = async (req, res) => {
 
     const categories = Array.from(categorySet);
 
-    return res.status(200).json({ categories });
+    return res
+      .status(200)
+      .json({ success: true, message: "Categories list", categories });
   } catch (error) {
     console.error(error);
     return res
@@ -429,18 +432,21 @@ const getItemsByCategory = async (req, res) => {
 };
 
 const searchVendorsByCategory = async (req, res, next) => {
-  const { category } = req.body;
+  const { category, location } = req.params;
 
   try {
     const vendors = await Vendor.find({
       "products.category": { $regex: new RegExp(category, "i") },
+      nearByLocation: location,
     });
 
     if (!vendors.length) {
       return next(new CustomError("No vendors found for this category", 404));
     }
 
-    res.status(200).json(vendors);
+    res
+      .status(200)
+      .json({ success: true, message: "Categories list", vendors });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

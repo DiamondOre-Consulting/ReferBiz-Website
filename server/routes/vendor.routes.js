@@ -12,11 +12,12 @@ import {
   vendorProfile,
   addProduct,
   deleteProduct,
+  updateStatus,
 } from "../controllers/vendor.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
 router.get("/", isLoggedIn, vendorProfile);
-
+router.put("/update-status/:id", updateStatus);
 router.get("/allVendors", getVendors);
 router.post("/nearby", getVendorsByLocation);
 router.post("/login", login);

@@ -1,17 +1,77 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaRegEye, FaUser } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GiBiceps, GiTakeMyMoney } from "react-icons/gi";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { MdCurrencyRupee } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import Header from "../Components/Header";
+import {
+  getCategoryList,
+  getVendorByCategory,
+} from "../Redux/Slices/vendorSlice";
 
 const VendorList = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  console.log(filteredSuggestions);
+  const getLocation = useLocation();
   const vendorList = useSelector((state) => state.vendor.vendorList);
+  const [vendorDataList, setVendorDataList] = useState(vendorList);
+  const categoryList = useSelector((state) => state?.vendor?.categoryList);
+  const vendorListByCategories = useSelector(
+    (state) => state?.vendor?.vendorListByCategories
+  );
+  const dispatch = useDispatch();
+  console.log(categoryList);
+  const location = getLocation?.state?.location;
 
-  console.log(vendorList);
+  console.log(vendorListByCategories);
   const navigate = useNavigate();
+  const fetchCategoryList = async () => {
+    await dispatch(getCategoryList(location));
+  };
+  const fetchVendorListByCategory = async (category) => {
+    const res = await dispatch(getVendorByCategory({ category, location }));
+
+    if (res?.payload?.success) setVendorDataList(res?.payload?.vendors);
+  };
+
+  console.log("fil", filteredSuggestions);
+
+  useEffect(() => {
+    fetchCategoryList();
+    if (!getLocation?.state?.location) {
+      navigate("/");
+    }
+  }, []);
+
+  const filterSuggestions = useCallback(
+    debounce((searchInput) => {
+      if (searchInput.trim()) {
+        const filtered = categoryList?.filter((category) =>
+          category?.toLowerCase()?.includes(searchInput.toLowerCase())
+        );
+        setFilteredSuggestions(filtered);
+      } else {
+        setFilteredSuggestions([]);
+      }
+    }, 10) // Adjust the debounce delay as needed
+  );
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    filterSuggestions(value); // Use debounced function
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchInput(suggestion);
+    setFilteredSuggestions([]);
+  };
 
   const TeamvendorItem = ({ vendor }) => (
     <div
@@ -67,8 +127,34 @@ const VendorList = () => {
                     </div>
                 </div> */}
 
+        <div className="relative w-1/2 mx-auto mt-10">
+          <input
+            type="text"
+            value={searchInput}
+            onChange={handleInputChange}
+            placeholder="Search for a category..."
+            className="w-full px-4 py-2 border rounded bg-gray-800 text-gray-200 text-black shadow focus:outline-none"
+          />
+          {filteredSuggestions.length > 0 && (
+            <ul className="absolute w-full bg-gray-800 text-gray-200 border rounded shadow mt-1 max-h-40 overflow-y-auto">
+              {filteredSuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  onClick={() => {
+                    handleSuggestionClick(suggestion);
+                    fetchVendorListByCategory(suggestion);
+                  }}
+                  className="px-4 py-2 cursor-pointer bg-gray-800 text-gray-200 hover:bg-gray-600"
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <div className="container grid grid-cols-1 gap-6 mx-auto mt-6 sm:grid-cols-2 w-fit lg:grid-cols-3">
-          {vendorList?.map((vendor, i) => (
+          {vendorDataList?.map((vendor, i) => (
             <TeamvendorItem key={i} vendor={vendor} />
           ))}
         </div>

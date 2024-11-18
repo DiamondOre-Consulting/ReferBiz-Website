@@ -46,6 +46,7 @@ const login = async (req, res, next) => {
     return next(new CustomError(err.message, 500));
   }
 };
+
 const logout = async (req, res, next) => {
   const token = "";
   const cookiesOption = {
@@ -62,6 +63,7 @@ const logout = async (req, res, next) => {
     return res.status(500).json({ success: false, message: e.message });
   }
 };
+
 const getVendorsByCategories = async (req, res, next) => {
   const { categories } = req.body;
 
@@ -95,6 +97,7 @@ const getVendorsByCategories = async (req, res, next) => {
     });
   }
 };
+
 const getVendors = async (req, res) => {
   try {
     const vendors = await Vendor.find().select("-vendorPassword");
@@ -112,6 +115,7 @@ const getVendors = async (req, res) => {
     });
   }
 };
+
 const getVendorsByLocation = async (req, res, next) => {
   try {
     let { nearByLocation } = req.body;
@@ -141,6 +145,7 @@ const getVendorsByLocation = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
 const vendorProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -249,6 +254,31 @@ const updateProfile = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Vendor Detail updated successfully",
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
+  }
+};
+const updateStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    const user = await Vendor.findById(id);
+
+    if (!user) {
+      return next(new CustomError("User does not exist", 400));
+    }
+
+    if (status) {
+      user.status = await status;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Vendor Status updated successfully",
     });
   } catch (e) {
     return next(new CustomError(e.message, 500));
@@ -503,4 +533,5 @@ export {
   verifyOTP,
   addProduct,
   deleteProduct,
+  updateStatus,
 };

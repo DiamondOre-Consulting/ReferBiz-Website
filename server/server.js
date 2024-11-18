@@ -8,6 +8,7 @@ import adminRouter from "./routes/admin.routes.js";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
+import Vendor from "./models/vendor.schema.js";
 
 const app = express();
 

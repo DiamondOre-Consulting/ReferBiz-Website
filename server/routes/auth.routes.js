@@ -29,13 +29,16 @@ router.put(
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);
-router.post("/search-vendor-catagory", isLoggedIn, searchVendorsByCategory);
+router.get(
+  "/search-vendor-category/:location/:category",
+  searchVendorsByCategory
+);
 router.post(
-  "/search-vendor-subcatagory",
+  "/search-vendor-subcategory",
   isLoggedIn,
   searchVendorsBySubCategory
 );
-router.get("/get-allCatagories", isLoggedIn, getAllCategories);
-router.get("/get-subCatagory/:catagory", isLoggedIn, getItemsByCategory);
+router.get("/get-allCategories/:location", getAllCategories);
+router.get("/get-subCategory/:category", getItemsByCategory);
 
 export default router;

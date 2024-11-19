@@ -14,6 +14,7 @@ import {
 import express from "express";
 
 import isLoggedIn from "../middlewares/auth.middleware.js";
+import { addCategory, deleteCategory, getAllCategory, updateCategory } from "../controllers/category.controller.js";
 const router = express.Router();
 
 router.post("/vendor-register", isLoggedIn, vendorRegister);
@@ -27,6 +28,10 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);
 router.get('/user-list', isLoggedIn, usersList)
 router.get('/vendor-list', isLoggedIn, vendorsList)
+router.get('/category-list', isLoggedIn, getAllCategory)
+router.post('/add-category', isLoggedIn, addCategory)
+router.delete('/delete-category/:id', isLoggedIn, deleteCategory)
+router.put('/update-category', isLoggedIn, updateCategory)
 
 
 export default router;

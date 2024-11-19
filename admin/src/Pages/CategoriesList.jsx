@@ -6,17 +6,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaEye } from 'react-icons/fa';
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { useNavigate } from 'react-router-dom';
-import { getUsersList } from '../Redux/Slices/listSlice';
+import { addCategory, deleteCategory, getCategoriesList, getUsersList } from '../Redux/Slices/listSlice';
 import HomeLayout from '../Layout/HomeLayout';
 import { toast } from 'sonner';
+import { MdDelete } from 'react-icons/md';
 
-const UsersList = () => {
+const CategoriesList = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const list = useSelector((state) => state?.list?.userList);
+    const list = useSelector((state) => state?.list?.categoriesList);
 
-    console.log(list)
 
+
+    const [addCategoryActive, setAddCategoryActive] = useState(false)
     const [statusUpdated, setStatusUpdated] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -24,6 +26,7 @@ const UsersList = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const [totalPages, setTotalPages] = useState(1);
+    const [categoryInput, setCategoryInput] = useState('')
 
     const loadData = async (page = 1) => {
         setLoading(true);
@@ -34,7 +37,7 @@ const UsersList = () => {
                 searchQuery,
                 statusFilter
             };
-            const response = await dispatch(getUsersList(params)).unwrap();
+            const response = await dispatch(getCategoriesList(params)).unwrap();
             setTotalPages(response.totalPages);
         } catch (error) {
             console.error(error);
@@ -77,8 +80,38 @@ const UsersList = () => {
         }
     };
 
+    const handleAddCategory = async (e) => {
+        e.preventDefault()
+
+        if (!categoryInput) {
+            toast.error("Category is required!")
+        }
+
+
+        const res = await dispatch(addCategory({ categoryName: categoryInput }))
+
+        if (res?.payload?.success) {
+            setAddCategoryActive(false)
+        }
+    }
+
+    const handleDelete = async (id) => {
+        const res = await dispatch(deleteCategory(id))
+
+        if (res?.payload?.success) {
+            toast.success("Category deleted successfully")
+        }
+    }
+
     return (
         <HomeLayout>
+            {addCategoryActive && <div>
+                <form action="" onSubmit={handleAddCategory}>
+                    <input type="text" onChange={(e) => setCategoryInput(e.target.value)} value={categoryInput} />
+                    <button type='submit'>Add</button>
+                </form>
+            </div>}
+            <button onClick={() => setAddCategoryActive(true)}>Add Category +</button>
             <div className='flex flex-col lg:flex-row border border-[#323A49] items-center justify-between gap-4 p-3 mt-4 bg-[#212631] rounded '>
                 <input
                     type="text"
@@ -107,13 +140,11 @@ const UsersList = () => {
                     <div className='flex items-center relative justify-between w-full gap-3 bg-[#323A49] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
                         <p className='min-w-[3rem] text-center'>S.no</p>
                         <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
-                            <p>Name</p>
+                            <p>Category Name</p>
                         </div>
-                        <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
+                        {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
                             <p>Email</p>
-                        </div>
-                        <p className='min-w-[7.5rem]  text-center'>Phone number</p>
-                        <p className='min-w-[6.8rem] text-center'>Status</p>
+                        </div> */}
                         <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#323A49] text-center'>Action</p>
                     </div>
                     {loading ? (
@@ -123,15 +154,11 @@ const UsersList = () => {
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p><Skeleton /></p>
                                 </div>
-                                <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
+                                {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
                                     <p><Skeleton /></p>
-                                </div>
-                                <div className='flex items-center gap-2 min-w-[6.8rem]'>
-                                    <Skeleton width={70} />
-                                </div>
-                                <div className='flex items-center gap-2 min-w-[6.8rem]'>
-                                    <Skeleton width={70} />
-                                </div>
+                                </div> */}
+
+
                                 <div className='min-w-[3.3rem] flex items-center justify-center'>
                                     <Skeleton width={24} height={24} />
                                 </div>
@@ -142,55 +169,18 @@ const UsersList = () => {
                             <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#323A49] justify-between w-full gap-3 px-3 py-3 text-white bg-[#212631]'>
                                 <p className='min-w-[3rem] text-center'>{(currentPage - 1) * itemsPerPage + index + 1}.</p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
-                                    <p>{data?.fullName}</p>
+                                    <p>{data?.categoryName}</p>
                                 </div>
-                                <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
+                                {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
                                     <p>{data?.userEmail}</p>
-                                </div>
-                                <div className='min-w-[7rem]  truncate line-clamp-1'>
-                                    <p>{data?.phoneNumber}</p>
-                                </div>
-                                <div className='flex items-center gap-2 min-w-[6.8rem]'>
-                                    <div className='flex items-center gap-2'>
-                                        <label htmlFor={`statusAccepted${index}`} className='font-semibold text-green-600'>O:</label>
-                                        <input
-                                            id={`statusAccepted${index}`}
-                                            type='radio'
-                                            name={`status${index}`}
-                                            checked={data?.status === 'OPEN'}
-                                            onChange={() => handleStatusChange(data?._id, 'OPEN')}
-                                            value='OPEN'
-                                            className='size-[15px] accent-green-500'
-                                        />
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <label htmlFor={`statusAccepted${index}`} className='font-semibold text-yellow-500'>C:</label>
-                                        <input
-                                            id={`statusAccepted${index}`}
-                                            type='radio'
-                                            name={`status${index}`}
-                                            checked={data?.status === 'CLOSE'}
-                                            onChange={() => handleStatusChange(data?._id, 'CLOSE')}
-                                            value='OPEN'
-                                            className='size-[15px] accent-yellow-500'
-                                        />
-                                    </div>
-                                    <div className='flex items-center gap-2'>
-                                        <label htmlFor={`statusRejected${index}`} className='font-semibold text-red-500'>B:</label>
-                                        <input
-                                            id={`statusRejected${index}`}
-                                            type='radio'
-                                            name={`status${index}`}
-                                            checked={data?.status === 'BLOCK'}
-                                            onChange={() => handleStatusChange(data?._id, 'BLOCK')}
-                                            value='BLOCK'
-                                            className='size-[15px] accent-red-500'
-                                        />
-                                    </div>
-                                </div>
-                                <div onClick={() => navigate(`/driver/${data?._id}`, { state: data?._id })} className='min-w-[3.3rem] sticky px-5 right-0 bg-[#212631] flex items-center justify-center'>
+                                </div> */}
 
-                                    <FaEye className='text-[1.45rem] cursor-pointer' />
+
+                                <div className='min-w-[3.3rem] sticky px-5 right-0 bg-[#212631] flex gap-2 items-center justify-center'>
+                                    <div onClick={() => handleDelete(data?._id)} className='bg-[#D04848] p-1 rounded cursor-pointer'>
+                                        <MdDelete className='text-[1.5rem]' />
+                                    </div>
+                                    <FaEye onClick={() => navigate(`/driver/${data?._id}`, { state: data?._id })} className='text-[1.45rem] cursor-pointer' />
                                 </div>
                             </div>
                         ))
@@ -215,4 +205,4 @@ const UsersList = () => {
     );
 };
 
-export default UsersList;
+export default CategoriesList;

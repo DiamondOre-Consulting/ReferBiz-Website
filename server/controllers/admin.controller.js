@@ -41,7 +41,7 @@ const vendorRegister = async (req, res, next) => {
       return next(new CustomError("Email is already registered", 400));
     }
 
-    console.log(1);
+    ;
 
     const user = await Vendor.create({
       fullName,
@@ -56,7 +56,7 @@ const vendorRegister = async (req, res, next) => {
     if (!user) {
       return next(new CustomError("Registration Failed!", 400));
     }
-    console.log(3);
+    ;
 
     const token = await user.generateJWTToken();
     res.cookie("token", token, cookieOption);
@@ -85,7 +85,7 @@ const adminRegister = async (req, res, next) => {
       return next(new CustomError("Email is already registered", 400));
     }
 
-    console.log(fullName, adminEmail, adminPassword);
+    ;
 
     const user = await Admin.create({
       fullName,
@@ -96,10 +96,10 @@ const adminRegister = async (req, res, next) => {
     if (!user) {
       return next(new CustomError("Registration Failed!", 400));
     }
-    console.log("chek2");
+    ;
 
     const token = await user.generateJWTToken();
-    console.log(token);
+    ;
     res.cookie("token", token, cookieOption);
     await user.save();
     user.adminPassword = undefined;
@@ -121,7 +121,7 @@ const adminLogin = async (req, res, next) => {
       return next(new CustomError("Email and Password is required", 400));
     }
 
-    console.log(adminPassword);
+    ;
 
     const user = await Admin.findOne({
       adminEmail,
@@ -170,7 +170,7 @@ const profile = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await Admin.findById(userId);
-    console.log(user);
+    ;
     res.status(200).json({
       success: true,
       message: "",
@@ -355,8 +355,8 @@ const verifyOTP = async (req, res, next) => {
       return next(new CustomError("Email is not registered", 400));
     }
 
-    console.log(otp);
-    console.log(user.otp);
+    ;
+    ;
 
     if (user.otp == otp) {
       if (Date.now() < user.otpExpiry) {

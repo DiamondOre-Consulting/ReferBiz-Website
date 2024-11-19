@@ -25,9 +25,9 @@ const register = async (req, res, next) => {
     let namePart = fullName.substring(0, 3).toUpperCase();
     let uuidPart = uuidv4().replace(/-/g, "").substring(0, 4);
     const customUID = `${namePart}${uuidPart}`;
-    console.log(customUID);
+    ;
 
-    console.log(1);
+    ;
     if (referralCode) {
       const referedUser = await User.findOne({ referralCode });
       if (referedUser) {
@@ -36,14 +36,14 @@ const register = async (req, res, next) => {
         return next(new CustomError("Your referal code is invalid", 400));
       }
     }
-    console.log(2);
+    ;
 
     const uniqueEmail = await User.findOne({ userEmail });
     if (uniqueEmail) {
       return next(new CustomError("Email is already registered", 400));
     }
 
-    console.log(1);
+    ;
 
     const user = await User.create({
       fullName,
@@ -61,7 +61,7 @@ const register = async (req, res, next) => {
     if (!user) {
       return next(new CustomError("Registration Failed!", 400));
     }
-    console.log(3);
+    ;
 
     const token = await user.generateJWTToken();
     res.cookie("token", token, cookieOption);
@@ -85,7 +85,7 @@ const login = async (req, res, next) => {
       return next(new CustomError("Email and Password is required", 400));
     }
 
-    console.log(userPassword);
+    ;
 
     const user = await User.findOne({
       userEmail,
@@ -134,7 +134,7 @@ const profile = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await User.findById(userId);
-    console.log(user);
+    ;
     res.status(200).json({
       success: true,
       message: "",
@@ -203,9 +203,9 @@ const updateProfile = async (req, res, next) => {
       if (user.userImage.publicId) {
         await cloudinary.v2.uploader.destroy(user.userImage.publicId);
       }
-      console.log("to ");
+      ;
       try {
-        console.log(req.file.path);
+        ;
 
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
           folder: "Referbiz",
@@ -346,8 +346,8 @@ const verifyOTP = async (req, res, next) => {
       return next(new CustomError("Email is not registered", 400));
     }
 
-    console.log(otp);
-    console.log(user.otp);
+    ;
+    ;
 
     if (user.otp == otp) {
       if (Date.now() < user.otpExpiry) {
@@ -369,9 +369,11 @@ const verifyOTP = async (req, res, next) => {
     return next(new CustomError(e.message, 500));
   }
 };
+
 const getAllCategories = async (req, res) => {
   const { location } = req.params;
   try {
+
     const vendors = await Vendor.find({ nearByLocation: location }, "products");
 
     const categorySet = new Set();

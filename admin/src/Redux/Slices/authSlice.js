@@ -26,7 +26,7 @@ export const createAccount = createAsyncThunk('/admin/register', async (data) =>
 
 export const loginAccount = createAsyncThunk('/admin/login', async (data) => {
     try {
-        let res = axiosInstance.post('/login', data);
+        let res = axiosInstance.post('admin/login', data);
 
         res = await res;
         toast.success(res.data.message)
@@ -41,7 +41,7 @@ export const loginAccount = createAsyncThunk('/admin/login', async (data) => {
 
 export const logout = createAsyncThunk('/admin/logout', async () => {
     try {
-        let res = axiosInstance.get('/logout');
+        let res = axiosInstance.get('admin/logout');
 
         res = await res;
         return res.data;
@@ -53,7 +53,7 @@ export const logout = createAsyncThunk('/admin/logout', async () => {
 
 export const userProfile = createAsyncThunk('/admin/details', async () => {
     try {
-        const res = axiosInstance.get("/");
+        const res = axiosInstance.get("admin/");
         return (await res).data;
     } catch (e) {
         toast.error(e?.message);
@@ -63,7 +63,7 @@ export const userProfile = createAsyncThunk('/admin/details', async () => {
 
 export const editProfile = createAsyncThunk('admin/update-profile', async (data) => {
     try {
-        let res = axiosInstance.put(`/update/${data[0]}`, data[1]);
+        let res = axiosInstance.put(`admin/update/${data[0]}`, data[1]);
         // toast.promise(res, {
         //     loading: "Updating Profile!",
         //     success: (data) => data?.data.message,
@@ -78,7 +78,7 @@ export const editProfile = createAsyncThunk('admin/update-profile', async (data)
 
 export const changePassword = createAsyncThunk('admin/update-password', async (data) => {
     try {
-        let res = axiosInstance.post('/change-password', data);
+        let res = axiosInstance.post('admin/change-password', data);
         res = await res;
         toast.success(res?.data.message);
         return res.data;
@@ -89,7 +89,7 @@ export const changePassword = createAsyncThunk('admin/update-password', async (d
 
 export const forgotPassword = createAsyncThunk('admin/forgot-password', async (data) => {
     try {
-        let res = axiosInstance.post('/forgot-password', data);
+        let res = axiosInstance.post('/admin/forgot-password', data);
         res = await res;
         toast.success(res?.data.message);
         return res.data;
@@ -100,7 +100,7 @@ export const forgotPassword = createAsyncThunk('admin/forgot-password', async (d
 
 export const resetPassword = createAsyncThunk('admin/forgot-password', async (data) => {
     try {
-        let res = axiosInstance.post('/reset-password', data);
+        let res = axiosInstance.post('/admin/reset-password', data);
         res = await res;
         toast.success(res?.data.message);
         return res.data;

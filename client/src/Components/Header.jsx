@@ -1,51 +1,51 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaFacebookSquare, FaInstagramSquare, FaUser, FaWhatsappSquare } from 'react-icons/fa';
-import { FaSquarePhone, FaSquareXTwitter } from 'react-icons/fa6';
-import { useDispatch, useSelector } from 'react-redux';
-import { FiLogOut } from "react-icons/fi";
-import { logout } from '../Redux/Slices/authSlice';
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FaFacebookSquare, FaInstagramSquare, FaUser, FaWhatsappSquare } from 'react-icons/fa'
+import { FaSquarePhone, FaSquareXTwitter } from 'react-icons/fa6'
+import { useDispatch, useSelector } from 'react-redux'
+import { FiLogOut } from "react-icons/fi"
+import { logout } from '../Redux/Slices/authSlice'
 
 const Header = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false)
     const dispatch = useDispatch()
-    const menuRef = useRef();
-    const location = useLocation();
+    const menuRef = useRef()
+    const location = useLocation()
     const navigate = useNavigate()
 
     const toggleMenu = (event) => {
-        event.stopPropagation();
-        setIsOpen((prev) => !prev);
-    };
+        event.stopPropagation()
+        setIsOpen((prev) => !prev)
+    }
 
     useEffect(() => {
         const handleOutsideClick = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setIsOpen(false);
+                setIsOpen(false)
             }
-        };
+        }
 
         if (isOpen) {
-            window.addEventListener('click', handleOutsideClick);
+            window.addEventListener('click', handleOutsideClick)
         } else {
-            window.removeEventListener('click', handleOutsideClick);
+            window.removeEventListener('click', handleOutsideClick)
         }
 
         return () => {
-            window.removeEventListener('click', handleOutsideClick);
-        };
-    }, [isOpen]);
+            window.removeEventListener('click', handleOutsideClick)
+        }
+    }, [isOpen])
 
     const closeMenu = () => {
-        setIsOpen(false);
-    };
+        setIsOpen(false)
+    }
 
-    const isActive = (path) => location.pathname === path;
+    const isActive = (path) => location.pathname === path
 
     const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn)
     const userData = useSelector((state) => state?.auth?.data)
 
-    console.log(isLoggedIn)
+
 
     const handleLogout = async () => {
         const response = await dispatch(logout())
@@ -201,7 +201,7 @@ const Header = () => {
                 </div>
             </div >
         </>
-    );
-};
+    )
+}
 
-export default Header;
+export default Header

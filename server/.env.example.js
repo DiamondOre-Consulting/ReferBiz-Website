@@ -1,5 +1,5 @@
-MONGO_URI = "Your url link";
-FRONTEND_URL = "http://localhost:<port>";
+MONGO_URI = "Your url link"
+FRONTEND_URL = "http://localhost:<port>"
 
 
 

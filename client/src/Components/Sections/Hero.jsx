@@ -1,35 +1,35 @@
-import React, { useState } from "react";
-import { MdOutlineSearch } from "react-icons/md";
-import { useDispatch } from "react-redux";
-import { getVendorListByLocation } from "../../Redux/Slices/vendorSlice";
-import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import React, { useState } from "react"
+import { MdOutlineSearch } from "react-icons/md"
+import { useDispatch } from "react-redux"
+import { getVendorListByLocation } from "../../Redux/Slices/vendorSlice"
+import { useLocation, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 const Hero = () => {
-  const location = useLocation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [locationValue, setLocationValue] = useState("");
+  const location = useLocation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [locationValue, setLocationValue] = useState("")
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!locationValue) {
-      return toast.error("Please enter location!");
+      return toast.error("Please enter location!")
     }
 
     const res = await dispatch(
       getVendorListByLocation({ nearByLocation: locationValue })
-    );
+    )
 
     if (res.payload.success) {
       navigate("/vendor-list", {
         state: {
           location: locationValue,
         },
-      });
+      })
     }
-  };
+  }
 
   return (
     <div className="bg-gradient-to-r flex relative overflow-hidden items-center justify-center from-[#281996] via-[#140A64] to-[#281996] font-poppins min-h-[100vh]">
@@ -83,7 +83,7 @@ const Hero = () => {
 
       {/* <BlogPage /> */}
     </div>
-  );
-};
+  )
+}
 
-export default Hero;
+export default Hero

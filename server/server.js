@@ -1,32 +1,32 @@
-import express from "express";
-import mongoose from "mongoose";
-import { config } from "dotenv";
-import cookieParser from "cookie-parser";
-import vendorRouter from "./routes/vendor.routes.js";
-import authRouter from "./routes/auth.routes.js";
-import adminRouter from "./routes/admin.routes.js";
-import cors from "cors";
-import errorMiddleware from "./middlewares/error.middleware.js";
-import cloudinary from "cloudinary";
-import morgan from "morgan";
+import express from "express"
+import mongoose from "mongoose"
+import { config } from "dotenv"
+import cookieParser from "cookie-parser"
+import vendorRouter from "./routes/vendor.routes.js"
+import authRouter from "./routes/auth.routes.js"
+import adminRouter from "./routes/admin.routes.js"
+import cors from "cors"
+import errorMiddleware from "./middlewares/error.middleware.js"
+import cloudinary from "cloudinary"
+import morgan from "morgan"
 
-const app = express();
+const app = express()
 
-app.use(express.urlencoded({ extended: true }));
-const PORT = process.env.PORT || 5000;
-config();
+app.use(express.urlencoded({ extended: true }))
+const PORT = process.env.PORT || 5000
+config()
 
 const res = cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+})
 
-console.log(res);
 
-app.use(morgan("dev"));
 
-app.use(cookieParser());
+app.use(morgan("dev"))
+
+app.use(cookieParser())
 app.use(
   cors({
     origin: [
@@ -36,33 +36,33 @@ app.use(
     ],
     credentials: true,
   })
-);
+)
 
-app.use(express.json());
+app.use(express.json())
 
-mongoose.set("strictQuery", false);
+mongoose.set("strictQuery", false)
 const connectDB = async () => {
   try {
-    const { connection } = await mongoose.connect(process.env.MONGO_URI);
+    const { connection } = await mongoose.connect(process.env.MONGO_URI)
 
     if (connection) {
-      console.log(`Database is connection to ${connection.host}`);
+      console.log(connection.host)
     }
   } catch (err) {
-    console.log(err);
-    process.exit(1);
+    console.log(err, "error")
+    process.exit(1)
   }
-};
+}
 
-connectDB();
+connectDB()
 
-app.use("/api/vendor", vendorRouter);
-app.use("/api/user", authRouter);
-app.use("/api/admin", adminRouter);
+app.use("/api/vendor", vendorRouter)
+app.use("/api/user", authRouter)
+app.use("/api/admin", adminRouter)
 app.get("/", (req, res) => {
-  res.send("API is running");
-});
-app.use(errorMiddleware);
+  res.send("API is running")
+})
+app.use(errorMiddleware)
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  console.log("App is running at :", PORT)
+})

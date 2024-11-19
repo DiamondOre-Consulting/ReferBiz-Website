@@ -1,14 +1,14 @@
-import React, { useState, Fragment } from "react";
-import { FaGoogle } from "react-icons/fa6";
-import { IoLogoFacebook } from "react-icons/io5";
+import React, { useState, Fragment } from "react"
+import { FaGoogle } from "react-icons/fa6"
+import { IoLogoFacebook } from "react-icons/io5"
 import signInGIF from '../../assets/illustrations/signIn.gif'
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { forgotPassword, loginAccount, resetPassword } from "../../Redux/Slices/authSlice";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { useDispatch } from "react-redux"
+import { forgotPassword, loginAccount, resetPassword } from "../../Redux/Slices/authSlice"
+import { VscEye, VscEyeClosed } from "react-icons/vsc"
 import OTPInput from 'react-otp-input'
-import Header from "../../Components/Header";
+import Header from "../../Components/Header"
 
 
 const SocialLoginButton = () => (
@@ -21,12 +21,12 @@ const SocialLoginButton = () => (
         </button>
         <Link to={"/vendor/login"} className="bg-[#EA991A] p-2 px-3 text-white rounded">Login as Vendor</Link>
     </div>
-);
+)
 
 const AuthForm = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [otpValues, setOtpValues] = useState();
+    const [otpValues, setOtpValues] = useState()
     const [resetActive, setResetActive] = useState(false)
     const [otpActive, setOTPActive] = useState(false)
     const [loaderActive, setLoaderActive] = useState(false)
@@ -77,7 +77,7 @@ const AuthForm = () => {
 
         if (response?.payload?.success) {
             setLoaderActive(false)
-            navigate("/");
+            navigate("/")
             setLoginData({
                 userEmail: "",
                 userPassword: "",
@@ -315,8 +315,8 @@ const AuthForm = () => {
                     </form>
                 </div>}
         </>
-    );
-};
+    )
+}
 
 const Login = () => {
     const [resetActive, setResetActive] = useState(false)
@@ -349,7 +349,7 @@ const Login = () => {
                 </div>
             </section>
         </>
-    );
-};
+    )
+}
 
 export default Login

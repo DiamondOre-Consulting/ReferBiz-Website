@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import mongoose from "mongoose"
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
 const vendorSchema = new Schema({
   businessName: {
@@ -106,7 +106,7 @@ const vendorSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-});
+})
 
 vendorSchema.methods = {
   generateJWTToken: async function () {
@@ -120,11 +120,11 @@ vendorSchema.methods = {
       {
         expiresIn: process.env.JWT_EXPIRY,
       }
-    );
+    )
   },
   comparePassword: async function (plainPassword) {
-    return await bcrypt.compare(plainPassword, this.vendorPassword);
+    return await bcrypt.compare(plainPassword, this.vendorPassword)
   },
-};
+}
 
-export default mongoose.model("Vendor", vendorSchema);
+export default mongoose.model("Vendor", vendorSchema)

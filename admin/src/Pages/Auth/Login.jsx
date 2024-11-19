@@ -1,9 +1,9 @@
-import React, { useState, Fragment } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { forgotPassword, loginAccount, resetPassword } from "../../Redux/Slices/authSlice";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import React, { useState, Fragment } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { useDispatch } from "react-redux"
+import { forgotPassword, loginAccount, resetPassword } from "../../Redux/Slices/authSlice"
+import { VscEye, VscEyeClosed } from "react-icons/vsc"
 import OTPInput from 'react-otp-input'
 
 
@@ -14,7 +14,7 @@ const SignInForm = () => {
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [otpValues, setOtpValues] = useState();
+    const [otpValues, setOtpValues] = useState()
     const [resetActive, setResetActive] = useState(false)
     const [otpActive, setOTPActive] = useState(false)
     const [loaderActive, setLoaderActive] = useState(false)
@@ -65,7 +65,7 @@ const SignInForm = () => {
 
         if (response?.payload?.success) {
             setLoaderActive(false)
-            navigate("/");
+            navigate("/")
             setLoginData({
                 adminEmail: "",
                 adminPassword: "",
@@ -282,8 +282,8 @@ const SignInForm = () => {
                 </div>}
         </>
 
-    );
-};
+    )
+}
 
 const Login = () => {
     return (
@@ -294,7 +294,7 @@ const Login = () => {
                 </div>
             </div>
         </section>
-    );
-};
+    )
+}
 
 export default Login

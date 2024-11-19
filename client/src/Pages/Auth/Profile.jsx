@@ -1,38 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { FaBars, FaClipboardList, FaDownload, FaSignOutAlt, FaCamera, FaCheckCircle } from 'react-icons/fa';
-import { FaCalendarCheck, FaHourglassHalf, FaLock } from 'react-icons/fa6';
-import { changePassword, editProfile, logout, userProfile } from '../../Redux/Slices/authSlice';
-import { VscEye, VscEyeClosed } from 'react-icons/vsc';
-import { MdContentCopy } from "react-icons/md";
-import { FiCopy } from 'react-icons/fi';
-import Header from '../../Components/Header';
+import { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import { FaBars, FaClipboardList, FaDownload, FaSignOutAlt, FaCamera, FaCheckCircle } from 'react-icons/fa'
+import { FaCalendarCheck, FaHourglassHalf, FaLock } from 'react-icons/fa6'
+import { changePassword, editProfile, logout, userProfile } from '../../Redux/Slices/authSlice'
+import { VscEye, VscEyeClosed } from 'react-icons/vsc'
+import { MdContentCopy } from "react-icons/md"
+import { FiCopy } from 'react-icons/fi'
+import Header from '../../Components/Header'
 
 const Profile = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [eye, setEye] = useState(true);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const [image, setImage] = useState('');
-    const [isUpdated, setIsUpdated] = useState(false);
-    const data = useSelector((state) => state?.auth?.data);
-    const [loaderActive, setLoaderActive] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [eye, setEye] = useState(true)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [image, setImage] = useState('')
+    const [isUpdated, setIsUpdated] = useState(false)
+    const data = useSelector((state) => state?.auth?.data)
+    const [loaderActive, setLoaderActive] = useState(false)
     const [sideActive, setSideActive] = useState(1)
-    const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState(false)
 
     const [passwordCardActive, setPasswordCardActive] = useState(false)
 
 
 
     const handleLogout = async () => {
-        const res = await dispatch(logout());
+        const res = await dispatch(logout())
         if (res?.payload?.success) {
-            navigate('/');
-            toast.success("Logged out!");
+            navigate('/')
+            toast.success("Logged out!")
         }
-    };
+    }
 
     const [profileData, setProfileData] = useState({
         userName: data?.fullName || "",
@@ -41,130 +41,130 @@ const Profile = () => {
         userImage: "",
         phoneNumber: data?.phoneNumber || "",
         referralCode: data?.referralCode || ""
-    });
+    })
 
 
     useEffect(() => {
-        const hasChanged = profileData.userName !== data?.userName || profileData.fullName !== data?.fullName || profileData.userImage !== '' || profileData.phoneNumber !== data?.phoneNumber;
-        setIsUpdated(hasChanged);
-    }, [profileData, data]);
+        const hasChanged = profileData.userName !== data?.userName || profileData.fullName !== data?.fullName || profileData.userImage !== '' || profileData.phoneNumber !== data?.phoneNumber
+        setIsUpdated(hasChanged)
+    }, [profileData, data])
 
     const imgUpload = (e) => {
-        e.preventDefault();
-        const uploadedImg = e.target.files[0];
+        e.preventDefault()
+        const uploadedImg = e.target.files[0]
         if (uploadedImg) {
-            setProfileData({ ...profileData, userImage: uploadedImg });
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(uploadedImg);
+            setProfileData({ ...profileData, userImage: uploadedImg })
+            const fileReader = new FileReader()
+            fileReader.readAsDataURL(uploadedImg)
             fileReader.addEventListener('load', function () {
-                setImage(this.result);
-            });
+                setImage(this.result)
+            })
         }
-    };
+    }
 
     const handleInput = (e) => {
-        const { name, value } = e.target;
-        setProfileData({ ...profileData, [name]: value });
-    };
+        const { name, value } = e.target
+        setProfileData({ ...profileData, [name]: value })
+    }
 
     const handleFormInput = async (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
-        const { fullName, email, phoneNumber, address } = profileData;
+        const { fullName, email, phoneNumber, address } = profileData
 
         if (!fullName || !email || !phoneNumber) {
-            return toast.error("All fields are required");
+            return toast.error("All fields are required")
         }
 
         if (!email.match(/^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/)) {
-            return toast.error('Email is Invalid!');
+            return toast.error('Email is Invalid!')
         }
 
-        const formData = new FormData();
-        formData.append('fullName', fullName);
-        formData.append('phoneNumber', phoneNumber);
-        formData.append('address', address);
-        formData.append('userImage', profileData.userImage);
+        const formData = new FormData()
+        formData.append('fullName', fullName)
+        formData.append('phoneNumber', phoneNumber)
+        formData.append('address', address)
+        formData.append('userImage', profileData.userImage)
 
-        const response = await dispatch(editProfile([data?._id, formData]));
+        const response = await dispatch(editProfile([data?._id, formData]))
 
         if (response?.payload?.success) {
-            toast.success("Updated!");
-            setLoaderActive(false);
-            dispatch(userProfile());
+            toast.success("Updated!")
+            setLoaderActive(false)
+            dispatch(userProfile())
         } else {
             setLoaderActive(false)
         }
-    };
+    }
 
     const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
+        setSidebarOpen(!sidebarOpen)
+    }
 
     const [passwordData, setPasswordData] = useState({
         oldPassword: '',
         newPassword: '',
         confirmNewPassword: '',
         id: data?._id
-    });
+    })
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target
         setPasswordData({
             ...passwordData,
             [name]: value
-        });
-    };
+        })
+    }
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text)
             .then(() => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1500); // Hide the tooltip after 1.5 seconds
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1500) // Hide the tooltip after 1.5 seconds
             })
             .catch((error) => {
-                console.error("Copy failed!", error);
-            });
-    };
+                console.error("Copy failed!", error)
+            })
+    }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const { oldPassword, newPassword, confirmNewPassword } = passwordData;
+        e.preventDefault()
+        const { oldPassword, newPassword, confirmNewPassword } = passwordData
 
         if (!oldPassword || !newPassword || !confirmNewPassword) {
             setLoaderActive(false)
-            return toast.error('Please fill in all fields');
+            return toast.error('Please fill in all fields')
         }
 
         if (newPassword !== confirmNewPassword) {
             setLoaderActive(false)
-            return toast.error('Passwords do not match');
+            return toast.error('Passwords do not match')
         }
 
-        const response = await dispatch(changePassword(passwordData));
+        const response = await dispatch(changePassword(passwordData))
 
         if (response?.payload?.success) {
             setPasswordData({
                 oldPassword: '',
                 newPassword: '',
                 confirmNewPassword: ''
-            });
+            })
             setLoaderActive(false)
             setPasswordCardActive(false)
 
         } else {
             setLoaderActive(false)
         }
-    };
+    }
 
     const handleEyeClick = () => {
         setEye(!eye)
     }
 
-    const mainDiv = 'relative mb-3 border w-full px-2 p-1 rounded-md border-main bg-[#F7FBFF] flex flex-col items-center';
-    const labelStyle = "w-full  text-light   text-[0.8rem]";
-    const inputStyle = "w-full p-[0.1rem] tracking-wide bg-transparent outline-none placeholder:text-[#808080]";
-    const disabledInputStyle = "w-full p-[0.1rem] tracking-wide bg-transparent outline-none placeholder:text-[#808080]";
+    const mainDiv = 'relative mb-3 border w-full px-2 p-1 rounded-md border-main bg-[#F7FBFF] flex flex-col items-center'
+    const labelStyle = "w-full  text-light   text-[0.8rem]"
+    const inputStyle = "w-full p-[0.1rem] tracking-wide bg-transparent outline-none placeholder:text-[#808080]"
+    const disabledInputStyle = "w-full p-[0.1rem] tracking-wide bg-transparent outline-none placeholder:text-[#808080]"
 
     return (
         <>
@@ -231,7 +231,7 @@ const Profile = () => {
                                     <li
                                         onClick={() => {
                                             if (window.confirm('Are you sure you want to logout?')) {
-                                                handleLogout(); // Call the logout function if confirmed
+                                                handleLogout() // Call the logout function if confirmed
                                             }
                                             // If canceled, do nothing
                                         }}
@@ -354,7 +354,7 @@ const Profile = () => {
                 </div>
             </div>
         </>
-    );
-};
+    )
+}
 
-export default Profile;
+export default Profile

@@ -1,11 +1,20 @@
-@tailwind base
-@tailwind components
-@tailwind utilities
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer utilities {
     @media (min-width: 768px) {
         .w-custom {
             width: calc(100vw - 18.9rem)
         }
+    }
+}
+
+@layer base {
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 }

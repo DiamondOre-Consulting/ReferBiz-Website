@@ -110,7 +110,7 @@ const HomeLayout = ({ children }) => {
                             </li>
 
                             <li>
-                                <NavLink to={'/vendor-register'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
+                                <NavLink to={'/register-vendor'} className={({ isActive }) => isActive ? activeListStyle : listStyle}>
                                     <FaRegUser />
                                     Register Vendor
                                 </NavLink>

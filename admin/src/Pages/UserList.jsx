@@ -1,85 +1,85 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { debounce } from 'lodash';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { FaEye } from 'react-icons/fa';
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { useNavigate } from 'react-router-dom';
-import { getUsersList } from '../Redux/Slices/listSlice';
-import HomeLayout from '../Layout/HomeLayout';
-import { toast } from 'sonner';
+import React, { useEffect, useState, useCallback } from 'react'
+import { debounce } from 'lodash'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { FaEye } from 'react-icons/fa'
+import { GrFormNext, GrFormPrevious } from "react-icons/gr"
+import { useNavigate } from 'react-router-dom'
+import { getUsersList } from '../Redux/Slices/listSlice'
+import HomeLayout from '../Layout/HomeLayout'
+import { toast } from 'sonner'
 
 const UsersList = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const list = useSelector((state) => state?.list?.userList);
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const list = useSelector((state) => state?.list?.userList)
 
-    console.log(list)
 
-    const [statusUpdated, setStatusUpdated] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [loading, setLoading] = useState(false);
-    const [totalPages, setTotalPages] = useState(1);
+
+    const [statusUpdated, setStatusUpdated] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [statusFilter, setStatusFilter] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(10)
+    const [loading, setLoading] = useState(false)
+    const [totalPages, setTotalPages] = useState(1)
 
     const loadData = async (page = 1) => {
-        setLoading(true);
+        setLoading(true)
         try {
             const params = {
                 page,
                 limit: itemsPerPage,
                 searchQuery,
                 statusFilter
-            };
-            const response = await dispatch(getUsersList(params)).unwrap();
-            setTotalPages(response.totalPages);
+            }
+            const response = await dispatch(getUsersList(params)).unwrap()
+            setTotalPages(response.totalPages)
         } catch (error) {
-            console.error(error);
+            console.error(error)
         }
-        setLoading(false);
-    };
+        setLoading(false)
+    }
 
     useEffect(() => {
-        loadData(currentPage);
-    }, [currentPage, itemsPerPage, searchQuery, statusFilter]);
+        loadData(currentPage)
+    }, [currentPage, itemsPerPage, searchQuery, statusFilter])
 
     useEffect(() => {
         if (statusUpdated) {
-            loadData(currentPage);
-            setStatusUpdated(false);
+            loadData(currentPage)
+            setStatusUpdated(false)
         }
-    }, [statusUpdated]);
+    }, [statusUpdated])
 
     const handleSearch = useCallback(
         debounce((query, status) => {
-            setSearchQuery(query);
-            setStatusFilter(status);
-            setCurrentPage(1);
+            setSearchQuery(query)
+            setStatusFilter(status)
+            setCurrentPage(1)
         }, 10),
         []
-    );
+    )
 
     const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(Number(e.target.value));
-        setCurrentPage(1);
-    };
+        setItemsPerPage(Number(e.target.value))
+        setCurrentPage(1)
+    }
 
     const handleStatusChange = async (id, status) => {
         try {
-            // await dispatch(updateBoatmanStatus({ id, status })).unwrap();
-            toast.success('Status updated!');
-            loadData(currentPage); // Reload data after status update
+            // await dispatch(updateBoatmanStatus({ id, status })).unwrap()
+            toast.success('Status updated!')
+            loadData(currentPage) // Reload data after status update
         } catch (error) {
-            toast.error('Failed to update status');
+            toast.error('Failed to update status')
         }
-    };
+    }
 
     return (
         <HomeLayout>
-            <div className='flex flex-col lg:flex-row border border-[#323A49] items-center justify-between gap-4 p-3 mt-4 bg-[#212631] rounded '>
+            <div className='flex flex-col lg:flex-row border md:w-custom border-[#323A49] items-center justify-between gap-4 p-3 mt-4 bg-[#212631] rounded '>
                 <input
                     type="text"
                     placeholder="Search by name..."
@@ -103,7 +103,7 @@ const UsersList = () => {
                 </div>
             </div>
             <div className='mt-2 overflow-x-scroll scrollbar scrollbar-track-rounded-full scrollbar-thumb-rounded-full scrollbar-track-gray-800 scrollbar-thumb-gray-600 scrollbar-thin md:w-custom'>
-                <div className='flex border  flex-col items-center justify-center border-[#323A49] rounded-t  min-w-[55.5rem]'>
+                <div className='flex border  flex-col items-center justify-center border-[#323A49] rounded-t  min-w-[35.5rem]'>
                     <div className='flex items-center relative justify-between w-full gap-3 bg-[#323A49] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
                         <p className='min-w-[3rem] text-center'>S.no</p>
                         <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
@@ -212,7 +212,7 @@ const UsersList = () => {
                 </button>
             </div>
         </HomeLayout >
-    );
-};
+    )
+}
 
-export default UsersList;
+export default UsersList

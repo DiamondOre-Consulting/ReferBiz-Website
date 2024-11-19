@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import HomeLayout from '../../Layout/HomeLayout'
 import { HiOutlineUsers } from 'react-icons/hi2'
-import { GrMoney } from "react-icons/gr";
-import { GiTakeMyMoney } from 'react-icons/gi';
+import { GrMoney } from "react-icons/gr"
+import { GiTakeMyMoney } from 'react-icons/gi'
 // import Statistics from '../Components/Cards/Statistics'
 // import MonthlyPaymentsChart from '../Components/Cards/MonthlyPaymentsChart'
 // import BookingsRevenueChart from '../Components/Cards/BookingsRevenueChart'

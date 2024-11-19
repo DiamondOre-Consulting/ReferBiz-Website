@@ -1,81 +1,81 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { debounce } from 'lodash';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { FaEye } from 'react-icons/fa';
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { useNavigate } from 'react-router-dom';
-import { getUsersList, getVendorsList } from '../Redux/Slices/listSlice';
-import HomeLayout from '../Layout/HomeLayout';
-import { toast } from 'sonner';
+import React, { useEffect, useState, useCallback } from 'react'
+import { debounce } from 'lodash'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { useDispatch, useSelector } from 'react-redux'
+import { FaEye } from 'react-icons/fa'
+import { GrFormNext, GrFormPrevious } from "react-icons/gr"
+import { useNavigate } from 'react-router-dom'
+import { getUsersList, getVendorsList } from '../Redux/Slices/listSlice'
+import HomeLayout from '../Layout/HomeLayout'
+import { toast } from 'sonner'
 
 const VendorList = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const list = useSelector((state) => state?.list?.vendorList);
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const list = useSelector((state) => state?.list?.vendorList)
 
-    console.log(list)
 
-    const [statusUpdated, setStatusUpdated] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [loading, setLoading] = useState(false);
-    const [totalPages, setTotalPages] = useState(1);
+
+    const [statusUpdated, setStatusUpdated] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [statusFilter, setStatusFilter] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(10)
+    const [loading, setLoading] = useState(false)
+    const [totalPages, setTotalPages] = useState(1)
 
     const loadData = async (page = 1) => {
-        setLoading(true);
+        setLoading(true)
         try {
             const params = {
                 page,
                 limit: itemsPerPage,
                 searchQuery,
                 statusFilter
-            };
-            const response = await dispatch(getVendorsList(params)).unwrap();
-            setTotalPages(response.totalPages);
+            }
+            const response = await dispatch(getVendorsList(params)).unwrap()
+            setTotalPages(response.totalPages)
         } catch (error) {
-            console.error(error);
+            console.error(error)
         }
-        setLoading(false);
-    };
+        setLoading(false)
+    }
 
     useEffect(() => {
-        loadData(currentPage);
-    }, [currentPage, itemsPerPage, searchQuery, statusFilter]);
+        loadData(currentPage)
+    }, [currentPage, itemsPerPage, searchQuery, statusFilter])
 
     useEffect(() => {
         if (statusUpdated) {
-            loadData(currentPage);
-            setStatusUpdated(false);
+            loadData(currentPage)
+            setStatusUpdated(false)
         }
-    }, [statusUpdated]);
+    }, [statusUpdated])
 
     const handleSearch = useCallback(
         debounce((query, status) => {
-            setSearchQuery(query);
-            setStatusFilter(status);
-            setCurrentPage(1);
+            setSearchQuery(query)
+            setStatusFilter(status)
+            setCurrentPage(1)
         }, 10),
         []
-    );
+    )
 
     const handleItemsPerPageChange = (e) => {
-        setItemsPerPage(Number(e.target.value));
-        setCurrentPage(1);
-    };
+        setItemsPerPage(Number(e.target.value))
+        setCurrentPage(1)
+    }
 
     const handleStatusChange = async (id, status) => {
         try {
-            // await dispatch(updateBoatmanStatus({ id, status })).unwrap();
-            toast.success('Status updated!');
-            loadData(currentPage); // Reload data after status update
+            // await dispatch(updateBoatmanStatus({ id, status })).unwrap()
+            toast.success('Status updated!')
+            loadData(currentPage) // Reload data after status update
         } catch (error) {
-            toast.error('Failed to update status');
+            toast.error('Failed to update status')
         }
-    };
+    }
 
     return (
         <HomeLayout>
@@ -212,7 +212,7 @@ const VendorList = () => {
                 </button>
             </div>
         </HomeLayout>
-    );
-};
+    )
+}
 
-export default VendorList;
+export default VendorList

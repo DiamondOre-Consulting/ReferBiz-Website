@@ -34,6 +34,5 @@ router.post("/delete-product", isLoggedIn, deleteProduct);
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);
-router.get("/get-vendor-data/:id", isLoggedIn, getVendorData);
 
 export default router;

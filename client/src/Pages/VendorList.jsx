@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaRegEye, FaUser } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { GiBiceps } from "react-icons/gi";
+import { GiBiceps, GiTakeMyMoney } from "react-icons/gi";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { MdCurrencyRupee } from "react-icons/md";
 import debounce from "lodash.debounce";
@@ -12,16 +12,14 @@ import {
   getCategoryList,
   getVendorByCategory,
   getSubCategoryList,
-  getVendorBySubCategory,
 } from "../Redux/Slices/vendorSlice";
 
 const VendorList = () => {
   const [searchInput, setSearchInput] = useState("");
   const [isSubCategoryOpen, setIsSubCategoryOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  console.log(filteredSuggestions);
+
   const getLocation = useLocation();
-  const [selectCategory, setSelectCategory] = useState("");
   const vendorList = useSelector((state) => state.vendor.vendorList);
   const [vendorDataList, setVendorDataList] = useState(vendorList);
   const categoryList = useSelector((state) => state?.vendor?.categoryList);
@@ -31,15 +29,10 @@ const VendorList = () => {
   const vendorListByCategories = useSelector(
     (state) => state?.vendor?.vendorListByCategories
   );
-  const vendorListBySubCategories = useSelector(
-    (state) => state?.vendor?.vendorListBySubCategories
-  );
   const dispatch = useDispatch();
-  console.log(categoryList);
-  console.log("sub", selectCategory);
+
   const location = getLocation?.state?.location;
 
-  console.log(vendorListByCategories);
   const navigate = useNavigate();
   const fetchCategoryList = async () => {
     await dispatch(getCategoryList(location));
@@ -52,17 +45,6 @@ const VendorList = () => {
 
     if (res?.payload?.success) setVendorDataList(res?.payload?.vendors);
   };
-  const fetchVendorListBySubCategory = async (item) => {
-    const res = await dispatch(
-      getVendorBySubCategory({ location, category: selectCategory, item })
-    );
-
-    if (res?.payload?.success) {
-      setVendorDataList(res?.payload?.vendors);
-    }
-  };
-
-  console.log("fil", filteredSuggestions);
 
   useEffect(() => {
     fetchCategoryList();
@@ -81,14 +63,14 @@ const VendorList = () => {
       } else {
         setFilteredSuggestions([]);
       }
-    }, 10)
+    }, 10) // Adjust the debounce delay as needed
   );
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
-    setIsSubCategoryOpen(false);
-    filterSuggestions(value);
+
+    filterSuggestions(value); // Use debounced function
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -138,29 +120,40 @@ const VendorList = () => {
       <BreadCrumbs headText={"Our Vendors"} items={breadcrumbItems} />
 
       <div className="container relative z-20 px-4 mx-auto text-white">
-        <div className=" mt-10">
-          <div className="flex max-w-[75rem] mx-auto gap-4  items-center justify-center w-full">
-            <div className="flex  w-1/2 relative">
+        {/* <div className="flex justify-center mb-6 md:mb-12">
+                    <div className="max-w-lg text-center">
+                        <h2 className="text-3xl leading-none font-bold md:text-[45px] mb-4">
+                            Our Vendors
+                        </h2>
+                        <p>
+                            Assumenda non repellendus distinctio nihil dicta sapiente,
+                            quibusdam maiores, illum at qui.
+                        </p>
+                    </div>
+                </div> */}
+
+        <div className="relative w-1/2 mx-auto mt-10">
+          <div className="flex gap-2">
+            <div>
               <input
                 type="text"
                 value={searchInput}
                 onChange={handleInputChange}
                 placeholder="Search for a category..."
-                className=" rounded-[8px] px-4 py-2 w-full border rounded bg-[#040D43] text-gray-200 shadow focus:outline-none"
+                className="w-full px-4 py-2 text-black text-gray-200 bg-gray-800 border rounded shadow focus:outline-none"
               />
               {filteredSuggestions.length > 0 && (
-                <ul className="absolute top-9 w-full rounded-[8px] bg-[#040D43] text-gray-200 border rounded shadow mt-1 max-h-40 overflow-y-auto">
+                <ul className="absolute w-full mt-1 overflow-y-auto text-gray-200 bg-gray-800 border rounded shadow max-h-40">
                   {filteredSuggestions.map((suggestion, index) => (
                     <li
                       key={index}
                       onClick={() => {
-                        setSelectCategory(suggestion);
                         handleSuggestionClick(suggestion);
                         fetchVendorListByCategory(suggestion);
                         fetchSubCategoryList(suggestion);
                         setIsSubCategoryOpen(true);
                       }}
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-600"
+                      className="px-4 py-2 text-gray-200 bg-gray-800 cursor-pointer hover:bg-gray-600"
                     >
                       {suggestion}
                     </li>
@@ -168,33 +161,28 @@ const VendorList = () => {
                 </ul>
               )}
             </div>
-
-            {/* Subcategory Dropdown */}
-            <div className="flex-1 relative w-1/2">
+            <div>
               {isSubCategoryOpen && subCategoryList.length > 0 && (
-                <>
-                  <select
-                    className="rounded-[8px] px-4 w-full py-2 border rounded bg-[#040D43] text-gray-200 shadow focus:outline-none"
-                    onChange={(e) => {
-                      fetchVendorListBySubCategory(e.target.value);
-                    }}
-                  >
-                    <option value="" disabled selected>
-                      Select Subcategory
-                    </option>
-                    {subCategoryList.map((subCategory, index) => (
-                      <option key={index} value={subCategory}>
-                        {subCategory}
-                      </option>
-                    ))}
-                  </select>
-                </>
+                <ul className="absolute w-full mt-1 overflow-y-auto text-gray-200 bg-gray-800 border rounded shadow max-h-40">
+                  {subCategoryList.map((subCategory, index) => (
+                    <li
+                      key={index}
+                      onClick={() => {
+                        // handleSubCategoryClick(subCategory) // New function to handle sub-category selection
+                        setIsSubCategoryOpen(false); // Close dropdown after selection
+                      }}
+                      className="px-4 py-2 text-gray-200 bg-gray-800 cursor-pointer hover:bg-gray-600"
+                    >
+                      {subCategory}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           </div>
         </div>
 
-        <div className="container grid grid-cols-1 gap-6 mx-auto mt-6 sm:grid-cols-2 w-fit lg:grid-cols-4">
+        <div className="container grid grid-cols-1 gap-6 mx-auto mt-6 sm:grid-cols-2 w-fit lg:grid-cols-3">
           {vendorDataList?.map((vendor, i) => (
             <TeamvendorItem key={i} vendor={vendor} />
           ))}

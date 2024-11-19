@@ -1,16 +1,16 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment } from "react"
 
-import { IoLogoFacebook } from "react-icons/io5";
-import { FaGoogle } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
+import { IoLogoFacebook } from "react-icons/io5"
+import { FaGoogle } from "react-icons/fa"
+import { Link, useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
+import { VscEye, VscEyeClosed } from "react-icons/vsc"
 
-import { toast } from "sonner";
-import { createAccount } from "../../Redux/Slices/authSlice";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import Header from "../../Components/Header";
+import { toast } from "sonner"
+import { createAccount } from "../../Redux/Slices/authSlice"
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+import Header from "../../Components/Header"
 
 const SocialLoginButton = () => (
     <Fragment>
@@ -23,7 +23,7 @@ const SocialLoginButton = () => (
             <span className="text-center">Continue with Google</span>
         </button>
     </Fragment>
-);
+)
 
 const SignUpForm = () => {
     const [loaderActive, setLoaderActive] = useState(false)
@@ -31,7 +31,7 @@ const SignUpForm = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const [phone, setPhone] = useState('');
+    const [phone, setPhone] = useState('')
 
 
     const [registerData, setRegisterData] = useState({
@@ -43,7 +43,7 @@ const SignUpForm = () => {
         phoneNumber: ""
     })
 
-    console.log(registerData.phoneNumber)
+
 
     function handleUserInput(e) {
         const { name, value } = e.target
@@ -71,7 +71,7 @@ const SignUpForm = () => {
             return toast.error('Please fill all the fields!')
         }
 
-        console.log(phoneNumber)
+
 
         if (phoneNumber) {
             if (!phoneNumber.match(/^(\+?\d{1,3}[-.\s]?)?(\(?\d{1,4}\)?[-.\s]?)?[\d-.\s]{7,14}$/)) {
@@ -96,11 +96,11 @@ const SignUpForm = () => {
         }
 
         const response = await dispatch(createAccount(registerData))
-        console.log(response)
+
 
         if (response?.payload?.success) {
             setLoaderActive(false)
-            navigate("/");
+            navigate("/")
             setRegisterData({
                 userEmail: "",
                 userPassword: "",
@@ -235,8 +235,8 @@ const SignUpForm = () => {
 
             <SocialLoginButton />
         </form>
-    );
-};
+    )
+}
 
 const Register = () => {
     return (
@@ -277,7 +277,7 @@ const Register = () => {
                 </div>
             </section>
         </>
-    );
-};
+    )
+}
 
 export default Register

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import Header from "../Components/Header";
+import React, { useState } from "react"
+import Header from "../Components/Header"
 
 const ContactForm = () => {
   const handleSubmit = (e) => {
-    e.preventDefault();
-  };
+    e.preventDefault()
+  }
 
   return (
     <form className="" noValidate onSubmit={handleSubmit}>
@@ -39,8 +39,8 @@ const ContactForm = () => {
         </button>
       </div>
     </form>
-  );
-};
+  )
+}
 
 const ContactFormCard = () => (
   <div className="bg-white  rounded-xl max-w-[28rem] border-[12px]  border-[#e9effc] p-4">
@@ -51,7 +51,7 @@ const ContactFormCard = () => (
 
     <ContactForm />
   </div>
-);
+)
 
 const Contact = () => {
   return (
@@ -86,7 +86,7 @@ const Contact = () => {
         ></iframe>
       </section>
     </>
-  );
-};
+  )
+}
 
-export default Contact;
+export default Contact

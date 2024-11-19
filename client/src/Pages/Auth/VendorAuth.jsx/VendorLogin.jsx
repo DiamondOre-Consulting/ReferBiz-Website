@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import vendorLogin from '../../../assets/illustrations/vendorLogin.png'
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { vendorLoginAccount } from "../../../Redux/Slices/authSlice";
+import { VscEye, VscEyeClosed } from "react-icons/vsc"
+import { useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { vendorLoginAccount } from "../../../Redux/Slices/authSlice"
 
 const SignInForm = () => {
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [otpValues, setOtpValues] = useState();
+    const [otpValues, setOtpValues] = useState()
     const [resetActive, setResetActive] = useState(false)
     const [otpActive, setOTPActive] = useState(false)
     const [loaderActive, setLoaderActive] = useState(false)
@@ -61,7 +61,7 @@ const SignInForm = () => {
 
         if (response?.payload?.success) {
             setLoaderActive(false)
-            navigate("/");
+            navigate("/")
             setLoginData({
                 vendorEmail: "",
                 vendorPassword: "",
@@ -178,8 +178,8 @@ const SignInForm = () => {
             </button>
 
         </form>
-    );
-};
+    )
+}
 
 const VendorLogin = () => {
     return (
@@ -212,8 +212,8 @@ const VendorLogin = () => {
                 </div>
             </div>
         </section>
-    );
-};
+    )
+}
 
 
 export default VendorLogin

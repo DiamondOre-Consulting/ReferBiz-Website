@@ -1,16 +1,17 @@
-import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
-import PageNotFound from "./Pages/PageNotFound";
-import { useSelector } from "react-redux";
-import Home from "./Pages/Home";
-import Login from "./Pages/Auth/Login";
-import RequireAuth from "./Components/RequireAuth";
-import UsersList from "./Pages/UserList";
-import VendorList from "./Pages/VendorList";
-import CategoriesList from "./Pages/CategoriesList";
+import React from "react"
+import { Route, Routes, Navigate } from "react-router-dom"
+import PageNotFound from "./Pages/PageNotFound"
+import { useSelector } from "react-redux"
+import Home from "./Pages/Home"
+import Login from "./Pages/Auth/Login"
+import RequireAuth from "./Components/RequireAuth"
+import UsersList from "./Pages/UserList"
+import VendorList from "./Pages/VendorList"
+import CategoriesList from "./Pages/CategoriesList"
+import CategoryDetail from "./Pages/CategoryDetail"
 
 const App = () => {
-  const { role } = useSelector((state) => state?.auth);
+  const { role } = useSelector((state) => state?.auth)
 
   return (
     <>
@@ -21,11 +22,12 @@ const App = () => {
           <Route path="/user-list" element={<UsersList />} />
           <Route path="/vendor-list" element={<VendorList />} />
           <Route path="/category-list" element={<CategoriesList />} />
+          <Route path="/category/:id" element={<CategoryDetail />} />
         </Route>
         <Route path="/*" element={<PageNotFound />} />
       </Routes>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App

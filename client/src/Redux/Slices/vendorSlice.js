@@ -158,6 +158,25 @@ export const getVendorByCategory = createAsyncThunk(
     }
   }
 );
+export const getVendorBySubCategory = createAsyncThunk(
+  "/user/vendorBySubCategory",
+  async (data) => {
+    try {
+      console.log(1);
+      const { category, location, item } = data;
+      console.log(data);
+      let res = axiosInstance.get(
+        `/user/search-vendor-subcategory/${location}/${category}/${item}`
+      );
+      console.log("res", res);
+      res = await res;
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 
 export const getSubCategoryList = createAsyncThunk(
   "/user/subCategories",
@@ -199,6 +218,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getSubCategoryList.fulfilled, (state, action) => {
         state.subCategoryList = action?.payload?.items;
+      })
+      .addCase(getVendorBySubCategory.fulfilled, (state, action) => {
+        state.vendorListBySubCategory = action?.payload?.vendors;
       });
   },
 });

@@ -120,18 +120,6 @@ const VendorList = () => {
       <BreadCrumbs headText={"Our Vendors"} items={breadcrumbItems} />
 
       <div className="container relative z-20 px-4 mx-auto text-white">
-        {/* <div className="flex justify-center mb-6 md:mb-12">
-                    <div className="max-w-lg text-center">
-                        <h2 className="text-3xl leading-none font-bold md:text-[45px] mb-4">
-                            Our Vendors
-                        </h2>
-                        <p>
-                            Assumenda non repellendus distinctio nihil dicta sapiente,
-                            quibusdam maiores, illum at qui.
-                        </p>
-                    </div>
-                </div> */}
-
         <div className="relative w-1/2 mx-auto mt-10">
           <div className="flex gap-2">
             <div>

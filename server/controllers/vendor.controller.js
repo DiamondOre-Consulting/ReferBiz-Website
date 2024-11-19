@@ -544,4 +544,5 @@ export {
   addProduct,
   deleteProduct,
   updateStatus,
+  getVendorData,
 };

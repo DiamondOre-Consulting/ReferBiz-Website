@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaRegEye, FaUser } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { GiBiceps, GiTakeMyMoney } from "react-icons/gi";
+import { GiBiceps } from "react-icons/gi";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { MdCurrencyRupee } from "react-icons/md";
 import debounce from "lodash.debounce";
@@ -98,7 +98,7 @@ const VendorList = () => {
 
   const TeamvendorItem = ({ vendor }) => (
     <div
-      onClick={() => navigate("/vendor-detail")}
+      onClick={() => navigate(`/vendor-detail/${vendor?._id}`)}
       className="bg-[#040D43] border-t-[8px]  border-[#2c56ff] h-[16rem] w-[18.5rem] hover:bg-gradient-to-b hover:from-transparent group hover:via-[#1e43fa63] hover:to-[#1d46ea] shadow-xl rounded-b-xl rounded-sm p-6  mx-auto hover:shadow-xl transition-all duration-500 flex flex-col items-center justify-center"
     >
       {/* Title */}

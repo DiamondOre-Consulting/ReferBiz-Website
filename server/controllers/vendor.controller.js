@@ -160,6 +160,20 @@ const vendorProfile = async (req, res, next) => {
     return next(new CustomError("Failed to fetch" + err.message, 500));
   }
 };
+const getVendorData = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await Vendor.findById(id);
+    console.log(user);
+    res.status(200).json({
+      success: true,
+      message: "",
+      user,
+    });
+  } catch (err) {
+    return next(new CustomError("Failed to fetch" + err.message, 500));
+  }
+};
 
 const changePassword = async (req, res, next) => {
   try {
@@ -534,4 +548,5 @@ export {
   addProduct,
   deleteProduct,
   updateStatus,
+  getVendorData,
 };

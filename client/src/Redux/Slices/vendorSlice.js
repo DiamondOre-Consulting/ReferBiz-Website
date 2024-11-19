@@ -12,6 +12,7 @@ const initialState = {
   vendorListByCategories: [],
   subCategoryList: [],
   vendorListBySubCategory: [],
+  vendorData: {},
 };
 
 export const loginAccount = createAsyncThunk("/user/login", async (data) => {
@@ -196,6 +197,20 @@ export const getSubCategoryList = createAsyncThunk(
     }
   }
 );
+export const getVendorData = createAsyncThunk(
+  "/vendor/vendorData",
+  async (data) => {
+    try {
+      let res = axiosInstance.get(`/vendor/get-vendor-data/${data}`);
+      console.log(res);
+      res = await res;
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 
 const vendorSlice = createSlice({
   name: "vendor",
@@ -221,6 +236,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getVendorBySubCategory.fulfilled, (state, action) => {
         state.vendorListBySubCategory = action?.payload?.vendors;
+      })
+      .addCase(getVendorData.fulfilled, (state, action) => {
+        state.vendorData = action?.payload?.user;
       });
   },
 });

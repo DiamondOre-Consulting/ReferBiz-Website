@@ -473,7 +473,9 @@ const searchVendorsBySubCategory = async (req, res, next) => {
       );
     }
 
-    res.status(200).json(vendors);
+    res
+      .status(200)
+      .json({ success: true, message: "Vendor list for subcategory", vendors });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

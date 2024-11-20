@@ -9,6 +9,7 @@ import { MdDelete } from 'react-icons/md'
 import { FaEye, FaPen } from 'react-icons/fa'
 import { toast } from 'sonner'
 import { FaXmark } from 'react-icons/fa6'
+import { HiXMark } from "react-icons/hi2";
 
 const CategoryDetail = () => {
     const [loaderActive, setLoaderActive] = useState(false)
@@ -71,7 +72,7 @@ const CategoryDetail = () => {
             <button onClick={() => setAddCategoryActive(true)} className='bg-[#EB9C1B] text-white z-20 p-2 rounded absolute right-6'>Add Sub Category +</button>
 
             {addCategoryActive && <div className='bg-[#212121b2] flex  justify-center h-full w-full fixed z-10'>
-                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative pb-8 h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#212631] rounded border-borderDark border p-4'>
+                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative pb-8 h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#1c202a] rounded border-borderDark border p-4'>
                     <div onClick={() => setAddCategoryActive(false)} className='absolute bg-[#D04848] p-[0.4rem] cursor-pointer text-[1.1rem] rounded right-0 top-0'>
                         <FaXmark />
                     </div>
@@ -84,7 +85,7 @@ const CategoryDetail = () => {
                 </form>
             </div>}
             {subCategoryUpdateActive && <div className='bg-[#212121b2] flex  justify-center h-full w-full fixed z-10'>
-                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#212631] rounded border-borderDark border p-4'>
+                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#1c202a] rounded border-borderDark border p-4'>
                     <div onClick={() => setSubCategoryUpdateActive(false)} className='absolute bg-[#D04848] p-[0.4rem] cursor-pointer text-[1.1rem] rounded right-0 top-0'>
                         <FaXmark />
                     </div>
@@ -153,27 +154,16 @@ const CategoryDetail = () => {
                 </SkeletonTheme>
             ) : (
                 <div className='mt-16 md:w-custom'>
-                    <div className='text-white'>
-                        <h1>{categoryData?.categoryName}</h1>
+                    <div className='max-w-[35rem] mx-auto p-4  border border-red-500'>
+                        <div className='mb-4 text-white'>
+                            <h1>{categoryData?.categoryName}</h1>
 
-                    </div>
-                    <div className='mt-2 overflow-x-scroll scrollbar scrollbar-track-rounded-full scrollbar-thumb-rounded-full scrollbar-track-gray-800 scrollbar-thumb-gray-600 scrollbar-thin md:w-custom'>
-                        <div className='flex border flex-col items-center justify-center border-[#323A49] rounded-t  min-w-[30rem]'>
-                            <div className='flex items-center relative justify-between w-full gap-3 bg-[#323A49] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
-                                <p className='min-w-[3rem] text-center'>S.no</p>
-                                <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
-                                    <p>Sub-Category</p>
-                                </div>
-                                {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
-                            <p>Email</p>
-                        </div> */}
-                                <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#323A49] text-center'>Action</p>
-                            </div>
+                        </div>
+                        <div className='flex flex-wrap gap-3'>
                             {
                                 categoryData?.subCategory?.map((data, index) => (
-                                    <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#323A49] justify-between w-full gap-3 px-3 py-3 text-white bg-[#212631]'>
-                                        <p className='min-w-[3rem] text-center'>{index + 1}.</p>
-                                        <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
+                                    <div key={data?._id} className='relative rounded-full pl-5 bg-[#0D2327] text-[0.95rem] flex items-center border font-normal border-[#0a6141] justify-between w-fit gap-3 text-white '>
+                                        <div className='font-semibold line-clamp-1 border-[#0f8459] text-[#34D299]'>
                                             <p>{data}</p>
                                         </div>
                                         {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
@@ -181,19 +171,18 @@ const CategoryDetail = () => {
                                 </div> */}
 
 
-                                        <div className='min-w-[3.3rem] sticky px-5 right-0 bg-[#212631] flex gap-2 items-center justify-center'>
 
-                                            <div
-                                                onClick={() => handleDelete(data)}
-                                                className='bg-[#D04848] p-1 rounded cursor-pointer'>
-                                                <MdDelete className='text-[1.5rem]' />
-                                            </div>
+                                        <div
+                                            onClick={() => handleDelete(data)}
+                                            className='p-2 rounded cursor-pointer '>
+                                            <HiXMark className='text-[1.3rem]' />
                                         </div>
                                     </div>
                                 ))
                             }
                         </div>
                     </div>
+
                 </div>
             )}
         </HomeLayout>

@@ -93,7 +93,7 @@ const Header = () => {
                         </ul>
                         {isLoggedIn ? <div className='flex items-center justify-end gap-4 w-[14rem] '>
                             <Link to={`/profile/${userData?.fullName}`}>
-                                <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-2 shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
+                                <img src={userData?.userImage?.secure_url ? userData?.userImage?.secure_url : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIKcTkARlljahDz7xR5gq-lwY3NSwsYMQdl_AlXfua4Yc2QcQ9QIG38gxtEiMGNAdoEck&usqp=CAU"} className={` hidden   duration-300 lg:block border-borderDark shadow-[0px_0px_10px_-3px_#808080] h-[2.6rem] w-[2.6rem] border-white rounded-full`} />
                             </Link>
 
                             <Link to={'/logout'} onClick={handleLogout} className={` hidden lg:block duration-300 text-white border border-light bg-light p-[8px] px-[6px] text-[1.4rem] rounded-md`}>
@@ -101,12 +101,12 @@ const Header = () => {
                             </Link>
                         </div> : <div className='flex items-center justify-end gap-2 font-semibold w-[14rem]'>
                             <Link to={'/login'}>
-                                <button className={` hidden duration-300 lg:block border-2 border-main bg-[#1900ff16] w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden duration-300 lg:block border-borderDark border-main bg-[#1900ff16] w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Login
                                 </button>
                             </Link>
                             <Link to={'/register'}>
-                                <button className={` hidden lg:block border-2 font-normal border-light bg-light  duration-300   text-white w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
+                                <button className={` hidden lg:block border-borderDark font-normal border-light bg-light  duration-300   text-white w-full p-[7px] text-[0.95rem] px-6 rounded-md`}>
                                     Sign up
                                 </button>
                             </Link>
@@ -138,7 +138,7 @@ const Header = () => {
             {/* Mobile Menu */}
             <div
                 ref={menuRef}
-                className={`fixed flex flex-col justify-between w-[15rem] transition-all duration-500 right-2  sm:right-4 rounded-lg h-auto bg-[#f5f7ff] border-2 border-gray-300 text-gray-800 shadow-lg  transform ${isOpen ? 'open-menu top-[5.8rem] z-[10001] mr-1 sm:mr-0 sm:top-[5.7rem] md:top-[6.2rem]' : 'close-menu top-[-25.8rem] sm:top-[-25.7rem] z-[35]  border-0'} lg:hidden `}
+                className={`fixed flex flex-col justify-between w-[15rem] transition-all duration-500 right-2  sm:right-4 rounded-lg h-auto bg-[#f5f7ff] border-borderDark border-gray-300 text-gray-800 shadow-lg  transform ${isOpen ? 'open-menu top-[5.8rem] z-[10001] mr-1 sm:mr-0 sm:top-[5.7rem] md:top-[6.2rem]' : 'close-menu top-[-25.8rem] sm:top-[-25.7rem] z-[35]  border-0'} lg:hidden `}
             >
                 <ul className="px-4 mt-8 space-y-4 font-semibold sora-500">
                     <li onClick={closeMenu}>

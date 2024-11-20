@@ -79,13 +79,13 @@ const UsersList = () => {
 
     return (
         <HomeLayout>
-            <div className='flex flex-col lg:flex-row border md:w-custom border-[#323A49] items-center justify-between gap-4 p-3 mt-4 bg-[#212631] rounded '>
+            <div className='flex flex-col lg:flex-row border md:w-custom border-[#242a34] items-center justify-between gap-4 p-3 mt-4 bg-[#1c202a] rounded '>
                 <input
                     type="text"
                     placeholder="Search by name..."
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value, statusFilter)}
-                    className="bg-[#323A49] outline-none text-white rounded p-2 lg:w-[20rem] w-full"
+                    className="bg-[#242a34] outline-none text-white rounded p-2 lg:w-[20rem] w-full"
                 />
                 <div className='flex items-center justify-between w-full lg:w-fit lg:gap-2 xl:gap-10'>
                     <div>
@@ -93,7 +93,7 @@ const UsersList = () => {
                         <select
                             value={itemsPerPage}
                             onChange={handleItemsPerPageChange}
-                            className="bg-[#323A49]  outline-none text-white rounded p-2 sm:w-[6rem] w-[4rem]"
+                            className="bg-[#242a34]  outline-none text-white rounded p-2 sm:w-[6rem] w-[4rem]"
                         >
                             <option value={10}>10</option>
                             <option value={50}>50</option>
@@ -103,8 +103,8 @@ const UsersList = () => {
                 </div>
             </div>
             <div className='mt-2 overflow-x-scroll scrollbar scrollbar-track-rounded-full scrollbar-thumb-rounded-full scrollbar-track-gray-800 scrollbar-thumb-gray-600 scrollbar-thin md:w-custom'>
-                <div className='flex border  flex-col items-center justify-center border-[#323A49] rounded-t  min-w-[35.5rem]'>
-                    <div className='flex items-center relative justify-between w-full gap-3 bg-[#323A49] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
+                <div className='flex border  flex-col items-center justify-center border-[#242a34] rounded-t  min-w-[35.5rem]'>
+                    <div className='flex items-center relative justify-between w-full gap-3 bg-[#242a34] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
                         <p className='min-w-[3rem] text-center'>S.no</p>
                         <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                             <p>Name</p>
@@ -114,11 +114,11 @@ const UsersList = () => {
                         </div>
                         <p className='min-w-[7.5rem]  text-center'>Phone number</p>
                         <p className='min-w-[6.8rem] text-center'>Status</p>
-                        <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#323A49] text-center'>Action</p>
+                        <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#242a34] text-center'>Action</p>
                     </div>
                     {loading ? (
                         Array.from({ length: itemsPerPage }).map((_, index) => (
-                            <div key={index} className='flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#212631]'>
+                            <div key={index} className='flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#1c202a]'>
                                 <p className='min-w-[3rem] text-center'><Skeleton /></p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p><Skeleton /></p>
@@ -139,7 +139,7 @@ const UsersList = () => {
                         ))
                     ) : (
                         list?.map((data, index) => (
-                            <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#323A49] justify-between w-full gap-3 px-3 py-3 text-white bg-[#212631]'>
+                            <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#242a34] justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]'>
                                 <p className='min-w-[3rem] text-center'>{(currentPage - 1) * itemsPerPage + index + 1}.</p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p>{data?.fullName}</p>
@@ -188,7 +188,7 @@ const UsersList = () => {
                                         />
                                     </div>
                                 </div>
-                                <div onClick={() => navigate(`/driver/${data?._id}`, { state: data?._id })} className='min-w-[3.3rem] sticky px-5 right-0 bg-[#212631] flex items-center justify-center'>
+                                <div onClick={() => navigate(`/driver/${data?._id}`, { state: data?._id })} className='min-w-[3.3rem] sticky px-5 right-0 bg-[#1c202a] flex items-center justify-center'>
 
                                     <FaEye className='text-[1.45rem] cursor-pointer' />
                                 </div>
@@ -197,7 +197,7 @@ const UsersList = () => {
                     )}
                 </div>
             </div>
-            <div className="flex items-center justify-between mt-2 border border-[#323A49] bg-[#212631] text-white rounded overflow-hidden ">
+            <div className="flex items-center justify-between mt-2 border border-[#242a34] bg-[#1c202a] text-white rounded overflow-hidden ">
                 <button
                     className='flex items-center justify-center bg-[#7367F0] p-3'
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>

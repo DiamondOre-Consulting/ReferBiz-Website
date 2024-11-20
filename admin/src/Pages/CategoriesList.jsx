@@ -85,6 +85,10 @@ const CategoriesList = () => {
         if (res?.payload?.success) {
             setCategoryInput("")
             setAddCategoryActive(false)
+        } else {
+            loadData()
+            setAddCategoryActive(false)
+            setCategoryInput("")
         }
     }
 
@@ -102,16 +106,20 @@ const CategoriesList = () => {
         const res = await dispatch(updateCategory([categoryId, { categoryName: categoryInput }]))
 
         if (res?.payload?.success) {
-            setAddCategoryUpdateActive(false)
             setCategoryInput("")
+            setAddCategoryUpdateActive(false)
             toast.success("Category updated successfully!")
+        } else {
+            loadData()
+            setCategoryInput("")
+            setAddCategoryUpdateActive(false)
         }
     }
 
     return (
         <HomeLayout>
             {addCategoryActive && <div className='bg-[#212121b2] flex md:w-custom justify-center h-full w-full fixed z-10'>
-                <form action="" onSubmit={handleAddCategory} className='flex mt-36 relative pb-8 h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#212631] rounded border-borderDark border p-4'>
+                <form action="" onSubmit={handleAddCategory} className='flex mt-36 relative pb-8 h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#1c202a] rounded border-borderDark border p-4'>
                     <div onClick={() => setAddCategoryActive(false)} className='absolute bg-[#D04848] p-[0.4rem] cursor-pointer text-[1.1rem] rounded right-0 top-0'>
                         <FaXmark />
                     </div>
@@ -124,7 +132,7 @@ const CategoriesList = () => {
                 </form>
             </div>}
             {addCategoryUpdateActive && <div className='bg-[#212121b2] flex md:w-custom justify-center h-full w-full fixed z-10'>
-                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#212631] rounded border-borderDark border p-4'>
+                <form action="" onSubmit={handleUpdate} className='flex mt-36 relative h-fit gap-4 w-full max-w-[25rem] text-white flex-col bg-[#1c202a] rounded border-borderDark border p-4'>
                     <div onClick={() => setAddCategoryUpdateActive(false)} className='absolute bg-[#D04848] p-[0.4rem] cursor-pointer text-[1.1rem] rounded right-0 top-0'>
                         <FaXmark />
                     </div>
@@ -137,13 +145,13 @@ const CategoriesList = () => {
                 </form>
             </div>}
             <button onClick={() => setAddCategoryActive(true)} className='bg-[#EB9C1B] text-white z-20 p-2 rounded absolute right-6'>Add Category +</button>
-            <div className='flex flex-col md:w-custom lg:flex-row border border-[#323A49] items-center justify-between gap-4 p-3 mt-12 bg-[#212631] rounded '>
+            <div className='flex flex-col md:w-custom lg:flex-row border border-borderDark items-center justify-between gap-4 p-3 mt-12 bg-[#1c202a] rounded '>
                 <input
                     type="text"
                     placeholder="Search by name..."
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value, statusFilter)}
-                    className="bg-[#323A49] outline-none text-white rounded p-2 lg:w-[20rem] w-full"
+                    className="bg-[#242A34] outline-none text-white rounded p-2 lg:w-[20rem] w-full"
                 />
                 <div className='flex items-center justify-between w-full lg:w-fit lg:gap-2 xl:gap-10'>
                     <div>
@@ -151,7 +159,7 @@ const CategoriesList = () => {
                         <select
                             value={itemsPerPage}
                             onChange={handleItemsPerPageChange}
-                            className="bg-[#323A49]  outline-none text-white rounded p-2 sm:w-[6rem] w-[4rem]"
+                            className="bg-[#242A34]  outline-none text-white rounded p-2 sm:w-[6rem] w-[4rem]"
                         >
                             <option value={10}>10</option>
                             <option value={50}>50</option>
@@ -161,8 +169,8 @@ const CategoriesList = () => {
                 </div>
             </div>
             <div className='mt-2 overflow-x-scroll scrollbar scrollbar-track-rounded-full scrollbar-thumb-rounded-full scrollbar-track-gray-800 scrollbar-thumb-gray-600 scrollbar-thin md:w-custom'>
-                <div className='flex border  flex-col items-center justify-center border-[#323A49] rounded-t  min-w-[55.5rem]'>
-                    <div className='flex items-center relative justify-between w-full gap-3 bg-[#323A49] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
+                <div className='flex border  flex-col items-center justify-center border-[#242A34] rounded-t  min-w-[55.5rem]'>
+                    <div className='flex items-center relative justify-between w-full gap-3 bg-[#242A34] rounded-t text-white px-3 py-4 lg:px-6 font-semibold'>
                         <p className='min-w-[3rem] text-center'>S.no</p>
                         <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                             <p>Category Name</p>
@@ -170,11 +178,11 @@ const CategoriesList = () => {
                         {/* <div className='min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1'>
                             <p>Email</p>
                         </div> */}
-                        <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#323A49] text-center'>Action</p>
+                        <p className='min-w-[3.3rem] sticky px-2 right-0 bg-[#242A34] text-center'>Action</p>
                     </div>
                     {loading ? (
                         Array.from({ length: itemsPerPage }).map((_, index) => (
-                            <div key={index} className='flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#212631]'>
+                            <div key={index} className='flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#1c202a]'>
                                 <p className='min-w-[3rem] text-center'><Skeleton /></p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p><Skeleton /></p>
@@ -191,7 +199,7 @@ const CategoriesList = () => {
                         ))
                     ) : (
                         list?.map((data, index) => (
-                            <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#323A49] justify-between w-full gap-3 px-3 py-3 text-white bg-[#212631]'>
+                            <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#242A34] justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]'>
                                 <p className='min-w-[3rem] text-center'>{(currentPage - 1) * itemsPerPage + index + 1}.</p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p>{data?.categoryName}</p>
@@ -201,7 +209,7 @@ const CategoriesList = () => {
                                 </div> */}
 
 
-                                <div className='min-w-[3.3rem] sticky px-5 right-0 bg-[#212631] flex gap-2 items-center justify-center'>
+                                <div className='min-w-[3.3rem] sticky px-5 right-0 bg-[#1c202a] flex gap-2 items-center justify-center'>
                                     <div onClick={() => {
                                         setAddCategoryUpdateActive(true)
                                         setCategoryInput(data?.categoryName)
@@ -219,7 +227,7 @@ const CategoriesList = () => {
                     )}
                 </div>
             </div>
-            <div className="flex items-center justify-between mt-2 border border-[#323A49] bg-[#212631] text-white rounded overflow-hidden ">
+            <div className="flex items-center justify-between mt-2 border border-[#242A34] bg-[#1c202a] text-white rounded overflow-hidden ">
                 <button
                     className='flex items-center justify-center bg-[#7367F0] p-3'
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>

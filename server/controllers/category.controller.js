@@ -36,35 +36,39 @@ const getAllCategory = async (req, res, next) => {
 
 const addCategory = async (req, res, next) => {
     try {
-        const { categoryName } = req.body
-
-
+        const { categoryName } = req.body;
 
         if (!categoryName) {
-            return next(new CustomError("Category is required!", 400))
+            return next(new CustomError("Category name is required!", 400));
+        }
+
+        const existingCategory = await categorySchema.findOne({
+            categoryName: { $regex: `^${categoryName}$`, $options: "i" } // Case-insensitive regex
+        });
+
+        if (existingCategory) {
+            return next(new CustomError("Category already exists!", 400));
         }
 
         const category = await categorySchema.create({
             categoryName: categoryName,
             subCategory: []
-        })
+        });
 
         if (!category) {
-            return next(new CustomError("Try again!", 400))
+            return next(new CustomError("Failed to create category, try again!", 400));
         }
-
-        await category.save()
 
         res.status(200).json({
             success: true,
             message: "Category added successfully!",
             list: await categorySchema.find({})
-        })
-
+        });
     } catch (e) {
-        return next(new CustomError(e.message, 500))
+        return next(new CustomError(e.message, 500));
     }
-}
+};
+
 
 const deleteCategory = async (req, res, next) => {
     try {
@@ -110,11 +114,29 @@ const updateCategory = async (req, res, next) => {
         }
 
         if (categoryName) {
-            category.categoryName = await categoryName
+            const existingCategory = await categorySchema.findOne({
+                categoryName: { $regex: `^${categoryName}$`, $options: "i" },
+                _id: { $ne: id }
+            });
+
+            if (existingCategory) {
+                return next(new CustomError("Category already exists!", 400));
+            }
+
+            category.categoryName = categoryName;
         }
 
+        const filteredSubCategories = category.subCategory.filter(
+            (item) => item?.toLowerCase() !== subCategory?.toLowerCase()
+        )
+
+
         if (subCategory) {
-            category.subCategory.push(subCategory)
+            if (filteredSubCategories.length < category.subCategory.length) {
+                return next(new CustomError("Subcategory already exists", 400))
+            } else {
+                category.subCategory.push(subCategory)
+            }
         }
 
         await category.save()

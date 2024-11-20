@@ -432,7 +432,7 @@ const addProduct = async (req, res, next) => {
 
   if (!category) {
     return next(
-      new CustomError("Catagory is not found. Please enter catagory", 404)
+      new CustomError("No Such Category Found .Please contact the admin", 404)
     );
   }
   if (!item) {
@@ -460,17 +460,9 @@ const addProduct = async (req, res, next) => {
         });
       }
     } else {
-      const newCategory = {
-        category,
-        categoryList: item,
-      };
-
-      vendor.products.push(newCategory);
-      await vendor.save();
-      return res.status(200).json({
-        message: "New category created and item added successfully.",
-        vendor,
-      });
+      next(
+        new CustomError("No Such Category Found .Please contact the admin", 404)
+      );
     }
   } catch (error) {
     console.error(error);

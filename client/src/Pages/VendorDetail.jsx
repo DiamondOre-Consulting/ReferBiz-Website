@@ -33,7 +33,7 @@ const VendorDetail = () => {
         <div className="grid gap-20 grid-cols-2">
           <div className="p-5">
             <div className="flex justify-between items-center py-2 ">
-              <div className="font-semobold text-xl text-gray-700 text-4xl">
+              <div className="font-semibold  text-gray-700 text-4xl">
                 {vendorData.businessName}
               </div>
               <div className="text-lg text-gray-700 items-center flex font-semibold">
@@ -58,7 +58,7 @@ const VendorDetail = () => {
             </div>
             <div className="border-t border-gray-200 my-2"></div>
             <div className="flex justify-between items-center text-xl my-4">
-              <div className="text-blue-600 text-white">
+              <div className="text-blue-600">
                 Open now <span className="text-black ml-2"> |</span>
                 <span className="text-black ml-2">7am-11pm</span>
               </div>
@@ -89,7 +89,7 @@ const VendorDetail = () => {
           </div>
           <div className="p-5 pr-4">
             <div className="flex justify-between items-center py-2 ">
-              <div className="font-semobold text-xl text-gray-700 text-4xl">
+              <div className="font-semobold  text-gray-700 text-4xl">
                 Contact Details
               </div>
             </div>

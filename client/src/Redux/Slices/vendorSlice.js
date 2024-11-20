@@ -13,6 +13,7 @@ const initialState = {
   subCategoryList: [],
   vendorListBySubCategory: [],
   vendorData: {},
+  listOfSubCategories: [],
 };
 
 export const loginAccount = createAsyncThunk("/user/login", async (data) => {
@@ -42,7 +43,7 @@ export const logout = createAsyncThunk("/user/logout", async () => {
 
 export const userProfile = createAsyncThunk("/user/details", async () => {
   try {
-    const res = axiosInstance.get("/user/");
+    const res = axiosInstance.get("/vendor/");
     return (await res).data;
   } catch (e) {
     toast.error(e?.message);
@@ -211,6 +212,56 @@ export const getVendorData = createAsyncThunk(
     }
   }
 );
+export const listOfAllSubCategories = createAsyncThunk(
+  "/admin/category",
+  async (data) => {
+    try {
+      let res = axiosInstance.put(`/admin/category/${data}`);
+      console.log(res);
+      res = await res;
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
+
+export const addSubCategories = createAsyncThunk(
+  "/vendor/subcategory",
+  async (data) => {
+    const id = data[0];
+    const items = data[1];
+    try {
+      let res = axiosInstance.post(`/vendor/add-product/${data[0]}`, data[1]);
+      console.log("result", res);
+      res = await res;
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
+export const deleteSubCategories = createAsyncThunk(
+  "/vendor/subcategory",
+  async (data) => {
+    console.log("data", data);
+    try {
+      let res = axiosInstance.post(
+        `/vendor/delete-product/${data[0]}`,
+        data[1]
+      );
+      console.log("result", res);
+      res = await res;
+      toast.success("Deleted successfully");
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 
 const vendorSlice = createSlice({
   name: "vendor",
@@ -239,6 +290,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getVendorData.fulfilled, (state, action) => {
         state.vendorData = action?.payload?.user;
+      })
+      .addCase(listOfAllSubCategories.fulfilled, (state, action) => {
+        state.listOfSubCategories = action?.payload?.category;
       });
   },
 });

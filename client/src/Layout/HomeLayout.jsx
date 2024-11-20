@@ -31,6 +31,7 @@ import { LuShoppingBag } from "react-icons/lu";
 import { vendorLogout } from "../Redux/Slices/authSlice";
 import { TfiDashboard } from "react-icons/tfi";
 import { IoGiftOutline, IoNotificationsOutline } from "react-icons/io5";
+import { userProfile } from "../Redux/Slices/vendorSlice";
 
 const HomeLayout = ({ children }) => {
   const [active, setActive] = useState(false);
@@ -42,6 +43,14 @@ const HomeLayout = ({ children }) => {
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   const avatar = useSelector((state) => state?.auth?.data?.avatar);
   const fullName = useSelector((state) => state?.auth?.data?.fullName);
+
+  const fetchProfile = async () => {
+    await dispatch(userProfile());
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const handleLogout = async () => {
     const response = await dispatch(vendorLogout());

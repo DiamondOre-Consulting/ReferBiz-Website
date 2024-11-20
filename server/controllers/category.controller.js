@@ -126,12 +126,14 @@ const updateCategory = async (req, res, next) => {
 const getCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
+    console.log(id);
 
     if (!id) {
       return next(new CustomError("Category is required!", 400));
     }
 
     const category = await categorySchema.findById(id);
+    console.log("categpry", category);
 
     if (!category) {
       return next(new CustomError("Category is not available!", 400));

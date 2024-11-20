@@ -427,41 +427,67 @@ const verifyOTP = async (req, res, next) => {
 };
 
 const addProduct = async (req, res, next) => {
-  const { category, item } = req.body;
-  const userId = req.user.id;
-
-  if (!category) {
-    return next(
-      new CustomError("No Such Category Found .Please contact the admin", 404)
-    );
-  }
-  if (!item) {
+  const { items } = req.body;
+  const { id } = req.params; // Expecting `categoryId` and `items` array
+  const userId = await req.user.id;
+  console.log(id, items);
+  if (!id) {
     return next(
       new CustomError(
-        "Item  is not found that you want to add . Please enter item",
-        404
+        "Category ID is required. Please provide a valid category ID.",
+        400
       )
     );
   }
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return next(
+      new CustomError(
+        "Items list is empty or invalid. Please provide a valid list of items",
+        400
+      )
+    );
+  }
+
   try {
     const vendor = await Vendor.findById(userId);
 
-    const categoryExists = vendor.products.find(
-      (prod) => prod.category.toLowerCase() === category.toLowerCase()
+    // Find the category by ID
+    const categoryExists = await vendor.products.find(
+      (prod) => prod._id.toString() === id.toString() // Match category by ID
     );
 
     if (categoryExists) {
-      if (!categoryExists.categoryList.includes(item)) {
-        categoryExists.categoryList.push(item);
+      // Add items to the category if they are not already present
+      const addedItems = [];
+      const existingItems = categoryExists.categoryList;
+
+      items.forEach((item) => {
+        if (!existingItems.includes(item)) {
+          categoryExists.categoryList.push(item);
+          addedItems.push(item);
+        }
+      });
+
+      // Save the vendor's updated products
+      if (addedItems.length > 0) {
         await vendor.save();
         return res.status(200).json({
-          message: "Item added to the existing category successfully.",
+          message: `${addedItems.length} item(s) added successfully.`,
+          addedItems,
           vendor,
+        });
+      } else {
+        return res.status(200).json({
+          message:
+            "No new items were added as they already exist in the category.",
         });
       }
     } else {
-      next(
-        new CustomError("No Such Category Found .Please contact the admin", 404)
+      return next(
+        new CustomError(
+          "Category with the provided ID not found. Please contact the admin.",
+          404
+        )
       );
     }
   } catch (error) {
@@ -473,13 +499,15 @@ const addProduct = async (req, res, next) => {
 };
 
 const deleteProduct = async (req, res, next) => {
-  const { category, item } = req.body;
+  const { item } = req.body;
+  const { id } = req.params; // categoryId from the request params
   const vendorId = req.user.id;
+  console.log(req.body);
 
-  if (!category || !item || typeof item !== "string") {
+  if (!id || !item || typeof item !== "string") {
     return next(
       new CustomError(
-        "Invalid input. Please provide vendorId, category, and item.",
+        "Invalid input. Please provide a valid categoryId and item.",
         404
       )
     );
@@ -492,11 +520,11 @@ const deleteProduct = async (req, res, next) => {
     }
 
     const categoryFound = vendor.products.find(
-      (prod) => prod.category.toLowerCase() === category.toLowerCase()
+      (prod) => prod._id.toString() === id
     );
 
     if (!categoryFound) {
-      return next(new CustomError("CategoryFound Not Found", 404));
+      return next(new CustomError("Category Not Found", 404));
     }
 
     const itemIndex = categoryFound.categoryList.findIndex(
@@ -507,13 +535,15 @@ const deleteProduct = async (req, res, next) => {
       return next(new CustomError("Item Not Found", 404));
     }
 
+    // Remove the item from the category list
     categoryFound.categoryList.splice(itemIndex, 1);
 
     await vendor.save();
 
-    return res
-      .status(200)
-      .json({ message: "Item deleted successfully.", vendor });
+    return res.status(200).json({
+      message: "Item deleted successfully.",
+      vendor,
+    });
   } catch (error) {
     console.error(error);
     return res

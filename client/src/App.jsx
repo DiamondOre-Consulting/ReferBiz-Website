@@ -14,6 +14,7 @@ import VendorLogin from "./Pages/Auth/VendorAuth.jsx/VendorLogin";
 import VendorHome from "./Pages/Vendor/VendorHome";
 import { useSelector } from "react-redux";
 import { Product } from "./Pages/Vendor/Product";
+import { CustomerList } from "./Pages/Vendor/CutomerList";
 
 const App = () => {
   const { role } = useSelector((state) => state?.auth);
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="/vendor/dashboard" element={<VendorHome />} />
           <Route path="/profile/:fullName" element={<Profile />} />
           <Route path="/product-list" element={<Product />} />
+          <Route path="/customer-list" element={<CustomerList />} />
         </Route>
 
         <Route path="/*" element={<PageNotFound />} />

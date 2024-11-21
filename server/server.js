@@ -9,7 +9,6 @@ import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
 import morgan from "morgan";
-import Category from "./models/category.schema.js";
 
 const app = express();
 
@@ -54,6 +53,32 @@ const connectDB = async () => {
 };
 
 connectDB();
+// import User from "./models/user.schema.js";
+
+// Adjust the path to your model
+
+// const addFieldsToCustomerList = async () => {
+//   try {
+//     const users = await User.find();
+
+//     for (const user of users) {
+//       user.vendorList = user.vendorList.map((customer) => ({
+//         ...customer,
+//         totalPaid: customer.totalPaid || 0, // Add default value if not present
+//         lastPurchaseDate: customer.lastPurchaseDate || null,
+//         purchaseCount: customer.purchaseCount || 0,
+//       }));
+
+//       await user.save();
+//     }
+
+//     console.log("Fields added successfully to customerList.");
+//   } catch (error) {
+//     console.error("Error updating customerList:", error);
+//   }
+// };
+
+// addFieldsToCustomerList();
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);

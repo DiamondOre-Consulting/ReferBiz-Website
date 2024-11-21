@@ -262,7 +262,23 @@ export const deleteSubCategories = createAsyncThunk(
     }
   }
 );
-
+export const addPayment = createAsyncThunk(
+  "/user/add-payment",
+  async (data) => {
+    const amount = data[1];
+    console.log("data", data[1]);
+    try {
+      let res = axiosInstance.post(`/user/add-payment/${data[0]}`, data[1]);
+      console.log("result", res);
+      res = await res;
+      toast.success("Payment done successfully");
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 const vendorSlice = createSlice({
   name: "vendor",
   initialState,

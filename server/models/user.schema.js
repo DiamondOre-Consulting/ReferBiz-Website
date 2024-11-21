@@ -1,8 +1,8 @@
-import mongoose from "mongoose"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcryptjs"
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 //data
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
   fullName: {
@@ -79,14 +79,33 @@ const userSchema = new Schema({
   otpExpiry: {
     type: Date,
   },
-})
+  vendorList: [
+    {
+      customerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vendor",
+      },
+      totalPaid: {
+        type: Number,
+        default: 0, // Total amount paid by the customer
+      },
+      lastPurchaseDate: {
+        type: Date, // Date of the last purchase
+      },
+      purchaseCount: {
+        type: Number,
+        default: 0, // Total number of purchases
+      },
+    },
+  ],
+});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("userPassword")) {
-    return next()
+    return next();
   }
-  this.userPassword = await bcrypt.hash(this.userPassword, 10)
-})
+  this.userPassword = await bcrypt.hash(this.userPassword, 10);
+});
 
 userSchema.methods = {
   generateJWTToken: async function () {
@@ -100,11 +119,11 @@ userSchema.methods = {
       {
         expiresIn: process.env.JWT_EXPIRY,
       }
-    )
+    );
   },
   comparePassword: async function (plainPassword) {
-    return await bcrypt.compare(plainPassword, this.userPassword)
+    return await bcrypt.compare(plainPassword, this.userPassword);
   },
-}
+};
 
-export default mongoose.model("User", userSchema)
+export default mongoose.model("User", userSchema);

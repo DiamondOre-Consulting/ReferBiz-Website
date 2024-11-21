@@ -14,6 +14,7 @@ import {
   deleteProduct,
   updateStatus,
   getVendorData,
+  getCustomerList,
 } from "../controllers/vendor.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
@@ -30,6 +31,7 @@ router.put(
   upload.single("vendorImage"),
   updateProfile
 );
+router.get("/customer-list", isLoggedIn, getCustomerList);
 router.post("/add-product/:id", isLoggedIn, addProduct);
 router.post("/delete-product/:id", isLoggedIn, deleteProduct);
 router.post("/change-password", isLoggedIn, changePassword);

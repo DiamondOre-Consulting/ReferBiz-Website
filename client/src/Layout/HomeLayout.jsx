@@ -198,7 +198,7 @@ const HomeLayout = ({ children }) => {
               </li>
               <li>
                 <NavLink
-                  to={"/boatman-list"}
+                  to={"/customer-list"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }

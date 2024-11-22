@@ -551,51 +551,51 @@ const deleteProduct = async (req, res, next) => {
       .json({ message: "Something went wrong. Please try again later." });
   }
 };
+
 const getCustomerList = async (req, res) => {
+  const { page = 1, limit = 10, searchQuery = "" } = req.query;
   const vendorId = req.user.id;
+  const pageNum = parseInt(page);
+  const limitNum = parseInt(limit);
+
+  const startIndex = (pageNum - 1) * limitNum;
 
   try {
-    // Fetch the vendor document by ID
-    const vendor = await Vendor.findById(vendorId);
+    const vendor = await Vendor.findById(vendorId).populate({
+      path: "customerList.userId",
+      select: "fullName phoneNumber email",
+    });
 
     if (!vendor) {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
-    // Extract the list of user IDs from the customer list
-    const userIds = vendor.customerList.map((customer) => {
-      customer.userId;
-      console.log(customer);
-      console.log(customer?.userId);
-    });
-    console.log("use", userIds);
-
-    // Fetch user details for all user IDs
-    const users = await User.find({ _id: { $in: userIds } });
-
-    // Merge user details with customer list data
-    const customers = vendor.customerList.map((customer) => {
-      const user = users.find(
-        (u) => u._id.toString() === customer.userId.toString()
-      );
-      if (user) {
-        return {
-          fullName: user.fullName,
-          phoneNumber: user.phoneNumber,
-          email: user.email,
-          totalPaid: customer.totalPaid,
-          lastPurchaseDate: customer.lastPurchaseDate,
-          purchaseCount: customer.purchaseCount,
-        };
-      }
-      return null; // Handle cases where the user does not exist
+    const filteredCustomers = vendor.customerList.filter((customer) => {
+      // Search by fullName, ignoring case
+      const fullName = customer.userId?.fullName.toLowerCase();
+      return fullName && fullName.includes(searchQuery.toLowerCase());
     });
 
-    // Filter out null values (if any users are missing)
-    const filteredCustomers = customers.filter((customer) => customer !== null);
+    // Apply pagination (slice the filtered customers array)
+    const paginatedCustomers = filteredCustomers.slice(
+      startIndex,
+      startIndex + limitNum
+    );
 
-    // Return the result
-    return res.status(200).json({ customers: filteredCustomers });
+    return res.status(200).json({
+      success: true,
+      message: "Customer Data Fetched",
+      customers: paginatedCustomers.map((customer) => ({
+        fullName: customer.userId.fullName,
+        phoneNumber: customer.userId.phoneNumber,
+        email: customer.userId.email,
+        totalPaid: customer.totalPaid,
+        lastPurchaseDate: customer.lastPurchaseDate,
+        purchaseCount: customer.purchaseCount,
+      })),
+      totalPages: Math.ceil(filteredCustomers.length / limitNum),
+      currentPage: pageNum,
+    });
   } catch (error) {
     console.error("Error fetching customer list:", error);
     return res.status(500).json({ message: "Internal server error." });

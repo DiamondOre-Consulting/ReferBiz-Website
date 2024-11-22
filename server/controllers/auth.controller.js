@@ -26,15 +26,6 @@ const register = async (req, res, next) => {
     let uuidPart = uuidv4().replace(/-/g, "").substring(0, 4);
     const customUID = `${namePart}${uuidPart}`;
 
-    if (referralCode) {
-      const referedUser = await User.findOne({ referralCode });
-      if (referedUser) {
-        referredBy = referedUser._id;
-      } else {
-        return next(new CustomError("Your referal code is invalid", 400));
-      }
-    }
-
     const uniqueEmail = await User.findOne({ userEmail });
     if (uniqueEmail) {
       return next(new CustomError("Email is already registered", 400));
@@ -60,6 +51,35 @@ const register = async (req, res, next) => {
     const token = await user.generateJWTToken();
     res.cookie("token", token, cookieOption);
     await user.save();
+    if (referralCode) {
+      const referredUser = await User.findOne({ referralCode });
+
+      if (referredUser) {
+        user.referredBy = referredUser._id;
+        user.referralEarnings += 50;
+        user.totalEarnings += 50;
+
+        await User.findByIdAndUpdate(
+          referredUser._id,
+          {
+            $push: {
+              referralList: {
+                userId: user._id,
+                dateReferred: new Date(),
+              },
+            },
+            $inc: {
+              referralEarnings: 50,
+            },
+          },
+          { new: true }
+        );
+      } else {
+        return next(new CustomError("Your referral code is invalid", 400));
+      }
+    }
+    await user.save();
+
     user.userPassword = undefined;
     res.status(201).json({
       success: true,
@@ -502,14 +522,12 @@ const addPayment = async (req, res, next) => {
       console.log("refered", referrer.totalEarnings);
     }
 
-    // Credit 5% of the amount to the current user
     user.referralEarnings += amount * 0.05;
     user.totalEarnings += user.referralEarnings;
     console.log("user refered", user.totalEarnings);
 
-    // Update vendorList in the User schema
     const existingVendor = user.vendorList.find(
-      (item) => item.customerId == vendorId
+      (item) => item.vendorId == vendorId
     );
 
     if (existingVendor) {
@@ -518,19 +536,17 @@ const addPayment = async (req, res, next) => {
       existingVendor.purchaseCount += 1;
     } else {
       user.vendorList.push({
-        customerId: vendorId,
+        vendorId: vendorId,
         totalPaid: amount,
         lastPurchaseDate: new Date(),
         purchaseCount: 1,
       });
     }
 
-    // Save updated user data
     await user.save();
 
-    // Update customerList in the Vendor schema
     const existingCustomer = vendor.customerList.find(
-      (item) => item.vendorId == userId
+      (item) => item.userId == userId
     );
 
     if (existingCustomer) {
@@ -539,7 +555,7 @@ const addPayment = async (req, res, next) => {
       existingCustomer.purchaseCount += 1;
     } else {
       vendor.customerList.push({
-        vendorId: userId,
+        userId: userId,
         totalPaid: amount,
         lastPurchaseDate: new Date(),
         purchaseCount: 1,

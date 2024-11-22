@@ -90,9 +90,9 @@ const vendorSchema = new Schema({
   products: [
     {
       category: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "Category",
         required: true,
-        trim: true,
       },
       categoryList: [
         {
@@ -104,7 +104,7 @@ const vendorSchema = new Schema({
   ],
   customerList: [
     {
-      vendorId: {
+      userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },

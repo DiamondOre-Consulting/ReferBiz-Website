@@ -45,7 +45,9 @@ export const Product = () => {
     SetItems(updatedSelectedContacts);
   };
 
-  useEffect(() => dispatch(getVendorData(data._id)), []);
+  useEffect(() => {
+    dispatch(getVendorData(data._id));
+  }, []);
 
   const handleConfirm = async () => {
     console.log("customer", customerId);
@@ -101,7 +103,7 @@ export const Product = () => {
 
               {/* Category Items */}
               <div className="flex flex-wrap gap-4">
-                {product.categoryList.map((item, itemIndex) => (
+                {product?.categoryList?.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
                     className="bg-blue-800 w-auto h-auto rounded-3xl text-xl px-4 py-2 flex items-center text-black font-semibold"

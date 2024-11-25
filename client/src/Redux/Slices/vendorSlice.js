@@ -15,6 +15,8 @@ const initialState = {
   vendorData: {},
   listOfSubCategories: [],
   customerList: [],
+  vendorProfile: {},
+  refferalList: [],
 };
 
 export const loginAccount = createAsyncThunk("/user/login", async (data) => {
@@ -302,6 +304,39 @@ export const getCustomers = createAsyncThunk(
     }
   }
 );
+
+export const editVendorProfile = createAsyncThunk(
+  "vendor/update-profile",
+  async (data) => {
+    try {
+      let res = axiosInstance.put(`vendor/update/${data[0]}`, data[1]);
+
+      res = await res;
+      console.log("update res", res);
+      return res.data;
+    } catch (e) {
+      return e?.response?.data?.message;
+    }
+  }
+);
+export const getReferralList = createAsyncThunk(
+  "/user/getReferralList",
+  async (data) => {
+    console.log("data for refer", data);
+    try {
+      const params = new URLSearchParams(data).toString();
+      let res = axiosInstance.get(`/user/referral-list?${params}`);
+
+      res = await res;
+      console.log("result for referral", res);
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
+
 const vendorSlice = createSlice({
   name: "vendor",
   initialState,
@@ -336,6 +371,12 @@ const vendorSlice = createSlice({
       })
       .addCase(getCustomers.fulfilled, (state, action) => {
         state.customerList = action?.payload?.customers;
+      })
+      .addCase(userProfile.fulfilled, (state, action) => {
+        state.vendorProfile = action?.payload?.user;
+      })
+      .addCase(getReferralList.fulfilled, (state, action) => {
+        state.refferalList = action?.payload?.referrals;
       });
   },
 });

@@ -1,7 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import { debounce } from "lodash";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import { getReferralList } from "../../Redux/Slices/vendorSlice";
 import { UserRound, Store } from "lucide-react";
 import {
   FaBars,
@@ -12,7 +18,12 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 
-import { FaCalendarCheck, FaHourglassHalf, FaLock } from "react-icons/fa6";
+import {
+  FaCalendarCheck,
+  FaHourglassHalf,
+  FaLock,
+  FaPersonArrowDownToLine,
+} from "react-icons/fa6";
 import {
   changePassword,
   editProfile,
@@ -26,6 +37,49 @@ import Header from "../../Components/Header";
 import { IndianRupee } from "lucide-react";
 
 const Profile = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const list = useSelector((state) => state?.vendor?.referralList);
+  console.log("list", list);
+  const loadData = async (page = 1) => {
+    setLoading(true);
+    try {
+      const params = {
+        page,
+        limit: itemsPerPage,
+        searchQuery,
+      };
+      const response = await dispatch(getReferralList(params)).unwrap();
+      setTotalPages(response.totalPages);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData(currentPage);
+  }, []);
+  useEffect(() => {
+    loadData(currentPage);
+  }, [currentPage, itemsPerPage, searchQuery]);
+  const handleSearch = useCallback(
+    debounce((query) => {
+      setSearchQuery(query);
+      setCurrentPage(1);
+    }, 10),
+    []
+  );
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  // other stuff
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [eye, setEye] = useState(true);
   const dispatch = useDispatch();
@@ -333,6 +387,23 @@ const Profile = () => {
                     </span>
                   </li>
                   <li
+                    onClick={() => setSideActive(4)}
+                    className={`flex items-center cursor-pointer p-2 space-x-2 font-semibold ${
+                      sideActive === 4
+                        ? "bg-gray-200 text-main"
+                        : "bg-white text-gray-700"
+                    } rounded-lg`}
+                  >
+                    <FaPersonArrowDownToLine size={20} />
+                    <span
+                      className={`ml-2 ${
+                        sidebarOpen ? "block" : "hidden"
+                      } md:block`}
+                    >
+                      Referral Contacts
+                    </span>
+                  </li>
+                  <li
                     onClick={() => {
                       if (window.confirm("Are you sure you want to logout?")) {
                         handleLogout(); // Call the logout function if confirmed
@@ -361,6 +432,7 @@ const Profile = () => {
               {sideActive === 0 && (
                 <form
                   noValidate
+                  onSubmit={handleFormInput}
                   className="flex flex-col items-start justify-center w-full p-3 text-black rounded-lg shadow-lg "
                 >
                   <div className="flex items-start mt-6 md:mt-16 justify-start w-full min-h-[55vh] ml-2 ">
@@ -588,6 +660,148 @@ const Profile = () => {
                     )}
                   </button>
                 </form>
+              )}
+              {sideActive === 4 && (
+                <div className="flex items-start mt-6 md:mt-16 justify-start w-full min-h-[55vh] ml-2 ">
+                  <div className="flex flex-col items-start justify-center w-full p-3 text-black rounded-lg ">
+                    <h2 className="text-2xl font-semibold mb-3 text-gray-600 text-center">
+                      Refferal List
+                    </h2>
+                    <div className="flex flex-col lg:flex-row border border-borderDark items-center justify-between gap-4 p-3 mt-4 bg-[#1c202a] rounded ">
+                      <input
+                        type="text"
+                        placeholder="Search by name..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="bg-[#242a34] outline-none text-white rounded p-2 lg:w-[20rem] w-full"
+                      />
+                      <div className="flex items-center justify-between w-full lg:w-fit lg:gap-2 xl:gap-10">
+                        <div>
+                          <label
+                            htmlFor=""
+                            className="text-white text-[1.1rem] mr-2"
+                          >
+                            Show:
+                          </label>
+                          <select
+                            value={itemsPerPage}
+                            onChange={handleItemsPerPageChange}
+                            className="bg-[#242a34]  outline-none text-white rounded p-2 sm:w-[6rem] w-[4rem]"
+                          >
+                            <option value={10}>10</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 overflow-x-scroll scrollbar scrollbar-track-rounded-full scrollbar-thumb-rounded-full scrollbar-track-gray-800 scrollbar-thumb-gray-600 scrollbar-thin md:w-custom">
+                      <div className="flex border  flex-col items-center justify-center border-[#242a34] rounded-t  min-w-[55.5rem]">
+                        <div className="flex items-center relative justify-between w-full gap-3 bg-[#242a34] rounded-t text-white px-3 py-4 lg:px-6 font-semibold">
+                          <p className="min-w-[3rem] text-center">S.no</p>
+                          <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
+                            <p>Name</p>
+                          </div>
+                          <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
+                            <p>Email</p>
+                          </div>
+                          <p className="min-w-[7.5rem]  text-center">Date</p>
+                        </div>
+                        {loading
+                          ? Array.from({ length: itemsPerPage }).map(
+                              (_, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#1c202a]"
+                                >
+                                  <p className="min-w-[3rem] text-center">
+                                    <Skeleton />
+                                  </p>
+                                  <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
+                                    <p>
+                                      <Skeleton />
+                                    </p>
+                                  </div>
+                                  <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
+                                    <p>
+                                      <Skeleton />
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2 min-w-[6.8rem]">
+                                    <Skeleton width={70} />
+                                  </div>
+                                  <div className="flex items-center gap-2 min-w-[6.8rem]">
+                                    <Skeleton width={70} />
+                                  </div>
+                                  <div className="min-w-[3.3rem] flex items-center justify-center">
+                                    <Skeleton width={24} height={24} />
+                                  </div>
+                                </div>
+                              )
+                            )
+                          : list?.map((data, index) => (
+                              <div
+                                key={data?._id}
+                                className="relative text-[0.95rem] flex items-center border-t font-normal border-borderDark justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]"
+                              >
+                                <p className="min-w-[3rem] text-center">
+                                  {(currentPage - 1) * itemsPerPage + index + 1}
+                                  .
+                                </p>
+                                <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
+                                  <p>{data?.fullName}</p>
+                                </div>
+
+                                <div className="min-w-[7rem]  truncate line-clamp-1">
+                                  <p>
+                                    {data?.lastPurchaseDate
+                                      ? new Date(
+                                          data.lastPurchaseDate
+                                        ).toLocaleString("en-US", {
+                                          // 'long' | 'short' | 'narrow'
+                                          year: "numeric",
+                                          month: "short", // 'long' | 'short' | 'narrow'
+                                          day: "numeric",
+                                          // Use 12-hour clock
+                                        })
+                                      : ""}
+                                  </p>
+                                </div>
+                                <div className="min-w-[7rem]  truncate line-clamp-1">
+                                  <p>{data?.purchaseCount}</p>
+                                </div>
+                              </div>
+                            ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 border border-[#242a34] bg-[#1c202a] text-white rounded overflow-hidden ">
+                      <button
+                        className="flex items-center justify-center bg-[#7367F0] p-3"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPage === 1}
+                      >
+                        <GrFormPrevious className="text-[1.4rem] mt-1" />{" "}
+                        Previous
+                      </button>
+                      <span className="font-semibold ">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <button
+                        className="flex items-center justify-center bg-[#7367F0] p-3"
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages)
+                          )
+                        }
+                        disabled={currentPage === totalPages}
+                      >
+                        Next <GrFormNext className="text-[1.4rem] mt-1" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>

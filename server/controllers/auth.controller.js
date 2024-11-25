@@ -604,6 +604,76 @@ const addPayment = async (req, res, next) => {
   }
 };
 
+const getReferralList = async (req, res) => {
+  const { page = 1, limit = 10, searchQuery = "" } = req.query;
+  const userId = req.user?.id; // Ensure `req.user.id` is available after authentication middleware
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+
+  // Validate `page` and `limit`
+  if (isNaN(pageNum) || pageNum <= 0) {
+    return res.status(400).json({ message: "Invalid page number." });
+  }
+  if (isNaN(limitNum) || limitNum <= 0) {
+    return res.status(400).json({ message: "Invalid limit number." });
+  }
+
+  const startIndex = (pageNum - 1) * limitNum;
+
+  try {
+    // Fetch the user and populate the referral list
+    const user = await User.findById(userId).populate({
+      path: "referralList.userId",
+      select: "fullName userEmail",
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Filter referrals by `searchQuery`
+    const filteredReferrals = user.referralList.filter((referral) => {
+      const fullName = referral.userId?.fullName?.toLowerCase();
+      return searchQuery
+        ? fullName && fullName.includes(searchQuery.toLowerCase())
+        : true;
+    });
+
+    // Paginate the filtered referrals
+    const paginatedReferrals = filteredReferrals.slice(
+      startIndex,
+      startIndex + limitNum
+    );
+
+    // Handle empty pagination result
+    if (paginatedReferrals.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No referrals found for the given page or search query.",
+        referrals: [],
+        totalPages: Math.ceil(filteredReferrals.length / limitNum),
+        currentPage: pageNum,
+      });
+    }
+
+    // Send response
+    return res.status(200).json({
+      success: true,
+      message: "Referral Data Fetched",
+      referrals: paginatedReferrals.map((referral) => ({
+        fullName: referral.userId.fullName,
+        email: referral.userId.userEmail,
+        referredDate: referral.dateReferred,
+      })),
+      totalPages: Math.ceil(filteredReferrals.length / limitNum),
+      currentPage: pageNum,
+    });
+  } catch (error) {
+    console.error("Error fetching referral list:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 export {
   register,
   login,
@@ -618,4 +688,5 @@ export {
   getAllCategories,
   getItemsByCategory,
   addPayment,
+  getReferralList,
 };

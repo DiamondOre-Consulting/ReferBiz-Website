@@ -12,6 +12,7 @@ import {
   getAllCategories,
   getItemsByCategory,
   addPayment,
+  getReferralList,
 } from "../controllers/auth.controller.js";
 import isLoggedIn from "../middlewares/auth.middleware.js";
 import { Router } from "express";
@@ -28,6 +29,7 @@ router.put(
   upload.single("userImage"),
   updateProfile
 );
+router.get("/referral-list", isLoggedIn, getReferralList);
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", verifyOTP);

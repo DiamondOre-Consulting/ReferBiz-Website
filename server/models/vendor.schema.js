@@ -121,7 +121,12 @@ const vendorSchema = new Schema({
       },
     },
   ],
-
+  gst_no: {
+    type: String,
+  },
+  tin_no: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

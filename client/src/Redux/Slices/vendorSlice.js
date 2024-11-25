@@ -14,6 +14,7 @@ const initialState = {
   vendorListBySubCategory: [],
   vendorData: {},
   listOfSubCategories: [],
+  customerList: [],
 };
 
 export const loginAccount = createAsyncThunk("/user/login", async (data) => {
@@ -44,7 +45,9 @@ export const logout = createAsyncThunk("/user/logout", async () => {
 export const userProfile = createAsyncThunk("/user/details", async () => {
   try {
     const res = axiosInstance.get("/vendor/");
-    return (await res).data;
+    const response = await res;
+
+    return response.data;
   } catch (e) {
     toast.error(e?.message);
     throw e;
@@ -184,13 +187,15 @@ export const getSubCategoryList = createAsyncThunk(
   "/user/subCategories",
   async (data) => {
     const { location, category } = data;
-    console.log("loc", location);
+    console.log("loc", location, category);
     try {
       let res = axiosInstance.get(
         `/user/get-subCategory/${location}/${category}`
       );
-      console.log(res);
+
       res = await res;
+      console.log("response for subcategory", res);
+
       return res.data;
     } catch (e) {
       toast.error("Something went wrong");
@@ -203,8 +208,9 @@ export const getVendorData = createAsyncThunk(
   async (data) => {
     try {
       let res = axiosInstance.get(`/vendor/get-vendor-data/${data}`);
-      console.log(res);
+
       res = await res;
+      console.log("res", res);
       return res.data;
     } catch (e) {
       toast.error("Something went wrong");
@@ -279,6 +285,23 @@ export const addPayment = createAsyncThunk(
     }
   }
 );
+
+export const getCustomers = createAsyncThunk(
+  "/vendor/getCustomers",
+  async (data) => {
+    try {
+      const params = new URLSearchParams(data).toString();
+      let res = axiosInstance.get(`/vendor/customer-list?${params}`);
+
+      res = await res;
+      console.log("result", res);
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 const vendorSlice = createSlice({
   name: "vendor",
   initialState,
@@ -305,10 +328,14 @@ const vendorSlice = createSlice({
         state.vendorListBySubCategory = action?.payload?.vendors;
       })
       .addCase(getVendorData.fulfilled, (state, action) => {
+        console.log("cation", action);
         state.vendorData = action?.payload?.user;
       })
       .addCase(listOfAllSubCategories.fulfilled, (state, action) => {
         state.listOfSubCategories = action?.payload?.category;
+      })
+      .addCase(getCustomers.fulfilled, (state, action) => {
+        state.customerList = action?.payload?.customers;
       });
   },
 });

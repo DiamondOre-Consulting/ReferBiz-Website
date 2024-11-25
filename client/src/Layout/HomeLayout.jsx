@@ -150,20 +150,10 @@ const HomeLayout = ({ children }) => {
                   Dashboard
                 </NavLink>
               </li>
+
               <li>
                 <NavLink
-                  to={"/vendor/global-settings"}
-                  className={({ isActive }) =>
-                    isActive ? activeListStyle : listStyle
-                  }
-                >
-                  <RiFileList2Fill />
-                  Orders
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={"/vendor/global-settings"}
+                  to={"/vendor-stores"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }
@@ -175,7 +165,7 @@ const HomeLayout = ({ children }) => {
 
               <li>
                 <NavLink
-                  to={"/car-list"}
+                  to={"/vendor-profile"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }
@@ -207,20 +197,10 @@ const HomeLayout = ({ children }) => {
                   Customer list
                 </NavLink>
               </li>
+
               <li>
                 <NavLink
-                  to={"/enquiry"}
-                  className={({ isActive }) =>
-                    isActive ? activeListStyle : listStyle
-                  }
-                >
-                  <FaPersonCircleQuestion />
-                  Enquiry
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={"/enquiry"}
+                  to={"/contact"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }

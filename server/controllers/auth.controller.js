@@ -1,5 +1,6 @@
 import User from "../models/user.schema.js";
 import { v4 as uuidv4 } from "uuid";
+import mongoose from "mongoose";
 import fs from "fs/promises";
 import cloudinary from "cloudinary";
 import CustomError from "../utils/error.utils.js";
@@ -380,17 +381,30 @@ const verifyOTP = async (req, res, next) => {
 const getAllCategories = async (req, res) => {
   const { location } = req.params;
   try {
-    const vendors = await Vendor.find({ nearByLocation: location }, "products");
+    const vendors = await Vendor.find({ nearByLocation: location })
+      .populate("products.category", "categoryName")
+      .select("products");
 
-    const categorySet = new Set();
+    const categoryMap = new Map();
 
     vendors.forEach((vendor) => {
       vendor.products.forEach((product) => {
-        categorySet.add(product.category);
+        if (
+          product.category &&
+          product.category._id &&
+          product.category.categoryName
+        ) {
+          categoryMap.set(
+            product.category._id.toString(),
+            product.category.categoryName
+          );
+        }
       });
     });
 
-    const categories = Array.from(categorySet);
+    const categories = Array.from(categoryMap, ([id, name]) => ({ id, name }));
+
+    console.log("Categories:", categories);
 
     return res
       .status(200)
@@ -411,17 +425,18 @@ const getItemsByCategory = async (req, res) => {
   }
 
   try {
-    const vendors = await Vendor.find(
-      { "products.category": category, nearByLocation: location },
-
-      "products"
-    );
+    const vendors = await Vendor.find({
+      "products.category": category,
+      nearByLocation: location,
+    })
+      .populate("products.category", "categoryName subCategory")
+      .select("products");
 
     const itemSet = new Set();
 
     vendors.forEach((vendor) => {
       vendor.products.forEach((product) => {
-        if (product.category === category) {
+        if (product.category && product.category._id.toString() === category) {
           product.categoryList.forEach((item) => {
             itemSet.add(item);
           });
@@ -431,9 +446,12 @@ const getItemsByCategory = async (req, res) => {
 
     const items = Array.from(itemSet);
 
-    return res
-      .status(200)
-      .json({ success: true, message: "SubCategory list", category, items });
+    return res.status(200).json({
+      success: true,
+      message: "SubCategory list",
+      categoryId: category,
+      items,
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -446,19 +464,24 @@ const searchVendorsByCategory = async (req, res, next) => {
   const { category, location } = req.params;
 
   try {
+    // Query vendors with the matching category ObjectId and location
     const vendors = await Vendor.find({
-      "products.category": { $regex: new RegExp(category, "i") },
+      "products.category": category, // Match directly with the ObjectId
       nearByLocation: location,
-    });
+    }).populate("products.category", "categoryName"); // Optionally populate category details
 
     if (!vendors.length) {
       return next(new CustomError("No vendors found for this category", 404));
     }
+    console.log(vendors);
 
-    res
-      .status(200)
-      .json({ success: true, message: "Categories list", vendors });
+    res.status(200).json({
+      success: true,
+      message: "Vendors found for the specified category",
+      vendors,
+    });
   } catch (error) {
+    console.error("Error fetching vendors by category:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -467,8 +490,10 @@ const searchVendorsBySubCategory = async (req, res, next) => {
   const { location, category, item } = req.params;
 
   try {
+    const categoryObjectId = new mongoose.Types.ObjectId(category);
+
     const vendors = await Vendor.find({
-      "products.category": { $regex: new RegExp(category, "i") },
+      "products.category": categoryObjectId,
       "products.categoryList": { $regex: new RegExp(item, "i") },
       nearByLocation: location,
     });
@@ -479,11 +504,17 @@ const searchVendorsBySubCategory = async (req, res, next) => {
       );
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Vendor list for subcategory", vendors });
+    res.status(200).json({
+      success: true,
+      message: "Vendor list for subcategory",
+      vendors,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching vendors:", error);
+
+    res.status(500).json({
+      message: error.message || "Internal server error",
+    });
   }
 };
 

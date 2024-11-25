@@ -25,10 +25,12 @@ const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
+
+  const fetchData = async () => {
+    await dispatch(getVendorData(id));
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(getVendorData(id));
-    };
     fetchData();
   }, []);
   const breadcrumbItems = [
@@ -38,9 +40,9 @@ const VendorDetail = () => {
   const handlePay = async () => {
     await dispatch(addPayment([id, { amount: Number(amount) }]));
     setIsPaid(true);
-    setTimeout(() => {
-      setIsModalOpen(false);
-    }, 100); // Close  the modal after 2 seconds
+    // setTimeout(() => {
+    //   setIsModalOpen(false);
+    // }, 100);
   };
 
   return (

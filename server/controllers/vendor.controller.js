@@ -119,6 +119,7 @@ const getVendors = async (req, res) => {
 const getVendorsByLocation = async (req, res, next) => {
   try {
     let { nearByLocation } = req.body;
+    console.log("near", nearByLocation);
 
     if (!nearByLocation) {
       return next(new CustomError("Query is invalid", 500));
@@ -162,15 +163,31 @@ const vendorProfile = async (req, res, next) => {
 const getVendorData = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await Vendor.findById(id);
-    console.log(user);
+    console.log(id);
+
+    // Find the vendor by ID and populate the 'category' field in the products array
+    const vendor = await Vendor.findById(id).populate({
+      path: "products.category", // Path to populate
+      select: "categoryName", // Only fetch the categoryName field
+    });
+
+    console.log(vendor);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: "Vendor not found",
+      });
+    }
+    // console.log(vendor);
+
     res.status(200).json({
       success: true,
-      message: "",
-      user,
+      message: "Vendor data fetched successfully",
+      user: vendor,
     });
   } catch (err) {
-    return next(new CustomError("Failed to fetch" + err.message, 500));
+    console.error(err);
+    return next(new CustomError("Failed to fetch: " + err.message, 500));
   }
 };
 
@@ -554,34 +571,65 @@ const deleteProduct = async (req, res, next) => {
 
 const getCustomerList = async (req, res) => {
   const { page = 1, limit = 10, searchQuery = "" } = req.query;
-  const vendorId = req.user.id;
-  const pageNum = parseInt(page);
-  const limitNum = parseInt(limit);
+  const vendorId = req.user?.id; // Ensure `req.user.id` is available
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+
+  // Validate `page` and `limit`
+  if (isNaN(pageNum) || pageNum <= 0) {
+    return res.status(400).json({ message: "Invalid page number." });
+  }
+  if (isNaN(limitNum) || limitNum <= 0) {
+    return res.status(400).json({ message: "Invalid limit number." });
+  }
 
   const startIndex = (pageNum - 1) * limitNum;
 
   try {
+    console.log("Vendor ID:", vendorId); // Debug vendor ID
+
+    // Find the vendor and populate the customer list
     const vendor = await Vendor.findById(vendorId).populate({
       path: "customerList.userId",
       select: "fullName phoneNumber email",
     });
+    console.log("end", vendor);
 
     if (!vendor) {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
+    console.log("Customer List:", vendor.customerList); // Debug customer list
+
+    // Filter customers by `searchQuery`
     const filteredCustomers = vendor.customerList.filter((customer) => {
-      // Search by fullName, ignoring case
-      const fullName = customer.userId?.fullName.toLowerCase();
-      return fullName && fullName.includes(searchQuery.toLowerCase());
+      const fullName = customer.userId?.fullName?.toLowerCase();
+      return searchQuery
+        ? fullName && fullName.includes(searchQuery.toLowerCase())
+        : true;
     });
 
-    // Apply pagination (slice the filtered customers array)
+    console.log("Filtered Customers:", filteredCustomers); // Debug filtered customers
+
+    // Paginate filtered customers
     const paginatedCustomers = filteredCustomers.slice(
       startIndex,
       startIndex + limitNum
     );
 
+    // Handle empty pagination result
+    if (paginatedCustomers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No customers found for the given page or search query.",
+        customers: [],
+        totalPages: Math.ceil(filteredCustomers.length / limitNum),
+        currentPage: pageNum,
+      });
+    }
+    console.log("Filtered Customers:", filteredCustomers);
+
+    // Send response
     return res.status(200).json({
       success: true,
       message: "Customer Data Fetched",

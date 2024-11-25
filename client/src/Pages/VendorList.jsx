@@ -24,6 +24,7 @@ const VendorList = () => {
   const [selectCategory, setSelectCategory] = useState("");
   const vendorList = useSelector((state) => state.vendor.vendorList);
   const [vendorDataList, setVendorDataList] = useState(vendorList);
+
   const categoryList = useSelector((state) => state?.vendor?.categoryList);
   const subCategoryList = useSelector(
     (state) => state?.vendor?.subCategoryList
@@ -45,6 +46,7 @@ const VendorList = () => {
     await dispatch(getCategoryList(location));
   };
   const fetchSubCategoryList = async (category) => {
+    console.log("categoryforfetchsub", category);
     await dispatch(getSubCategoryList({ location, category }));
   };
   const fetchVendorListByCategory = async (category) => {
@@ -75,7 +77,7 @@ const VendorList = () => {
     debounce((searchInput) => {
       if (searchInput.trim()) {
         const filtered = categoryList?.filter((category) =>
-          category?.toLowerCase()?.includes(searchInput.toLowerCase())
+          category?.name.toLowerCase()?.includes(searchInput.toLowerCase())
         );
         setFilteredSuggestions(filtered);
       } else {
@@ -113,11 +115,11 @@ const VendorList = () => {
         </div>
         <div className="flex items-center justify-center gap-1 font-semibold text-[0.95rem]">
           <FaUser />
-          {vendor?.totalReferrals.length}
+          {vendor?.totalReferrals?.length}
         </div>
         <div className="flex items-center justify-center gap-1 font-semibold text-[0.95rem]">
           <GiBiceps />
-          {vendor?.totalReferrals.length}
+          {vendor?.totalReferrals?.length}
         </div>
       </div>
       <div className="flex items-center justify-center font-semibold text-[1.3rem] mt-3">
@@ -154,15 +156,16 @@ const VendorList = () => {
                     <li
                       key={index}
                       onClick={() => {
-                        setSelectCategory(suggestion);
-                        handleSuggestionClick(suggestion);
-                        fetchVendorListByCategory(suggestion);
-                        fetchSubCategoryList(suggestion);
+                        console.log("sugg", filteredSuggestions);
+                        setSelectCategory(suggestion.id);
+                        handleSuggestionClick(suggestion.name);
+                        fetchVendorListByCategory(suggestion.id);
+                        fetchSubCategoryList(suggestion.id);
                         setIsSubCategoryOpen(true);
                       }}
                       className="px-4 py-2 cursor-pointer hover:bg-gray-600"
                     >
-                      {suggestion}
+                      {suggestion.name}
                     </li>
                   ))}
                 </ul>

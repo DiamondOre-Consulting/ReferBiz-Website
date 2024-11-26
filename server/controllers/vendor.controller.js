@@ -571,24 +571,16 @@ const deleteProduct = async (req, res, next) => {
 
 const getCustomerList = async (req, res) => {
   const { page = 1, limit = 10, searchQuery = "" } = req.query;
-  const vendorId = req.user?.id; // Ensure `req.user.id` is available
+  const vendorId = req.user?.id;
+  console.log("Vendor ID:", vendorId);
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
-
-  // Validate `page` and `limit`
-  if (isNaN(pageNum) || pageNum <= 0) {
-    return res.status(400).json({ message: "Invalid page number." });
-  }
-  if (isNaN(limitNum) || limitNum <= 0) {
-    return res.status(400).json({ message: "Invalid limit number." });
-  }
 
   const startIndex = (pageNum - 1) * limitNum;
 
   try {
-    console.log("Vendor ID:", vendorId); // Debug vendor ID
+    console.log("Vendor ID:", vendorId);
 
-    // Find the vendor and populate the customer list
     const vendor = await Vendor.findById(vendorId).populate({
       path: "customerList.userId",
       select: "fullName phoneNumber email",
@@ -599,9 +591,8 @@ const getCustomerList = async (req, res) => {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
-    console.log("Customer List:", vendor.customerList); // Debug customer list
+    console.log("Customer List:", vendor.customerList);
 
-    // Filter customers by `searchQuery`
     const filteredCustomers = vendor.customerList.filter((customer) => {
       const fullName = customer.userId?.fullName?.toLowerCase();
       return searchQuery
@@ -609,27 +600,13 @@ const getCustomerList = async (req, res) => {
         : true;
     });
 
-    console.log("Filtered Customers:", filteredCustomers); // Debug filtered customers
+    console.log("Filtered Customers:", filteredCustomers);
 
-    // Paginate filtered customers
     const paginatedCustomers = filteredCustomers.slice(
       startIndex,
       startIndex + limitNum
     );
 
-    // Handle empty pagination result
-    if (paginatedCustomers.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No customers found for the given page or search query.",
-        customers: [],
-        totalPages: Math.ceil(filteredCustomers.length / limitNum),
-        currentPage: pageNum,
-      });
-    }
-    console.log("Filtered Customers:", filteredCustomers);
-
-    // Send response
     return res.status(200).json({
       success: true,
       message: "Customer Data Fetched",

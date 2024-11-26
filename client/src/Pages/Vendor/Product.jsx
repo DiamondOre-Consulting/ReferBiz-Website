@@ -54,6 +54,7 @@ export const Product = () => {
     await dispatch(addSubCategories([customerId, { items }]));
     await dispatch(getVendorData(data._id));
     setCustomerId("");
+    SetItems([]);
     console.log("Confirmed selected items:", items);
   };
   console.log("vendorproducts", vendorData?.products);

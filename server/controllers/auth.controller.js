@@ -606,11 +606,11 @@ const addPayment = async (req, res, next) => {
 
 const getReferralList = async (req, res) => {
   const { page = 1, limit = 10, searchQuery = "" } = req.query;
-  const userId = req.user?.id; // Ensure `req.user.id` is available after authentication middleware
+  const userId = req.user?.id;
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
+  console.log("res", page, limit, searchQuery, userId);
 
-  // Validate `page` and `limit`
   if (isNaN(pageNum) || pageNum <= 0) {
     return res.status(400).json({ message: "Invalid page number." });
   }
@@ -621,7 +621,6 @@ const getReferralList = async (req, res) => {
   const startIndex = (pageNum - 1) * limitNum;
 
   try {
-    // Fetch the user and populate the referral list
     const user = await User.findById(userId).populate({
       path: "referralList.userId",
       select: "fullName userEmail",
@@ -631,7 +630,6 @@ const getReferralList = async (req, res) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Filter referrals by `searchQuery`
     const filteredReferrals = user.referralList.filter((referral) => {
       const fullName = referral.userId?.fullName?.toLowerCase();
       return searchQuery
@@ -639,24 +637,11 @@ const getReferralList = async (req, res) => {
         : true;
     });
 
-    // Paginate the filtered referrals
     const paginatedReferrals = filteredReferrals.slice(
       startIndex,
       startIndex + limitNum
     );
 
-    // Handle empty pagination result
-    if (paginatedReferrals.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No referrals found for the given page or search query.",
-        referrals: [],
-        totalPages: Math.ceil(filteredReferrals.length / limitNum),
-        currentPage: pageNum,
-      });
-    }
-
-    // Send response
     return res.status(200).json({
       success: true,
       message: "Referral Data Fetched",

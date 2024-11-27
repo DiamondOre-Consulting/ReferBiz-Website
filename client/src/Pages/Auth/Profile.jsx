@@ -24,7 +24,6 @@ import {
   userProfile,
 } from "../../Redux/Slices/authSlice";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
-import { MdContentCopy } from "react-icons/md";
 import { FiCopy } from "react-icons/fi";
 import Header from "../../Components/Header";
 import { IndianRupee } from "lucide-react";

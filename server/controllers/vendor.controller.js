@@ -1,5 +1,6 @@
 import Vendor from "../models/vendor.schema.js";
 import CustomError from "../utils/error.utils.js";
+import Contact from "../models/contact.schema.js";
 import { v4 as uuidv4 } from "uuid";
 import sendEmail from "../utils/email.utils.js";
 import cloudinary from "cloudinary";
@@ -237,6 +238,9 @@ const updateProfile = async (req, res, next) => {
 
     if (!user) {
       return next(new CustomError("User does not exist", 400));
+    }
+    if (!fullName || !phoneNumber || !fullAddress || !shopName) {
+      return next(new CustomError("All field are required", 400));
     }
 
     if (fullName) {
@@ -627,6 +631,33 @@ const getCustomerList = async (req, res) => {
   }
 };
 
+// API Endpoint
+const contactUs = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    // Save the contact data to the database
+    const contact = new Contact({ name, email, message });
+
+    const subject = "Message by the vendor";
+    const body = ` <h3>New Contact Form Submission</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message}</p>`;
+
+    // Send email
+    await sendEmail(email, subject, body);
+    await contact.save();
+    res.status(200).json({
+      success: true,
+      message: "Contact Email send successfull!",
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
+  }
+};
+
 export {
   login,
   logout,
@@ -643,4 +674,5 @@ export {
   updateStatus,
   getVendorData,
   getCustomerList,
+  contactUs,
 };

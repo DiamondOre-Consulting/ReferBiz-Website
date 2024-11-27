@@ -49,16 +49,17 @@ export const VendorProfile = () => {
     setIsSubmitting(true);
     setErrorMessage("");
     setSuccessMessage("");
-
-    // if (
-    //   !shopName ||
-    //   !fullAddress ||
-    //   !phoneNumber ||
-    //   !fullName ||
-    //   !vendorImage
-    // ) {
-    //   return toast.error("All fields are required");
-    // }
+    if (
+      !formData.shopName ||
+      !formData.fullAddress ||
+      !formData.phoneNumber ||
+      !formData.fullName
+    ) {
+      return toast.error("All fields are required");
+    }
+    if (formData.phoneNumber.length != 10) {
+      return toast.error("Please enter 10 digit Number");
+    }
 
     const formPayload = new FormData();
     formPayload.append("shopName", formData.shopName);
@@ -178,10 +179,10 @@ export const VendorProfile = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              // disabled={isSubmitting}
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
             >
-              {isSubmitting ? "Updating..." : "Update Profile"}
+              Update Profile
             </button>
           </form>
         </div>

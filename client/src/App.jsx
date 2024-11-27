@@ -6,6 +6,7 @@ import Register from "./Pages/Auth/Register";
 import Login from "./Pages/Auth/Login";
 import Header from "./Components/Header";
 import Contact from "./Pages/Contact";
+import { VendorContact } from "./Pages/Vendor/VendorContact";
 import VendorList from "./Pages/VendorList";
 import VendorDetail from "./Pages/VendorDetail";
 import Profile from "./Pages/Auth/Profile";
@@ -82,7 +83,7 @@ const App = () => {
           <Route path="/customer-list" element={<CustomerList />} />
           <Route path="/vendor-stores" element={<VendorStore />} />
           <Route path="/vendor-profile" element={<VendorProfile />} />
-          <Route path="/contact-us" element={<Contact />} />
+          <Route path="/vendor-contact" element={<VendorContact />} />
         </Route>
 
         <Route path="/*" element={<PageNotFound />} />

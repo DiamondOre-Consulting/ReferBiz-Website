@@ -6,7 +6,6 @@ import {
   deleteSubCategories,
   listOfAllSubCategories,
 } from "../../Redux/Slices/vendorSlice";
-import { Dialog } from "@radix-ui/react-dialog";
 import { SubCategoryModal } from "./SubCategoryModal";
 import { useEffect, useState } from "react";
 import { getVendorData } from "../../Redux/Slices/vendorSlice";

@@ -39,11 +39,11 @@ const HomeLayout = ({ children }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const vendor = useSelector((state) => state?.vendor?.vendorProfile);
 
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
   const avatar = useSelector((state) => state?.auth?.data?.avatar);
   const fullName = useSelector((state) => state?.auth?.data?.fullName);
-  console.log(fullName);
   const fetchProfile = async () => {
     await dispatch(userProfile());
   };
@@ -112,7 +112,7 @@ const HomeLayout = ({ children }) => {
                 className=" size-[2.6rem] rounded-full overflow-hidden bg-[#a4a5a9] border border-borderDark"
               >
                 <img
-                  src={avatar?.secure_url || "userImg"}
+                  src={vendor?.vendorImage?.secure_url || "userImg"}
                   className="w-[2.55rem]"
                   alt="User Avatar"
                 />
@@ -200,7 +200,7 @@ const HomeLayout = ({ children }) => {
 
               <li>
                 <NavLink
-                  to={"/contact"}
+                  to={"/vendor-contact"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }

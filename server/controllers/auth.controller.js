@@ -6,6 +6,7 @@ import cloudinary from "cloudinary";
 import CustomError from "../utils/error.utils.js";
 import sendEmail from "../utils/email.utils.js";
 import Vendor from "../models/vendor.schema.js";
+import Contact from "../models/contact.schema.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -659,6 +660,163 @@ const getReferralList = async (req, res) => {
   }
 };
 
+// API Endpoint
+const userContactUs = async (req, res, next) => {
+  try {
+    const { name, email, message, phoneNumber, role } = req.body;
+    const userId = req.user.id;
+    const contact = new Contact({
+      name,
+      email,
+      message,
+      userId,
+      role,
+    });
+
+    const subject = "Message by the vendor";
+    const body = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f9;
+        }
+        .email-container {
+          width: 100%;
+          max-width: 650px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+          text-align: center;
+          margin-bottom: 25px;
+          font-size: 28px;
+          font-weight: bold;
+          color: #3b5998;  /* Professional blue */
+          text-transform: uppercase;
+        }
+        .email-content {
+          font-size: 16px;
+          color: #333333;
+          line-height: 1.6;
+        }
+        .email-content p {
+          margin-bottom: 15px;
+        }
+        .email-content strong {
+          color: #333333;
+        }
+        .email-content .highlight {
+          font-weight: bold;
+          color: #4a90e2; /* Highlight color for emphasis */
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 14px;
+          color: #777777;
+        }
+        .footer a {
+          color: #3b5998; /* Link color */
+          text-decoration: none;
+        }
+        .footer p {
+          margin: 10px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="email-header">
+          Vendor Contact Message
+        </div>
+        <div class="email-content">
+          <p><strong class="highlight">Name:</strong> ${name}</p>
+          <p><strong class="highlight">Email:</strong> ${email}</p>
+          <p><strong class="highlight">Phone Number:</strong> ${phoneNumber}</p>
+          <p><strong class="highlight">Message:</strong></p>
+          <p>${message}</p>
+        </div>
+        <div class="footer">
+          <p>Thank you for taking the time to reach out to us.</p>
+          <p>If you have any further questions or need assistance, please <a href="mailto:admin@yourdomain.com">contact us</a> directly.</p>
+          <p>Best regards,<br>Your Company Name Team</p>
+        </div>
+      </div>
+    </body>
+  </html>
+`;
+
+    // Send email to the vendor (or system)
+    await sendEmail(email, subject, body);
+
+    // Save contact form entry in the database
+    await contact.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Contact Email sent successfully!",
+    });
+  } catch (e) {
+    return next(new CustomError(e.message, 500));
+  }
+};
+
+const giveReviewToVendor = async (req, res) => {
+  const { vendorId } = req.params;
+  const { starRating } = req.body;
+  const userId = req.user.id; // Expecting { starRating: <number>, userId: <userId> }
+
+  // Validate the starRating
+  if (!starRating || starRating < 1 || starRating > 5) {
+    return res
+      .status(400)
+      .json({ message: "Invalid star rating. Must be between 1 and 5." });
+  }
+
+  // Check if userId is provided
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required." });
+  }
+
+  try {
+    // Find the vendor by ID
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found." });
+    }
+
+    // Check if the user has already rated this vendor
+    if (vendor.ratedBy.includes(userId)) {
+      return res
+        .status(400)
+        .json({ message: "You have already rated this vendor." });
+    }
+
+    // Add the userId to the ratedBy array
+    vendor.ratedBy.push(userId);
+
+    // Update the totalRatingSum and totalNumberGivenReview
+    vendor.totalRatingSum += starRating;
+    vendor.totalNumberGivenReview += 1;
+
+    // Save the updated vendor document
+    await vendor.save();
+
+    // Send success response
+    res.status(200).json({ message: "Rating submitted successfully!", vendor });
+  } catch (error) {
+    console.error("Error submitting rating:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export {
   register,
   login,
@@ -674,4 +832,6 @@ export {
   getItemsByCategory,
   addPayment,
   getReferralList,
+  userContactUs,
+  giveReviewToVendor,
 };

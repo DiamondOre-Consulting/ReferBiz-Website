@@ -57,6 +57,9 @@ const vendorSchema = new Schema({
   phoneNumber: {
     type: Number,
   },
+  totalRatingSum: { type: Number, default: 0 }, // New field for total rating sum
+  totalNumberGivenReview: { type: Number, default: 0 },
+  ratedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   fullName: {
     type: String,
     trim: true,

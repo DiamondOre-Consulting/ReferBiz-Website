@@ -55,7 +55,24 @@ const connectDB = async () => {
 };
 
 connectDB();
+const updateVendorData = async () => {
+  try {
+    const result = await Vendor.updateMany(
+      {}, // Update all documents
+      {
+        $set: { totalRatingSum: 40, totalNumberGivenReview: 10 }, // Set the initial values for rating and totalPeople
+      }
+    );
+    console.log(
+      `${result.modifiedCount} documents updated with the new fields.`
+    );
+  } catch (error) {
+    console.error("Error updating documents:", error);
+  }
+};
 
+// Call the function to update vendor data when the server starts
+// updateVendorData();
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);
 app.use("/api/admin", adminRouter);

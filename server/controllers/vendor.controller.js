@@ -632,26 +632,109 @@ const getCustomerList = async (req, res) => {
 };
 
 // API Endpoint
-const contactUs = async (req, res) => {
+const contactUs = async (req, res, next) => {
   try {
-    const { name, email, message } = req.body;
-
-    // Save the contact data to the database
-    const contact = new Contact({ name, email, message });
+    const { name, email, message, phoneNumber, shopName } = req.body;
+    const vendorId = req.user.id; // Assuming `req.user.id` is the logged-in vendor's ID
+    console.log(name, email, message, phoneNumber, shopName);
+    // Save the contact data to the database, including the vendorId
+    const contact = new Contact({
+      name,
+      email,
+      message,
+      vendorId, // Add vendorId here
+    });
 
     const subject = "Message by the vendor";
-    const body = ` <h3>New Contact Form Submission</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>`;
+    const body = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f9;
+        }
+        .email-container {
+          width: 100%;
+          max-width: 650px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+          text-align: center;
+          margin-bottom: 25px;
+          font-size: 28px;
+          font-weight: bold;
+          color: #3b5998;  /* Professional blue */
+          text-transform: uppercase;
+        }
+        .email-content {
+          font-size: 16px;
+          color: #333333;
+          line-height: 1.6;
+        }
+        .email-content p {
+          margin-bottom: 15px;
+        }
+        .email-content strong {
+          color: #333333;
+        }
+        .email-content .highlight {
+          font-weight: bold;
+          color: #4a90e2; /* Highlight color for emphasis */
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 14px;
+          color: #777777;
+        }
+        .footer a {
+          color: #3b5998; /* Link color */
+          text-decoration: none;
+        }
+        .footer p {
+          margin: 10px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="email-header">
+          Vendor Contact Message
+        </div>
+        <div class="email-content">
+          <p><strong class="highlight">Name:</strong> ${name}</p>
+          <p><strong class="highlight">Email:</strong> ${email}</p>
+          <p><strong class="highlight">Phone Number:</strong> ${phoneNumber}</p>
+          <p><strong class="highlight">Shop Name:</strong> ${shopName}</p>
+          <p><strong class="highlight">Message:</strong></p>
+          <p>${message}</p>
+        </div>
+        <div class="footer">
+          <p>Thank you for taking the time to reach out to us.</p>
+          <p>If you have any further questions or need assistance, please <a href="mailto:admin@yourdomain.com">contact us</a> directly.</p>
+          <p>Best regards,<br>Your Company Name Team</p>
+        </div>
+      </div>
+    </body>
+  </html>
+`;
 
-    // Send email
+    // Send email to the vendor (or system)
     await sendEmail(email, subject, body);
+
+    // Save contact form entry in the database
     await contact.save();
+
     res.status(200).json({
       success: true,
-      message: "Contact Email send successfull!",
+      message: "Contact Email sent successfully!",
     });
   } catch (e) {
     return next(new CustomError(e.message, 500));

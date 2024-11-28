@@ -32,7 +32,7 @@ router.put(
   upload.single("vendorImage"),
   updateProfile
 );
-router.post("/contact-us", contactUs);
+router.post("/contact-us", isLoggedIn, contactUs);
 router.get("/customer-list", isLoggedIn, getCustomerList);
 router.post("/add-product/:id", isLoggedIn, addProduct);
 router.post("/delete-product/:id", isLoggedIn, deleteProduct);

@@ -32,7 +32,9 @@ const HomeLayout = ({ children }) => {
     }
   };
 
-  const [time, setTime] = useState("");
+  const [time, setTime] = useStat;
+
+  e("");
 
   useEffect(() => {
     const updateTime = () => {

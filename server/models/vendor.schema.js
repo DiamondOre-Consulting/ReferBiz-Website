@@ -61,6 +61,10 @@ const vendorSchema = new Schema({
     type: String,
     trim: true,
   },
+  iframe: {
+    type: String,
+    default: null,
+  },
   otp: {
     type: Number,
   },

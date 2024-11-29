@@ -17,14 +17,15 @@ import {
 import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
 const VendorDetail = () => {
+  const vendorData = useSelector((state) => state?.vendor?.vendorData);
   const [amount, setAmount] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(0);
 
   const { id } = useParams();
   console.log(id);
-  const vendorData = useSelector((state) => state?.vendor?.vendorData);
+
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
   console.log(
@@ -91,23 +92,7 @@ const VendorDetail = () => {
               <div className="text-gray-700 text-xl py-2 ">
                 {vendorData?.fullAddress}
               </div>
-              <div className="flex justify-center">
-                <div className=" text-center flex items-center   ">
-                  <div className="font-semibold">Previous Rating :</div>
-                  <div className="flex justify-center gap-2 ml-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className={`cursor-pointer text-2xl ${
-                          rating >= star ? "text-yellow-500" : "text-gray-300"
-                        }`}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <div className="flex justify-center"></div>
             </div>
             <div className="flex justify-between items-center mt-10 ">
               <div className="text-2xl text-gray-800">

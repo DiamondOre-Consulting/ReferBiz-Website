@@ -176,7 +176,7 @@ export const VendorProfile = () => {
 
             {/* Vendor Image */}
             <div className="mb-4">
-              <div>
+              <div className="flex items-center gap-12">
                 <div>
                   <label className="block text-gray-400 font-medium mb-2">
                     Vendor Image

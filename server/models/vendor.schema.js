@@ -54,12 +54,25 @@ const vendorSchema = new Schema({
       type: "String",
     },
   },
+  logo: {
+    publicId: {
+      type: "String",
+    },
+    secure_url: {
+      type: "String",
+    },
+  },
   phoneNumber: {
     type: Number,
   },
-  totalRatingSum: { type: Number, default: 0 }, // New field for total rating sum
+  totalRatingSum: { type: Number, default: 0 },
   totalNumberGivenReview: { type: Number, default: 0 },
-  ratedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  ratedBy: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      starRating: { type: Number, default: 0 },
+    },
+  ],
   fullName: {
     type: String,
     trim: true,

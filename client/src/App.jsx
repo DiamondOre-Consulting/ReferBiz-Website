@@ -8,6 +8,7 @@ import Header from "./Components/Header";
 import Contact from "./Pages/Contact";
 import { VendorContact } from "./Pages/Vendor/VendorContact";
 import VendorList from "./Pages/VendorList";
+import AboutUs from "./Pages/AboutUs";
 import VendorDetail from "./Pages/VendorDetail";
 import Profile from "./Pages/Auth/Profile";
 import PageNotFound from "./Pages/PageNotFound";
@@ -74,6 +75,7 @@ const App = () => {
         <Route element={<RequireAuth allowedRoles={["USER"]} />}>
           <Route path={`/vendor-detail/:id`} element={<VendorDetail />} />
           <Route path="/profile/:fullName" element={<Profile />} />
+          <Route path="/about-us/" element={<AboutUs />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["VENDOR"]} />}>

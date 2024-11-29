@@ -16,6 +16,7 @@ export const VendorProfile = () => {
     phoneNumber: vendorData?.phoneNumber || "",
     fullName: vendorData?.fullName || "",
     vendorImage: null,
+    vendorLogo: null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,10 +39,18 @@ export const VendorProfile = () => {
     fetchProfile();
   }, []);
   // Handle file input change
-  const handleFileChange = (e) => {
+  const handleImageChange = (e) => {
+    console.log(e.target.files);
     setFormData((prevData) => ({
       ...prevData,
       vendorImage: e.target.files[0],
+    }));
+  };
+  const handleLogoChange = (e) => {
+    console.log(e.target.files);
+    setFormData((prevData) => ({
+      ...prevData,
+      vendorLogo: e.target.files[0],
     }));
   };
   const handleSubmit = async (e) => {
@@ -57,9 +66,9 @@ export const VendorProfile = () => {
     ) {
       return toast.error("All fields are required");
     }
-    if (formData.phoneNumber.length != 10) {
-      return toast.error("Please enter 10 digit Number");
-    }
+    // if (formData.phoneNumber.length != 10) {
+    //   return toast.error("Please enter 10 digit Number");
+    // }
 
     const formPayload = new FormData();
     formPayload.append("shopName", formData.shopName);
@@ -68,6 +77,9 @@ export const VendorProfile = () => {
     formPayload.append("fullName", formData.fullName);
     if (formData.vendorImage) {
       formPayload.append("vendorImage", formData.vendorImage);
+    }
+    if (formData.vendorLogo) {
+      formPayload.append("logo", formData.vendorLogo);
     }
     const response = await dispatch(
       editVendorProfile([vendorData?._id, formPayload])
@@ -164,16 +176,32 @@ export const VendorProfile = () => {
 
             {/* Vendor Image */}
             <div className="mb-4">
-              <label className="block text-gray-400 font-medium mb-2">
-                Vendor Image
-              </label>
-              <input
-                type="file"
-                name="vendorImage"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-300 bg-transparent text-gray-400 rounded-lg bg-gray-100"
-              />
+              <div>
+                <div>
+                  <label className="block text-gray-400 font-medium mb-2">
+                    Vendor Image
+                  </label>
+                  <input
+                    type="file"
+                    name="vendorImage"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-4 py-2 border border-gray-300 bg-transparent text-gray-400 rounded-lg bg-gray-100"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 font-medium mb-2">
+                    Vendor Logo
+                  </label>
+                  <input
+                    type="file"
+                    name="vendorLogo"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="w-full px-4 py-2 border border-gray-300 bg-transparent text-gray-400 rounded-lg bg-gray-100"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Submit Button */}

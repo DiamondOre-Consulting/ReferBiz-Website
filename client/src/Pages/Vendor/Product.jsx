@@ -106,7 +106,7 @@ export const Product = () => {
                 {product?.categoryList?.map((item, itemIndex) => (
                   <div
                     key={itemIndex}
-                    className="bg-blue-800 w-auto h-auto rounded-3xl text-xl px-4 py-2 flex items-center text-black font-semibold"
+                    className="bg-blue-800 w-auto h-auto rounded-3xl text-xl px-4 py-2 flex items-center text-white font-semibold"
                   >
                     {item}
                     <MdClose

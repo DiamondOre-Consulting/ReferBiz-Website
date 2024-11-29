@@ -660,11 +660,10 @@ const getReferralList = async (req, res) => {
   }
 };
 
-// API Endpoint
 const userContactUs = async (req, res, next) => {
   try {
-    const { name, email, message, phoneNumber, role } = req.body;
-    const userId = req.user.id;
+    const { name, email, message, phone, role, userId } = req.body;
+    console.log(req.body);
     const contact = new Contact({
       name,
       email,
@@ -673,7 +672,7 @@ const userContactUs = async (req, res, next) => {
       role,
     });
 
-    const subject = "Message by the vendor";
+    const subject = "Message by the Customer";
     const body = `
   <html>
     <head>
@@ -739,7 +738,7 @@ const userContactUs = async (req, res, next) => {
         <div class="email-content">
           <p><strong class="highlight">Name:</strong> ${name}</p>
           <p><strong class="highlight">Email:</strong> ${email}</p>
-          <p><strong class="highlight">Phone Number:</strong> ${phoneNumber}</p>
+          <p><strong class="highlight">Phone Number:</strong> ${phone}</p>
           <p><strong class="highlight">Message:</strong></p>
           <p>${message}</p>
         </div>
@@ -771,46 +770,53 @@ const userContactUs = async (req, res, next) => {
 const giveReviewToVendor = async (req, res) => {
   const { vendorId } = req.params;
   const { starRating } = req.body;
-  const userId = req.user.id; // Expecting { starRating: <number>, userId: <userId> }
+  const userId = req.user.id;
 
-  // Validate the starRating
   if (!starRating || starRating < 1 || starRating > 5) {
     return res
       .status(400)
       .json({ message: "Invalid star rating. Must be between 1 and 5." });
   }
 
-  // Check if userId is provided
   if (!userId) {
     return res.status(400).json({ message: "User ID is required." });
   }
 
   try {
-    // Find the vendor by ID
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
-    // Check if the user has already rated this vendor
-    if (vendor.ratedBy.includes(userId)) {
-      return res
-        .status(400)
-        .json({ message: "You have already rated this vendor." });
+    const previousRatingIndex = vendor?.ratedBy?.findIndex(
+      (rating) => rating.userId.toString() === userId
+    );
+
+    if (previousRatingIndex !== -1) {
+      const oldRating = vendor.ratedBy[previousRatingIndex].starRating;
+
+      vendor.totalRatingSum = vendor.totalRatingSum - oldRating + starRating;
+
+      vendor.ratedBy[previousRatingIndex].starRating = starRating;
+
+      await vendor.save();
+
+      return res.status(200).json({
+        message: "Rating updated successfully!",
+        vendor,
+      });
+    } else {
+      vendor.ratedBy.push({ userId, starRating });
+      vendor.totalRatingSum += starRating;
+      vendor.totalNumberGivenReview += 1;
+
+      await vendor.save();
+
+      return res.status(200).json({
+        message: "Rating submitted successfully!",
+        vendor,
+      });
     }
-
-    // Add the userId to the ratedBy array
-    vendor.ratedBy.push(userId);
-
-    // Update the totalRatingSum and totalNumberGivenReview
-    vendor.totalRatingSum += starRating;
-    vendor.totalNumberGivenReview += 1;
-
-    // Save the updated vendor document
-    await vendor.save();
-
-    // Send success response
-    res.status(200).json({ message: "Rating submitted successfully!", vendor });
   } catch (error) {
     console.error("Error submitting rating:", error);
     res.status(500).json({ message: "Internal server error" });

@@ -8,28 +8,65 @@ const ContactForm = () => {
   const data = useSelector((state) => state?.auth?.data);
   console.log(data);
   const dispatch = useDispatch();
-  const fetchProfile = async () => {
-    await dispatch(userProfile());
-  };
+  // const fetchProfile = async () => {
+  //   await dispatch(userProfile());
+  // };
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  // useEffect(() => {
+  //   fetchProfile();
+  // }, []);
   const [message, setMessage] = useState("");
+  const [name, setName] = useState(data?.fullName || "");
+  const [email, setEmail] = useState(data?.userEmail || "");
+  const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || "");
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = {
-      name: data.fullName,
-      email: data.userEmail,
-      phone: data.phoneNumber,
+      name: data?.fullName || name,
+      email: data?.userEmail || email,
+      phone: data?.phoneNumber || phoneNumber,
       message: message,
-      role: data.role,
+      userId: data?._id || null,
+      role: data?.role || "USER",
     };
     await dispatch(userContact(form));
   };
 
   return (
     <form className="" noValidate onSubmit={handleSubmit}>
+      <div className="mb-4">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+          className="min-h-[48px] leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
+          placeholder="Enter Name"
+        />
+      </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          value={phoneNumber}
+          onChange={(e) => {
+            setPhoneNumber(e.target.value);
+          }}
+          className="min-h-[48px] leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
+          placeholder="Enter Phone Number"
+        />
+      </div>
+      <div className="mb-4">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+          }}
+          className="min-h-[48px] leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
+          placeholder="Enter Email"
+        />
+      </div>
       <div className="mb-4">
         <textarea
           name="message"

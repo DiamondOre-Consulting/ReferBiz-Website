@@ -369,6 +369,23 @@ export const getReferralList = createAsyncThunk(
     }
   }
 );
+export const ratingToVendor = createAsyncThunk(
+  "/vendor/contact",
+  async (data) => {
+    try {
+      console.log(data);
+      let res = axiosInstance.post(`/user/rating/${data[0]}`, data[1]);
+
+      res = await res;
+      console.log(res);
+      toast.success("Rating Added Successfully");
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 
 const vendorSlice = createSlice({
   name: "vendor",

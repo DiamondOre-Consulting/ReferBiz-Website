@@ -17,6 +17,7 @@ import {
   vendorContactUs,
   getCustomerList,
 } from "../controllers/vendor.controller.js";
+
 import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
 router.get("/", isLoggedIn, vendorProfile);
@@ -29,9 +30,13 @@ router.get("/logout", isLoggedIn, logout);
 router.put(
   "/update/:id",
   isLoggedIn,
-  upload.single("vendorImage"),
+  upload.fields([
+    { name: "vendorImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
+  ]),
   updateProfile
 );
+
 router.post("/contact-us", isLoggedIn, vendorContactUs);
 router.get("/customer-list", isLoggedIn, getCustomerList);
 router.post("/add-product/:id", isLoggedIn, addProduct);

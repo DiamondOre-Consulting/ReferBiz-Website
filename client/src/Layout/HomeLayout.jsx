@@ -130,7 +130,14 @@ const HomeLayout = ({ children }) => {
         >
           <ul>
             <li className="flex items-center justify-between p-[1.05rem] border-b border-borderDark text-[#CBC8E0]">
-              <Link to={"/"}>LOGO</Link>
+              <Link to={"/"}>
+                {" "}
+                <img
+                  src={vendor?.logo?.secure_url || "userImg"}
+                  className="  w-[2.65rem]"
+                  alt="User Avatar"
+                />
+              </Link>
               <div
                 className="p-[7px] md:hidden"
                 onClick={() => setActive(false)}

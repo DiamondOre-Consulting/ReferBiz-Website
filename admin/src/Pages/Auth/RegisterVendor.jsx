@@ -1,48 +1,66 @@
 import React, { useState, Fragment } from "react";
 import HomeLayout from "../../Layout/HomeLayout";
-
+import { useSelector, useDispatch } from "react-redux";
+import { getCategoriesList } from "../../Redux/Slices/listSlice";
+import { useEffect } from "react";
 
 
 const SignUpForm = () => {
-    const [validated, setValidated] = useState(false);
+    const dispatch = useDispatch()
+    const categoriesList = useSelector((state) => state?.list?.categoriesList)
+
+    console.log(categoriesList)
+
+    const loadData = async (page = 1) => {
+        try {
+            const params = {
+                page,
+                limit: 1000,
+            }
+            await dispatch(getCategoriesList(params)).unwrap()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [])
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        const form = event.currentTarget;
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
 
-        setValidated(true);
     };
+
 
     return (
         <form noValidate onSubmit={handleSubmit}>
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap text-white">
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="first-name" className="mb-1 text-gray-300">
+                        <label htmlFor="fullName" className="mb-1 text-gray-300">
                             Full Name
                         </label>
                         <input
                             type="text"
                             className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="full-name"
+                            id="fullName"
+                            name="fullName"
                             placeholder="Your First Name"
                         />
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="last-name" className="mb-1 text-gray-300">
+                        <label htmlFor="shopName" className="mb-1 text-gray-300">
                             Shop Name
                         </label>
                         <input
                             type="text"
                             className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="shop-name"
+                            id="shopName"
+                            name="shopName"
                             placeholder="Your Shop Name"
                         />
                     </div>
@@ -50,67 +68,87 @@ const SignUpForm = () => {
 
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="email" className="mb-1 text-gray-300">
-                            Email
+                        <label htmlFor="vendorEmail" className="mb-1 text-gray-300">
+                            Vendor Email
                         </label>
                         <input
                             type="email"
                             className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="email"
+                            id="vendorEmail"
+                            name="vendorEmail"
                             placeholder="Email"
                         />
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="email" className="mb-1 text-gray-300">
+                        <label htmlFor="phoneNumber" className="mb-1 text-gray-300">
                             Phone number
                         </label>
                         <input
                             type="number"
                             className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="email"
+                            id="phoneNumber"
+                            name="phoneNumber"
                             placeholder="Phone number"
                         />
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="password" className="mb-1 text-gray-300">
+                        <label htmlFor="vendorPassword" className="mb-1 text-gray-300">
                             Password
                         </label>
                         <input
                             type="password"
                             className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="password"
+                            id="vendorPassword"
+                            name="vendorPassword"
                             placeholder="Password"
                         />
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">
                     <div className="flex flex-col mx-2 mb-4">
-                        <label htmlFor="con-pass" className="mb-1 text-gray-300">
+                        <label htmlFor="confirmPassword" className="mb-1 text-gray-300">
                             Confirm Password
                         </label>
                         <input
                             type="text"
                             className="bg-[#1D222B]   rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="con-pass"
+                            id="confirmPassword"
+                            name="confirmPassword"
                             placeholder="Confirm Password"
                         />
                     </div>
                 </div>
                 <div className="w-full ">
                     <div className="flex flex-col mx-2 mb-4">
-                        <label htmlFor="con-pass" className="mb-1 text-gray-300">
+                        <label htmlFor="iframe" className="mb-1 text-gray-300">
                             MAP i-frame
                         </label>
                         <textarea
                             type="text"
                             rows={2}
                             className="bg-[#1D222B] resize-none   rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                            id="con-pass"
+                            id="iframe"
+                            name="iframe"
                             placeholder="Map i-frame"
+                        />
+                    </div>
+                </div>
+                <div className="w-full ">
+                    <div className="flex flex-col mx-2 mb-4">
+                        <label htmlFor="category" className="mb-1 text-gray-300">
+                            Category
+                        </label>
+                        <textarea
+                            type="text"
+                            rows={2}
+                            className="bg-[#1D222B] resize-none   rounded  leading-10 px-4 focus:outline-none border border-borderDark "
+                            id="category"
+                            name="category"
+                            placeholder="Select category"
                         />
                     </div>
                 </div>

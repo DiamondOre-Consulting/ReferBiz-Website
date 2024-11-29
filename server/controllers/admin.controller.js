@@ -23,6 +23,7 @@ const vendorRegister = async (req, res, next) => {
       nearByLocation,
       phoneNumber,
       fullAddress,
+      iframe,
       categoryIds, // Accept an array of category IDs
     } = req.body;
 
@@ -33,7 +34,8 @@ const vendorRegister = async (req, res, next) => {
       !vendorPassword ||
       !nearByLocation ||
       !phoneNumber ||
-      !fullAddress
+      !fullAddress ||
+      !iframe
     ) {
       return next(new CustomError("All Fields are required", 400));
     }
@@ -58,6 +60,7 @@ const vendorRegister = async (req, res, next) => {
       nearByLocation,
       phoneNumber,
       fullAddress,
+      iframe,
       products: categoryIds.map((id) => ({ category: id })),
     });
 

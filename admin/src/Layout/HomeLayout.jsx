@@ -32,9 +32,7 @@ const HomeLayout = ({ children }) => {
     }
   };
 
-  const [time, setTime] = useStat;
-
-  e("");
+  const [time, setTime] = useState("");
 
   useEffect(() => {
     const updateTime = () => {
@@ -98,9 +96,8 @@ const HomeLayout = ({ children }) => {
           </div>
         </div>
         <NavLink
-          className={`z-[100000000] h-[100vh] border-r border-borderDark overflow-hidden max-w-[15rem] min-w-[15rem] md:max-w-[16rem] md:min-w-[15.9rem]  bg-[#1c202a] absolute md:static top-0 ${
-            active ? "left-0" : "left-[-35rem]"
-          } transition-all duration-500`}
+          className={`z-[100000000] h-[100vh] border-r border-borderDark overflow-hidden max-w-[15rem] min-w-[15rem] md:max-w-[16rem] md:min-w-[15.9rem]  bg-[#1c202a] absolute md:static top-0 ${active ? "left-0" : "left-[-35rem]"
+            } transition-all duration-500`}
         >
           <ul>
             <li className="flex items-center justify-between p-[1.05rem] border-b border-borderDark text-[#CBC8E0]">

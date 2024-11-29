@@ -10,13 +10,9 @@ const initialState = {
 
 export const createAccount = createAsyncThunk('/admin/register', async (data) => {
     try {
-
-
         let res = axiosInstance.post('admin/register', data)
-
         res = await res
         toast.success(res.data.message)
-
         return res.data
     } catch (e) {
         toast.error(e?.response?.data?.message)

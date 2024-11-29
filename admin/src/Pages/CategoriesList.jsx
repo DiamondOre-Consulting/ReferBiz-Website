@@ -199,7 +199,7 @@ const CategoriesList = () => {
                         ))
                     ) : (
                         list?.map((data, index) => (
-                            <div key={data?._id} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#242A34] justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]'>
+                            <div key={index} className='relative text-[0.95rem] flex items-center border-t font-normal border-[#242A34] justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]'>
                                 <p className='min-w-[3rem] text-center'>{(currentPage - 1) * itemsPerPage + index + 1}.</p>
                                 <div className='min-w-[13rem] lg:min-w-[15rem] line-clamp-1'>
                                     <p>{data?.categoryName}</p>

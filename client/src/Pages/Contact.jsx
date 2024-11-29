@@ -1,30 +1,42 @@
 import React, { useState } from "react";
 import Header from "../Components/Header";
-
+import { useSelector, useDispatch } from "react-redux";
+import { userProfile } from "../Redux/Slices/authSlice";
+import { useEffect } from "react";
+import { userContact } from "../Redux/Slices/vendorSlice";
 const ContactForm = () => {
-  const handleSubmit = (e) => {
+  const data = useSelector((state) => state?.auth?.data);
+  console.log(data);
+  const dispatch = useDispatch();
+  const fetchProfile = async () => {
+    await dispatch(userProfile());
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+  const [message, setMessage] = useState("");
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = {
+      name: data.fullName,
+      email: data.userEmail,
+      phone: data.phoneNumber,
+      message: message,
+      role: data.role,
+    };
+    await dispatch(userContact(form));
   };
 
   return (
     <form className="" noValidate onSubmit={handleSubmit}>
       <div className="mb-4">
-        <input
-          type="text"
-          className="min-h-[48px] leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
-          placeholder="Enter Name"
-        />
-      </div>
-      <div className="mb-4">
-        <input
-          type="email"
-          className="min-h-[48px] leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
-          placeholder="Enter Email"
-        />
-      </div>
-      <div className="mb-4">
         <textarea
           name="message"
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+          }}
           className=" leading-[48px] bg-[#F2F6FD]  border border-transparent rounded-md focus:outline-none focus:border focus:border-[#195ec6] w-full px-3"
           placeholder="Enter Message"
           rows="3"

@@ -337,6 +337,21 @@ export const vendorContact = createAsyncThunk(
     }
   }
 );
+export const userContact = createAsyncThunk("/vendor/contact", async (data) => {
+  console.log("vendorcontact", data);
+
+  try {
+    let res = axiosInstance.post(`/user/user-contact-us`, data);
+
+    res = await res;
+    console.log(res);
+    toast.success("Email Send Successfully");
+    return res.data;
+  } catch (e) {
+    toast.error("Something went wrong");
+    return e?.response?.data?.message;
+  }
+});
 export const getReferralList = createAsyncThunk(
   "/user/getReferralList",
   async (data) => {

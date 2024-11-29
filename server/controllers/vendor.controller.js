@@ -632,7 +632,7 @@ const getCustomerList = async (req, res) => {
 };
 
 // API Endpoint
-const contactUs = async (req, res, next) => {
+const vendorContactUs = async (req, res, next) => {
   try {
     const { name, email, message, phoneNumber, shopName } = req.body;
     const vendorId = req.user.id; // Assuming `req.user.id` is the logged-in vendor's ID
@@ -757,5 +757,5 @@ export {
   updateStatus,
   getVendorData,
   getCustomerList,
-  contactUs,
+  vendorContactUs,
 };

@@ -14,7 +14,7 @@ import {
   deleteProduct,
   updateStatus,
   getVendorData,
-  contactUs,
+  vendorContactUs,
   getCustomerList,
 } from "../controllers/vendor.controller.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -32,7 +32,7 @@ router.put(
   upload.single("vendorImage"),
   updateProfile
 );
-router.post("/contact-us", isLoggedIn, contactUs);
+router.post("/contact-us", isLoggedIn, vendorContactUs);
 router.get("/customer-list", isLoggedIn, getCustomerList);
 router.post("/add-product/:id", isLoggedIn, addProduct);
 router.post("/delete-product/:id", isLoggedIn, deleteProduct);

@@ -19,13 +19,18 @@ const VendorDetail = () => {
   const [amount, setAmount] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [rating, setRating] = useState(1);
 
   const { id } = useParams();
   console.log(id);
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
-
+  console.log(
+    "res",
+    vendorData.totalRatingSum,
+    vendorData.totalNumberGivenReview
+  );
   const fetchData = async () => {
     await dispatch(getVendorData(id));
   };
@@ -44,6 +49,9 @@ const VendorDetail = () => {
     //   setIsModalOpen(false);
     // }, 100);
   };
+  const handleRating = (star) => {
+    setRating(star); // Update the rating state when a star is clicked
+  };
 
   return (
     <>
@@ -57,7 +65,16 @@ const VendorDetail = () => {
                 {vendorData.businessName}
               </div>
               <div className="text-lg text-gray-700 items-center flex font-semibold">
-                4.2 <IoMdStar className="ml-1 text-yellow-500" size={24} />
+                <div>
+                  {" "}
+                  {(
+                    vendorData.totalRatingSum /
+                    vendorData.totalNumberGivenReview
+                  ).toFixed(1)}
+                </div>
+                <div>
+                  <IoMdStar className="ml-1 text-yellow-500" size={24} />
+                </div>
               </div>
             </div>
             <div className="border-t border-gray-200 mx-2"></div>
@@ -72,7 +89,7 @@ const VendorDetail = () => {
                 Total visits:
                 <IoIosPeople size={22} className="mx-1" />
                 <span className="flex items-center ">
-                  {vendorData.visitorCount}
+                  {vendorData.customerList?.length}
                 </span>
               </div>
             </div>
@@ -161,6 +178,27 @@ const VendorDetail = () => {
                   )}
                 </DialogContent>
               </Dialog>
+            </div>
+            <div className="mt-4 text-center">
+              <div className="font-semibold mb-2">
+                Please rate your experience:
+              </div>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    className={`cursor-pointer text-2xl ${
+                      rating >= star ? "text-yellow-500" : "text-gray-300"
+                    }`}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <div className="mt-2 text-sm text-gray-500">
+                {rating} Star{rating > 1 ? "s" : ""} Selected
+              </div>
             </div>
           </div>
           <div className="p-5 pr-4">

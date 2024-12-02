@@ -105,6 +105,18 @@ export const resetPassword = createAsyncThunk('admin/forgot-password', async (da
     }
 })
 
+export const registerVendor = createAsyncThunk('/vendor/register', async (data) => {
+    try {
+        let res = axiosInstance.post('admin/vendor-register', data)
+        res = await res
+        toast.success(res.data.message)
+        return res.data
+    } catch (e) {
+        toast.error(e?.response?.data?.message)
+        throw e
+    }
+})
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -130,7 +142,6 @@ const authSlice = createSlice({
             state.isLoggedIn = false
             state.role = ""
         }).addCase(userProfile.fulfilled, (state, action) => {
-
             localStorage.setItem('data', JSON.stringify(action?.payload?.user))
             localStorage.setItem('isLoggedIn', true)
             localStorage.setItem('role', action?.payload?.user?.role)

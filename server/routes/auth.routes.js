@@ -32,7 +32,7 @@ router.put(
   updateProfile
 );
 router.post("/rating/:vendorId", isLoggedIn, giveReviewToVendor);
-router.post("/user-contact-us", isLoggedIn, userContactUs);
+router.post("/user-contact-us", userContactUs);
 router.get("/referral-list", isLoggedIn, getReferralList);
 router.post("/change-password", isLoggedIn, changePassword);
 router.post("/forgot-password", forgotPassword);

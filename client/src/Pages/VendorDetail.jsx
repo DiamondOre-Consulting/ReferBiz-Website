@@ -14,16 +14,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../Components/Dialogue";
+import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
 const VendorDetail = () => {
+  const vendorData = useSelector((state) => state?.vendor?.vendorData);
   const [amount, setAmount] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(0);
 
   const { id } = useParams();
   console.log(id);
-  const vendorData = useSelector((state) => state?.vendor?.vendorData);
+
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
   console.log(
@@ -49,8 +51,10 @@ const VendorDetail = () => {
     //   setIsModalOpen(false);
     // }, 100);
   };
-  const handleRating = (star) => {
-    setRating(star); // Update the rating state when a star is clicked
+  const handleRating = async (star) => {
+    setRating(star);
+    await dispatch(ratingToVendor([vendorData._id, { starRating: rating }]));
+    await dispatch(getVendorData(vendorData._id));
   };
 
   return (
@@ -64,32 +68,42 @@ const VendorDetail = () => {
               <div className="font-semibold  text-gray-700 text-4xl">
                 {vendorData.businessName}
               </div>
-              <div className="text-lg text-gray-700 items-center flex font-semibold">
-                <div>
-                  {" "}
-                  {(
-                    vendorData.totalRatingSum /
-                    vendorData.totalNumberGivenReview
-                  ).toFixed(1)}
+              <div>
+                <div className="text-lg text-gray-700 items-center flex justify-center font-semibold">
+                  <div>
+                    {" "}
+                    {(
+                      vendorData?.totalRatingSum /
+                      vendorData?.totalNumberGivenReview
+                    ).toFixed(1)}
+                  </div>
+
+                  <div>
+                    <IoMdStar className="ml-1 text-yellow-500" size={24} />
+                  </div>
                 </div>
-                <div>
-                  <IoMdStar className="ml-1 text-yellow-500" size={24} />
+                <div className="text-sm text-gray-600">
+                  rated by {vendorData?.totalNumberGivenReview} people
                 </div>
               </div>
             </div>
             <div className="border-t border-gray-200 mx-2"></div>
-            <div className="text-gray-700 text-xl py-2 ">
-              {vendorData.fullAddress}
+            <div className="flex justify-between">
+              <div className="text-gray-700 text-xl py-2 ">
+                {vendorData?.fullAddress}
+              </div>
+              <div className="flex justify-center"></div>
             </div>
             <div className="flex justify-between items-center mt-10 ">
               <div className="text-2xl text-gray-800">
-                {vendorData.businessCategory}
+                {vendorData?.businessCategory}
               </div>
+
               <div className="text-lg flex items-center ml-1">
                 Total visits:
                 <IoIosPeople size={22} className="mx-1" />
                 <span className="flex items-center ">
-                  {vendorData.customerList?.length}
+                  {vendorData?.customerList?.length}
                 </span>
               </div>
             </div>
@@ -103,7 +117,7 @@ const VendorDetail = () => {
                 Referbiz Transactions:
                 <IndianRupee size={15} className="ml-1" />
                 <span className="flex items-center justify-center">
-                  {vendorData.totalTransactions}
+                  {vendorData?.totalTransactions}
                 </span>
               </div>
             </div>
@@ -153,6 +167,28 @@ const VendorDetail = () => {
                       <div className="text-green-600 text-lg text-center font-semibold">
                         Amount {amount} Sucessfully Paid
                       </div>
+                      <div className="flex justify-center">
+                        <div className="mt-4 text-center ">
+                          <div className="font-semibold">
+                            Please rate your experience:
+                          </div>
+                          <div className="flex justify-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span
+                                key={star}
+                                onClick={() => handleRating(star)}
+                                className={`cursor-pointer text-2xl ${
+                                  rating >= star
+                                    ? "text-yellow-500"
+                                    : "text-gray-300"
+                                }`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <div className="flex flex-col gap-4 mt-4">
@@ -179,27 +215,28 @@ const VendorDetail = () => {
                 </DialogContent>
               </Dialog>
             </div>
-            <div className="mt-4 text-center">
-              <div className="font-semibold mb-2">
-                Please rate your experience:
+            {isPaid && (
+              <div className="flex justify-center">
+                <div className="mt-4 text-center ">
+                  <div className="font-semibold">
+                    Please rate your experience:
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        onClick={() => handleRating(star)}
+                        className={`cursor-pointer text-2xl ${
+                          rating >= star ? "text-yellow-500" : "text-gray-300"
+                        }`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-center gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    onClick={() => handleRating(star)}
-                    className={`cursor-pointer text-2xl ${
-                      rating >= star ? "text-yellow-500" : "text-gray-300"
-                    }`}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <div className="mt-2 text-sm text-gray-500">
-                {rating} Star{rating > 1 ? "s" : ""} Selected
-              </div>
-            </div>
+            )}
           </div>
           <div className="p-5 pr-4">
             <div className="flex justify-between items-center py-2 ">

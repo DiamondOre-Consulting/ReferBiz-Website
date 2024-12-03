@@ -20,7 +20,15 @@ import isLoggedIn from "../middlewares/auth.middleware.js";
 import { Router } from "express";
 import upload from "../middlewares/multer.middleware.js";
 const router = Router();
-router.post("/register", register);
+router.post(
+  "/register",
+  isLoggedIn,
+  upload.fields([
+    { name: "vendorImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
+  ]),
+  register
+);
 router.post("/add-payment/:vendorId", isLoggedIn, addPayment);
 router.post("/login", login);
 router.get("/logout", logout);

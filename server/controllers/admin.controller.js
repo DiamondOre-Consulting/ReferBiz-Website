@@ -34,8 +34,7 @@ const vendorRegister = async (req, res, next) => {
       !vendorPassword ||
       !nearByLocation ||
       !phoneNumber ||
-      !fullAddress ||
-      !iframe
+      !fullAddress
     ) {
       return next(new CustomError("All Fields are required", 400));
     }
@@ -50,7 +49,54 @@ const vendorRegister = async (req, res, next) => {
     if (validCategories.length !== categoryIds.length) {
       return next(new CustomError("Invalid category IDs provided", 400));
     }
+    console.log(req.files.logo[0]);
+    if (req.files && req.files.vendorImage) {
+      try {
+        const vendorImageResult = await cloudinary.v2.uploader.upload(
+          req.files.vendorImage[0].path,
+          {
+            folder: "Referbiz",
+            width: 250,
+            height: 250,
+            gravity: "faces",
+            crop: "fill",
+          }
+        );
 
+        if (vendorImageResult) {
+          user.vendorImage.publicId = vendorImageResult.public_id;
+          user.vendorImage.secure_url = vendorImageResult.secure_url;
+        }
+
+        // Remove the local uploaded file
+        await fs.rm(`uploads/${req.files.vendorImage[0].filename}`, {
+          force: true,
+        });
+      } catch (err) {
+        return next(new CustomError("Vendor image can not be uploaded", 500));
+      }
+    }
+
+    if (req.files && req.files.logo) {
+      try {
+        const logoImageResult = await cloudinary.v2.uploader.upload(
+          req.files.logo[0].path,
+          {
+            folder: "Referbiz",
+          }
+        );
+
+        if (logoImageResult) {
+          user.logo.publicId = logoImageResult.public_id;
+          user.logo.secure_url = logoImageResult.secure_url;
+        }
+
+        // Remove the local uploaded file
+        await fs.rm(`uploads/${req.files.logo[0].filename}`, { force: true });
+      } catch (err) {
+        return next(new CustomError("Logo image can not be uploaded", 500));
+      }
+    }
     // Create the vendor with references to categories
     const user = await Vendor.create({
       fullName,
@@ -60,7 +106,8 @@ const vendorRegister = async (req, res, next) => {
       nearByLocation,
       phoneNumber,
       fullAddress,
-      iframe,
+      vendorImage,
+      logo,
       products: categoryIds.map((id) => ({ category: id })),
     });
 

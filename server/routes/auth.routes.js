@@ -23,10 +23,7 @@ const router = Router();
 router.post(
   "/register",
   isLoggedIn,
-  upload.fields([
-    { name: "vendorImage", maxCount: 1 },
-    { name: "logo", maxCount: 1 },
-  ]),
+
   register
 );
 router.post("/add-payment/:vendorId", isLoggedIn, addPayment);

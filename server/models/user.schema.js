@@ -96,6 +96,18 @@ const userSchema = new Schema({
         type: Number,
         default: 0, // Total number of purchases
       },
+      lastPurchases: [
+        {
+          amount: {
+            type: Number, // Amount paid for this purchase
+            required: true,
+          },
+          date: {
+            type: Date, // Date of the purchase
+            default: Date.now,
+          },
+        },
+      ],
     },
   ],
 });

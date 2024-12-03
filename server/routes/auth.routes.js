@@ -15,6 +15,7 @@ import {
   getReferralList,
   userContactUs,
   giveReviewToVendor,
+  getPurchaseHistory,
 } from "../controllers/auth.controller.js";
 import isLoggedIn from "../middlewares/auth.middleware.js";
 import { Router } from "express";
@@ -47,5 +48,6 @@ router.get(
 );
 router.get("/get-allCategories/:location", getAllCategories);
 router.get("/get-subCategory/:location/:category", getItemsByCategory);
+router.get("/get-purchase-history/:vendorId", isLoggedIn, getPurchaseHistory);
 
 export default router;

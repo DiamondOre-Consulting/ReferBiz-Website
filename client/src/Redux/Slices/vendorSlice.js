@@ -17,6 +17,7 @@ const initialState = {
   customerList: [],
   vendorProfile: {},
   refferalList: [],
+  purchaseHistory: [],
 };
 
 export const loginAccount = createAsyncThunk("/user/login", async (data) => {
@@ -386,6 +387,23 @@ export const ratingToVendor = createAsyncThunk(
     }
   }
 );
+export const getPurchaseHistory = createAsyncThunk(
+  "/user/purchaseData",
+  async (data) => {
+    try {
+      const vendorId = data;
+      console.log(data);
+      let res = axiosInstance.get(`/user/get-purchase-history/${vendorId}`);
+
+      res = await res;
+      console.log(res);
+      return res.data;
+    } catch (e) {
+      toast.error("Something went wrong");
+      return e?.response?.data?.message;
+    }
+  }
+);
 
 const vendorSlice = createSlice({
   name: "vendor",
@@ -427,6 +445,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getReferralList.fulfilled, (state, action) => {
         state.refferalList = action?.payload?.referrals;
+      })
+      .addCase(getPurchaseHistory.fulfilled, (state, action) => {
+        state.purchaseHistory = action?.payload?.lastPurchases;
       });
   },
 });

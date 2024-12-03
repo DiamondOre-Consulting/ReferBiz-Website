@@ -523,7 +523,6 @@ const addPayment = async (req, res, next) => {
   const { amount } = req.body;
   const { vendorId } = req.params;
   const userId = req.user.id;
-
   console.log(amount, vendorId, userId);
 
   if (!userId || !vendorId || !amount || amount <= 0) {
@@ -543,57 +542,81 @@ const addPayment = async (req, res, next) => {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
-    // If referBy exists, credit 2% of the amount to the referring user
+    // If referredBy exists, credit 2% of the amount to the referring user
     if (user.referredBy) {
       const referrer = await User.findById(user.referredBy);
       if (referrer) {
-        referrer.referralEarnings += amount * 0.02;
-        referrer.totalEarnings += referrer.referralEarnings;
+        const referralEarning = amount * 0.02;
+        referrer.referralEarnings += referralEarning;
+        referrer.totalEarnings += referralEarning;
         await referrer.save();
       }
-      console.log("refered", referrer.totalEarnings);
     }
 
-    user.referralEarnings += amount * 0.05;
-    user.totalEarnings += user.referralEarnings;
-    console.log("user refered", user.totalEarnings);
+    // Update user's referral earnings and total earnings
+    const userEarning = amount * 0.05;
+    user.referralEarnings += userEarning;
+    user.totalEarnings += userEarning;
 
+    // Update user's vendorList
     const existingVendor = user.vendorList.find(
-      (item) => item.vendorId == vendorId
+      (item) => item.vendorId.toString() === vendorId
     );
 
     if (existingVendor) {
       existingVendor.totalPaid += amount;
       existingVendor.lastPurchaseDate = new Date();
       existingVendor.purchaseCount += 1;
+      existingVendor.lastPurchases.push({
+        amount,
+        date: new Date(),
+      });
     } else {
       user.vendorList.push({
-        vendorId: vendorId,
+        vendorId,
         totalPaid: amount,
         lastPurchaseDate: new Date(),
         purchaseCount: 1,
+        lastPurchases: [
+          {
+            amount,
+            date: new Date(),
+          },
+        ],
       });
     }
 
     await user.save();
 
+    // Update vendor's customerList
     const existingCustomer = vendor.customerList.find(
-      (item) => item.userId == userId
+      (item) => item.userId.toString() === userId
     );
 
     if (existingCustomer) {
       existingCustomer.totalPaid += amount;
       existingCustomer.lastPurchaseDate = new Date();
       existingCustomer.purchaseCount += 1;
+      existingCustomer.lastPurchases?.push({
+        amount,
+        date: new Date(),
+      });
     } else {
       vendor.customerList.push({
-        userId: userId,
+        userId,
         totalPaid: amount,
         lastPurchaseDate: new Date(),
         purchaseCount: 1,
+        lastPurchases: [
+          {
+            amount,
+            date: new Date(),
+          },
+        ],
       });
     }
 
+    // Update vendor's total amount
     vendor.totalAmount += amount;
 
     await vendor.save();
@@ -823,6 +846,38 @@ const giveReviewToVendor = async (req, res) => {
   }
 };
 
+const getPurchaseHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { vendorId } = req.params;
+
+    const user = await User.findById(userId).select("vendorList").lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const vendor = user.vendorList.find(
+      (v) => v.vendorId.toString() === vendorId
+    );
+
+    if (!vendor) {
+      return res
+        .status(404)
+        .json({ message: "Vendor not found in the user's list." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      vendorId: vendorId,
+      lastPurchases: vendor.lastPurchases,
+    });
+  } catch (error) {
+    console.error("Error fetching vendor purchases:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 export {
   register,
   login,
@@ -840,4 +895,5 @@ export {
   getReferralList,
   userContactUs,
   giveReviewToVendor,
+  getPurchaseHistory,
 };

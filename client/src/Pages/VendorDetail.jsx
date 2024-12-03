@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import Header from "../Components/Header";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { addPayment, getVendorData } from "../Redux/Slices/vendorSlice";
+import {
+  addPayment,
+  getPurchaseHistory,
+  getVendorData,
+} from "../Redux/Slices/vendorSlice";
 import { FaCopy, FaWhatsapp } from "react-icons/fa";
-import { userProfile } from "../Redux/Slices/authSlice";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
 import { IoMdStar } from "react-icons/io";
@@ -22,8 +25,12 @@ import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
 const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
+  const purchaseHistory = useSelector(
+    (state) => state?.vendor?.purchaseHistory
+  );
   const data = useSelector((state) => state?.auth?.data);
   console.log("user", data);
+  console.log("history", purchaseHistory);
   const [amount, setAmount] = useState("");
   const [isReferOptionVisible, setIsReferOptionVisible] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -61,8 +68,8 @@ const VendorDetail = () => {
   );
   const fetchData = async () => {
     await dispatch(getVendorData(id));
+    await dispatch(getPurchaseHistory(id));
   };
-
   useEffect(() => {
     fetchData();
   }, []);

@@ -3,9 +3,11 @@ import Header from "../Components/Header";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addPayment, getVendorData } from "../Redux/Slices/vendorSlice";
+import { userProfile } from "../Redux/Slices/authSlice";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
 import { IoMdStar } from "react-icons/io";
+import { toast } from "sonner";
 import { IoIosPeople } from "react-icons/io";
 import {
   Dialog,
@@ -18,6 +20,8 @@ import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
 const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
+  const data = useSelector((state) => state?.auth?.data);
+  console.log("user", data);
   const [amount, setAmount] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,6 +48,17 @@ const VendorDetail = () => {
     { label: "Home", href: "/" },
     { label: vendorData.shopName },
   ];
+  const copyToClipboard = () => {
+    const link = `http://localhost:5173/register?referralCode=${data.referralCode}`;
+    navigator.clipboard.writeText(link).then(
+      () => {
+        toast.success("Link copied to clipboard!");
+      },
+      (err) => {
+        console.error("Failed to copy: ", err);
+      }
+    );
+  };
   const handlePay = async () => {
     await dispatch(addPayment([id, { amount: Number(amount) }]));
     setIsPaid(true);
@@ -122,7 +137,10 @@ const VendorDetail = () => {
               </div>
             </div>
             <div className="flex gap-4 justify-end">
-              <button class=" cursor-pointer transition-all w-1/2 bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+              <button
+                onClick={copyToClipboard}
+                class=" cursor-pointer transition-all w-1/2 bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+              >
                 Refer
               </button>
               <Dialog

@@ -231,7 +231,7 @@ const changePassword = async (req, res, next) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    const { shopName, fullAddress, phoneNumber, fullName } = req.body;
+    const { shopName, fullAddress, phoneNumber, fullName, status } = req.body;
     const { id } = req.params;
 
     const user = await Vendor.findById(id);
@@ -241,6 +241,10 @@ const updateProfile = async (req, res, next) => {
     }
     if (!fullName || !phoneNumber || !fullAddress || !shopName) {
       return next(new CustomError("All field are required", 400));
+    }
+
+    if (status) {
+      user.status = await status;
     }
 
     if (fullName) {

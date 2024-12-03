@@ -3,11 +3,13 @@ import Header from "../Components/Header";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { addPayment, getVendorData } from "../Redux/Slices/vendorSlice";
+import { FaCopy, FaWhatsapp } from "react-icons/fa";
 import { userProfile } from "../Redux/Slices/authSlice";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
 import { IoMdStar } from "react-icons/io";
 import { toast } from "sonner";
+
 import { IoIosPeople } from "react-icons/io";
 import {
   Dialog,
@@ -23,13 +25,33 @@ const VendorDetail = () => {
   const data = useSelector((state) => state?.auth?.data);
   console.log("user", data);
   const [amount, setAmount] = useState("");
+  const [isReferOptionVisible, setIsReferOptionVisible] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
-
+  const message = `Check out this amazing link: http://localhost:5173/register?referralCode=${data.referralCode}`;
   const { id } = useParams();
   console.log(id);
 
+  const shareOnWhatsApp = () => {
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
+  const sendMessage = () => {
+    if (!phoneNumber) {
+      toast.error("Please enter a phone number");
+      return;
+    }
+    if (phoneNumber?.length != 10) {
+      toast.error("Please enter a 10 digit number");
+      return;
+    }
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
   console.log(
@@ -138,11 +160,14 @@ const VendorDetail = () => {
             </div>
             <div className="flex gap-4 justify-end">
               <button
-                onClick={copyToClipboard}
-                class=" cursor-pointer transition-all w-1/2 bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                onClick={() => setIsReferOptionVisible(!isReferOptionVisible)}
+                className="cursor-pointer transition-all w-1/2 bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
               >
                 Refer
               </button>
+
+              {/* Options below the Refer Button */}
+
               <Dialog
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
@@ -233,6 +258,44 @@ const VendorDetail = () => {
                 </DialogContent>
               </Dialog>
             </div>
+            {/* Options below the Refer Button */}
+            {isReferOptionVisible && (
+              <>
+                <div className="flex items-center justify-between space-x-4 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Enter phone number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full sm:w-[calc(100%-3rem)] h-12 px-4 py-2 mt-4 rounded-lg border border-gray-300 mb-4"
+                  />
+                  <div className="w-full flex items-center gap-5  ">
+                    <button
+                      onClick={sendMessage}
+                      className="cursor-pointer w-32 h-12 transition-all bg-blue-500 text-white px-4 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                    >
+                      Send
+                    </button>
+
+                    <button
+                      onClick={copyToClipboard}
+                      className="flex items-center justify-center w-12 h-12 bg-gary-300 text-gray-700 rounded-full border-gray-300 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                    >
+                      <FaCopy size={20} />
+                    </button>
+
+                    {/* Share on WhatsApp Button */}
+                    <button
+                      onClick={shareOnWhatsApp}
+                      className="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                    >
+                      <FaWhatsapp size={20} />
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
             {isPaid && (
               <div className="flex justify-center">
                 <div className="mt-4 text-center ">

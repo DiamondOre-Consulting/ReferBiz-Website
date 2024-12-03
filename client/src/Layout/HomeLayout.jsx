@@ -114,7 +114,7 @@ const HomeLayout = ({ children }) => {
                 <img
                   src={vendor?.vendorImage?.secure_url || "userImg"}
                   className="w-[2.55rem]"
-                  alt="User Avatar"
+                  alt=""
                 />
               </Link>
             </div>
@@ -135,7 +135,7 @@ const HomeLayout = ({ children }) => {
                 <img
                   src={vendor?.logo?.secure_url || "userImg"}
                   className="  w-[2.65rem]"
-                  alt="User Avatar"
+                  alt=""
                 />
               </Link>
               <div

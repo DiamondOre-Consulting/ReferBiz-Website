@@ -27,6 +27,8 @@ const vendorRegister = async (req, res, next) => {
       categoryIds, // Accept an array of category IDs
     } = req.body;
 
+    console.log(fullName, vendorEmail, vendorPassword, categoryIds);
+
     if (
       !shopName ||
       !fullName ||
@@ -44,12 +46,19 @@ const vendorRegister = async (req, res, next) => {
       return next(new CustomError("Email is already registered", 400));
     }
 
+    console.log(1);
+
     // Validate category IDs
     const validCategories = await Category.find({ _id: { $in: categoryIds } });
     if (validCategories.length !== categoryIds.length) {
       return next(new CustomError("Invalid category IDs provided", 400));
     }
-    console.log(req.files.logo[0]);
+
+    console.log(2);
+
+
+    console.log(req.files);
+
     if (req.files && req.files.vendorImage) {
       try {
         const vendorImageResult = await cloudinary.v2.uploader.upload(

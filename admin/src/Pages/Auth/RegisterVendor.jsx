@@ -1,18 +1,14 @@
-import React, { useState, Fragment } from "react";
-import HomeLayout from "../../Layout/HomeLayout";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCategoriesList } from "../../Redux/Slices/listSlice";
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { registerVendor } from "../../Redux/Slices/authSlice";
-
+import HomeLayout from "../../Layout/HomeLayout";
 
 const SignUpForm = () => {
-    const dispatch = useDispatch()
-    const categoriesList = useSelector((state) => state?.list?.categoriesList)
+    const dispatch = useDispatch();
+    const categoriesList = useSelector((state) => state?.list?.categoriesList);
     const [selectedCategories, setSelectedCategories] = useState([]);
-
-    console.log(categoriesList)
 
     const [vendorData, setVendorData] = useState({
         fullName: "",
@@ -20,86 +16,145 @@ const SignUpForm = () => {
         phoneNumber: "",
         shopName: "",
         fullAddress: "",
-        vendorImage: null,
         vendorPassword: "",
+        confirmPassword: "",
         nearByLocation: "",
         iframe: "",
         categoryIds: [],
-        confirmPassword: ""
-    })
+        vendorImage: null,
+        logo: null,
+    });
+
+    const [imagePreviews, setImagePreviews] = useState({
+        vendorImage: null,
+        logo: null,
+    });
+
+    console.log(imagePreviews)
+
+    const profileImageRef = useRef(null);
+    const shopLogoRef = useRef(null);
 
     const loadData = async (page = 1) => {
         try {
             const params = {
                 page,
                 limit: 1000,
-            }
-            await dispatch(getCategoriesList(params)).unwrap()
+            };
+            await dispatch(getCategoriesList(params)).unwrap();
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
-    }
+    };
 
     useEffect(() => {
-        loadData()
-    }, [])
+        loadData();
+    }, []);
 
     const handleCategoryChange = (e) => {
         const category = e.target.value.split(",");
-        console.log(category);
         if (!selectedCategories.includes(category[0]) && category[0]) {
             setSelectedCategories([...selectedCategories, e.target.value]);
         }
 
-        setVendorData(prevData => {
+        setVendorData((prevData) => {
             const updatedCategoryIds = new Set([...prevData.categoryIds, category[1]]);
             return {
                 ...prevData,
-                categoryIds: Array.from(updatedCategoryIds)
+                categoryIds: Array.from(updatedCategoryIds),
             };
         });
-
-
     };
-
-    console.log(vendorData)
 
     const removeCategory = (categoryToRemove) => {
-        setSelectedCategories(selectedCategories.filter(category => category !== categoryToRemove));
+        setSelectedCategories(selectedCategories.filter((category) => category !== categoryToRemove));
 
-        setVendorData(prevData => {
-            const updatedCategoryIds = prevData.categoryIds.filter(id => id !== categoryToRemove.split(",")[1]);
+        setVendorData((prevData) => {
+            const updatedCategoryIds = prevData.categoryIds.filter((id) => id !== categoryToRemove.split(",")[1]);
             return {
                 ...prevData,
-                categoryIds: Array.from(updatedCategoryIds)
+                categoryIds: Array.from(updatedCategoryIds),
             };
-        })
-        console.log(categoryToRemove.split(",")[1])
+        });
+    };
+
+    const handleUserInput = (e) => {
+        const { name, value } = e.target;
+        setVendorData({
+            ...vendorData,
+            [name]: value,
+        });
     };
 
 
-    function handleUserInput(e) {
-        const { name, value } = e.target
-        setVendorData({
-            ...vendorData,
-            [name]: value
-        })
-    }
+
+    const handleFileChange = (e) => {
+        const { name, files } = e.target;
+        const file = files[0];
+        setVendorData((prevData) => ({
+            ...prevData,
+            [name]: file,
+        }));
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreviews((prevPreviews) => ({
+                    ...prevPreviews,
+                    [name]: reader.result,
+                }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = (field) => {
+        setVendorData((prevData) => ({
+            ...prevData,
+            [field]: null,
+        }));
+        setImagePreviews((prevPreviews) => ({
+            ...prevPreviews,
+            [field]: null,
+        }));
+
+        if (field === "vendorImage") {
+            profileImageRef.current.value = "";
+        } else if (field === "logo") {
+            shopLogoRef.current.value = "";
+        }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const { fullName, vendorEmail, phoneNumber, shopName, fullAddress, vendorPassword, nearByLocation, iframe, categoryIds, confirmPassword } = vendorData
+        const { fullName, vendorEmail, phoneNumber, shopName, fullAddress, vendorPassword, confirmPassword, nearByLocation, iframe, categoryIds } = vendorData;
 
-        if (!fullName || !vendorEmail || !phoneNumber || !shopName || !fullAddress || !vendorPassword || !nearByLocation || !confirmPassword || !iframe || !categoryIds) {
-            return toast.error("All fields are required")
+        if (!fullName || !vendorEmail || !phoneNumber || !shopName || !fullAddress || !vendorPassword || !confirmPassword || !nearByLocation || !iframe || !categoryIds) {
+            return toast.error("All fields are required");
         }
 
         if (vendorPassword !== confirmPassword) {
-            return toast.error("Password doesn't match")
+            return toast.error("Password doesn't match");
         }
 
-        const res = await dispatch(registerVendor(vendorData))
+        console.log(vendorData)
+
+        const formData = new FormData();
+        formData.append("fullName", vendorData.fullName);
+        formData.append("vendorEmail", vendorData.vendorEmail);
+        formData.append("phoneNumber", vendorData.phoneNumber);
+        formData.append("shopName", vendorData.shopName);
+        formData.append("fullAddress", vendorData.fullAddress);
+        formData.append("vendorPassword", vendorData.vendorPassword);
+        formData.append("nearByLocation", vendorData.nearByLocation);
+        formData.append("iframe", vendorData.iframe);
+        formData.append("vendorImage", vendorData.vendorImage);
+        formData.append("logo", vendorData.logo);
+        categoryIds.forEach((id) => formData.append("categoryIds[]", id));
+
+        const res = await dispatch(registerVendor(formData));
+
         if (res?.payload?.success) {
             setVendorData({
                 fullName: "",
@@ -107,50 +162,79 @@ const SignUpForm = () => {
                 phoneNumber: "",
                 shopName: "",
                 fullAddress: "",
-                vendorImage: null,
                 vendorPassword: "",
                 confirmPassword: "",
                 nearByLocation: "",
                 iframe: "",
-                categoryIds: []
-            })
-            setSelectedCategories([])
+                categoryIds: [],
+                vendorImage: null,
+                logo: null,
+            });
+            setSelectedCategories([]);
+            setImagePreviews({
+                vendorImage: null,
+                logo: null,
+            });
         }
     };
-
-    console.log(selectedCategories)
 
     return (
         <form noValidate onSubmit={handleSubmit}>
             <div className="flex flex-wrap text-white">
+                {/* Profile Image */}
                 <div className="w-full sm:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="fullName" className="mb-1 text-gray-300">
+                        <label htmlFor="vendorImage" className="mb-1 text-gray-300">
                             Profile Image
                         </label>
                         <input
                             type="file"
-                            className="bg-[#1D222B]  rounded  leading-10  focus:outline-none border border-borderDark "
-                            id="fullName"
-                            name="fullName"
-
+                            className="bg-[#1D222B] rounded leading-10 focus:outline-none border border-borderDark"
+                            id="vendorImage"
+                            name="vendorImage"
+                            onChange={handleFileChange}
+                            ref={profileImageRef}
                         />
+                        {imagePreviews.vendorImage && (
+                            <div className="relative mt-2">
+                                <img src={imagePreviews.vendorImage} alt="Profile Preview" className="rounded" style={{ maxWidth: "100%", height: "auto" }} />
+                                <button
+                                    type="button"
+                                    onClick={() => removeImage("vendorImage")}
+                                    className="absolute top-0 right-0 p-1 text-white bg-red-500 rounded-full"
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
+                {/* Shop Logo */}
                 <div className="w-full sm:w-1/2">
                     <div className="flex flex-col mx-2 mb-3">
-                        <label htmlFor="fullName" className="mb-1 text-gray-300">
+                        <label htmlFor="logo" className="mb-1 text-gray-300">
                             Shop Logo
                         </label>
                         <input
                             type="file"
-                            className="bg-[#1D222B]  rounded  leading-10 focus:outline-none border border-borderDark "
-                            id="fullName"
-                            name="fullName"
-                            placeholder="Your First Name"
-                        // onChange={handleUserInput}
-                        // value={vendorData.fullName}
+                            className="bg-[#1D222B] rounded leading-10 focus:outline-none border border-borderDark"
+                            id="logo"
+                            name="logo"
+                            onChange={handleFileChange}
+                            ref={shopLogoRef}
                         />
+                        {imagePreviews.logo && (
+                            <div className="relative mt-2">
+                                <img src={imagePreviews.logo} alt="Shop Logo Preview" className="rounded" style={{ maxWidth: "100%", height: "auto" }} />
+                                <button
+                                    type="button"
+                                    onClick={() => removeImage("logo")}
+                                    className="absolute top-0 right-0 p-1 text-white bg-red-500 rounded-full"
+                                >
+                                    &times;
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="w-full lg:w-1/2">

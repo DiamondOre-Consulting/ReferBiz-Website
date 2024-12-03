@@ -122,92 +122,50 @@ export const resetPassword = createAsyncThunk(
 );
 
 export const registerVendor = createAsyncThunk('/vendor/register', async (data) => {
-    try {
-        let res = axiosInstance.post('admin/vendor-register', data)
-        res = await res
-        toast.success(res.data.message)
-        return res.data
-    } catch (e) {
-        toast.error(e?.response?.data?.message)
-        throw e
-    }
+  try {
+    let res = axiosInstance.post('admin/vendor-register', data)
+    res = await res
+    toast.success(res.data.message)
+    return res.data
+  } catch (e) {
+    toast.error(e?.response?.data?.message)
+    throw e
+  }
 })
 
 const authSlice = createSlice({
-<<<<<<< HEAD
-    name: 'auth',
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-        builder.addCase(loginAccount.fulfilled, (state, action) => {
-            localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-            localStorage.setItem('isLoggedIn', true)
-            localStorage.setItem('role', action?.payload?.user?.role)
-            state.isLoggedIn = true
-            state.data = action?.payload?.user
-            state.role = action?.payload?.user?.role
-        }).addCase(createAccount.fulfilled, (state, action) => {
-            localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-            localStorage.setItem('isLoggedIn', true)
-            localStorage.setItem('role', action?.payload?.user?.role)
-            state.isLoggedIn = true
-            state.data = action?.payload?.user
-            state.role = action?.payload?.user?.role
-        }).addCase(logout.fulfilled, (state) => {
-            localStorage.clear()
-            state.data = {}
-            state.isLoggedIn = false
-            state.role = ""
-        }).addCase(userProfile.fulfilled, (state, action) => {
-            localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-            localStorage.setItem('isLoggedIn', true)
-            localStorage.setItem('role', action?.payload?.user?.role)
-            state.isLoggedIn = true
-            state.data = action?.payload?.user
-            state.role = action?.payload?.user?.role
-        })
-    }
-})
-
-export default authSlice.reducer
-=======
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(loginAccount.fulfilled, (state, action) => {
-        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
-        localStorage.setItem("isLoggedIn", true);
-        localStorage.setItem("role", action?.payload?.user?.role);
-        state.isLoggedIn = true;
-        state.data = action?.payload?.user;
-        state.role = action?.payload?.user?.role;
-      })
-      .addCase(createAccount.fulfilled, (state, action) => {
-        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
-        localStorage.setItem("isLoggedIn", true);
-        localStorage.setItem("role", action?.payload?.user?.role);
-        state.isLoggedIn = true;
-        state.data = action?.payload?.user;
-        state.role = action?.payload?.user?.role;
-      })
-      .addCase(logout.fulfilled, (state) => {
-        localStorage.clear();
-        state.data = {};
-        state.isLoggedIn = false;
-        state.role = "";
-      })
-      .addCase(userProfile.fulfilled, (state, action) => {
-        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
-        localStorage.setItem("isLoggedIn", true);
-        localStorage.setItem("role", action?.payload?.user?.role);
-        state.isLoggedIn = true;
-        state.data = action?.payload?.user;
-        state.role = action?.payload?.user?.role;
-      });
-  },
-});
+    builder.addCase(loginAccount.fulfilled, (state, action) => {
+      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
+      localStorage.setItem('isLoggedIn', true)
+      localStorage.setItem('role', action?.payload?.user?.role)
+      state.isLoggedIn = true
+      state.data = action?.payload?.user
+      state.role = action?.payload?.user?.role
+    }).addCase(createAccount.fulfilled, (state, action) => {
+      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
+      localStorage.setItem('isLoggedIn', true)
+      localStorage.setItem('role', action?.payload?.user?.role)
+      state.isLoggedIn = true
+      state.data = action?.payload?.user
+      state.role = action?.payload?.user?.role
+    }).addCase(logout.fulfilled, (state) => {
+      localStorage.clear()
+      state.data = {}
+      state.isLoggedIn = false
+      state.role = ""
+    }).addCase(userProfile.fulfilled, (state, action) => {
+      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
+      localStorage.setItem('isLoggedIn', true)
+      localStorage.setItem('role', action?.payload?.user?.role)
+      state.isLoggedIn = true
+      state.data = action?.payload?.user
+      state.role = action?.payload?.user?.role
+    })
+  }
+})
 
-export default authSlice.reducer;
->>>>>>> 7b8c7f8cdfeafbf0e5304c6111a2cdbccc45ad13
+export default authSlice.reducer

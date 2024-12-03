@@ -22,9 +22,18 @@ import {
   getCategory,
   updateCategory,
 } from "../controllers/category.controller.js";
+import upload from "../middlewares/multer.middleware.js";
 const router = express.Router();
 
-router.post("/vendor-register", vendorRegister);
+router.post(
+  "/vendor-register",
+  isLoggedIn,
+  upload.fields([
+    { name: "vendorImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
+  ]),
+  vendorRegister
+);
 router.post("/login", adminLogin);
 router.post("/register", adminRegister);
 router.get("/logout", isLoggedIn, logout);

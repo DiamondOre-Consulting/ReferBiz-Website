@@ -5,7 +5,9 @@ import User from "../models/user.schema.js";
 import { v4 as uuidv4 } from "uuid";
 import sendEmail from "../utils/email.utils.js";
 import Category from "../models/category.schema.js";
+import fs from "fs/promises";
 import vendorSchema from "../models/vendor.schema.js";
+import cloudinary from "cloudinary";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -24,10 +26,8 @@ const vendorRegister = async (req, res, next) => {
       phoneNumber,
       fullAddress,
       iframe,
-      categoryIds, // Accept an array of category IDs
+      categoryIds,
     } = req.body;
-
-    console.log(fullName, vendorEmail, vendorPassword, categoryIds);
 
     if (
       !shopName ||
@@ -46,21 +46,34 @@ const vendorRegister = async (req, res, next) => {
       return next(new CustomError("Email is already registered", 400));
     }
 
-    console.log(1);
-
-    // Validate category IDs
     const validCategories = await Category.find({ _id: { $in: categoryIds } });
     if (validCategories.length !== categoryIds.length) {
       return next(new CustomError("Invalid category IDs provided", 400));
     }
 
-    console.log(2);
+    // Create the vendor with references to categories
+    const user = await Vendor.create({
+      fullName,
+      vendorEmail,
+      vendorPassword,
+      shopName,
+      nearByLocation,
+      phoneNumber,
+      fullAddress,
+      iframe,
+      products: categoryIds.map((id) => ({ category: id })),
+    });
 
+    if (!user) {
+      return next(new CustomError("Registration Failed!", 400));
+    }
 
-    console.log(req.files);
-
+    const token = await user.generateJWTToken();
+    res.cookie("token", token, cookieOption);
+    console.log(req.files.logo[0]);
     if (req.files && req.files.vendorImage) {
       try {
+        // Upload to Cloudinary
         const vendorImageResult = await cloudinary.v2.uploader.upload(
           req.files.vendorImage[0].path,
           {
@@ -71,18 +84,31 @@ const vendorRegister = async (req, res, next) => {
             crop: "fill",
           }
         );
+        console.log("Vendor image uploaded successfully:", vendorImageResult);
 
         if (vendorImageResult) {
-          user.vendorImage.publicId = vendorImageResult.public_id;
-          user.vendorImage.secure_url = vendorImageResult.secure_url;
+          user.vendorImage = {
+            publicId: vendorImageResult.public_id,
+            secure_url: vendorImageResult.secure_url,
+          };
+          console.log("Vendor Image Public ID:", user.vendorImage.publicId);
+          console.log("Vendor Image URL:", user.vendorImage.secure_url);
         }
 
-        // Remove the local uploaded file
-        await fs.rm(`uploads/${req.files.vendorImage[0].filename}`, {
-          force: true,
-        });
+        // Safely remove the local uploaded file
+        const filePath = `uploads/${req.files.vendorImage[0].filename}`;
+        console.log("Attempting to remove file:", filePath);
+
+        await fs.rm(filePath, { force: true });
+        console.log("File removed successfully:", filePath);
+
+        console.log("done");
       } catch (err) {
-        return next(new CustomError("Vendor image can not be uploaded", 500));
+        console.error(
+          "Error during vendor image upload or cleanup:",
+          err.message
+        );
+        return next(new CustomError("Vendor image cannot be uploaded", 500));
       }
     }
 
@@ -92,6 +118,10 @@ const vendorRegister = async (req, res, next) => {
           req.files.logo[0].path,
           {
             folder: "Referbiz",
+            width: 250,
+            height: 250,
+            gravity: "faces",
+            crop: "fill",
           }
         );
 
@@ -101,31 +131,14 @@ const vendorRegister = async (req, res, next) => {
         }
 
         // Remove the local uploaded file
-        await fs.rm(`uploads/${req.files.logo[0].filename}`, { force: true });
+        await fs.rm(`uploads/${req.files.logo[0].filename}`, {
+          force: true,
+        });
       } catch (err) {
         return next(new CustomError("Logo image can not be uploaded", 500));
       }
     }
-    // Create the vendor with references to categories
-    const user = await Vendor.create({
-      fullName,
-      vendorEmail,
-      vendorPassword,
-      shopName,
-      nearByLocation,
-      phoneNumber,
-      fullAddress,
-      vendorImage,
-      logo,
-      products: categoryIds.map((id) => ({ category: id })),
-    });
 
-    if (!user) {
-      return next(new CustomError("Registration Failed!", 400));
-    }
-
-    const token = await user.generateJWTToken();
-    res.cookie("token", token, cookieOption);
     await user.save();
 
     // Populate categories for the response

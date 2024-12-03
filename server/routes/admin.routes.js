@@ -27,7 +27,6 @@ const router = express.Router();
 
 router.post(
   "/vendor-register",
-  isLoggedIn,
   upload.fields([
     { name: "vendorImage", maxCount: 1 },
     { name: "logo", maxCount: 1 },

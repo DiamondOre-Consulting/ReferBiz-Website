@@ -270,11 +270,13 @@ const updateProfile = async (req, res, next) => {
             crop: "fill",
           }
         );
+        console.log(vendorImageResult);
 
         if (vendorImageResult) {
           user.vendorImage.publicId = vendorImageResult.public_id;
           user.vendorImage.secure_url = vendorImageResult.secure_url;
         }
+        console.log(user.vendorImage.publicId, user.vendorImage.secure_url);
 
         // Remove the local uploaded file
         await fs.rm(`uploads/${req.files.vendorImage[0].filename}`, {

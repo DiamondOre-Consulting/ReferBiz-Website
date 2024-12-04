@@ -549,6 +549,7 @@ const addPayment = async (req, res, next) => {
         const referralEarning = amount * 0.02;
         referrer.referralEarnings += referralEarning;
         referrer.totalEarnings += referralEarning;
+
         await referrer.save();
       }
     }
@@ -585,6 +586,172 @@ const addPayment = async (req, res, next) => {
         ],
       });
     }
+    const UserSubject = "Message by the Referbiz";
+    const UserEmailBody = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f9;
+        }
+        .email-container {
+          width: 100%;
+          max-width: 650px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+          text-align: center;
+          margin-bottom: 25px;
+          font-size: 28px;
+          font-weight: bold;
+          color: #4CAF50; /* Green for a welcoming feel */
+          text-transform: uppercase;
+        }
+        .email-content {
+          font-size: 16px;
+          color: #333333;
+          line-height: 1.6;
+        }
+        .email-content p {
+          margin-bottom: 15px;
+        }
+        .email-content .highlight {
+          font-weight: bold;
+          color: #FF5722; /* Highlight for key details */
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 14px;
+          color: #777777;
+        }
+        .footer a {
+          color: #4CAF50; /* Link color */
+          text-decoration: none;
+        }
+        .footer p {
+          margin: 10px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="email-header">
+          Thank You for Shopping With Us!
+        </div>
+        <div class="email-content">
+          <p>Dear <strong class="highlight">${user.fullName}</strong>,</p>
+          <p>We are delighted to inform you that your shopping experience at <strong class="highlight">${vendor.shopName}</strong> was successful!</p>
+          <p><strong class="highlight">Total Amount Paid:</strong> ${amount} INR</p>
+          <p><strong class="highlight">Reward Points Earned:</strong> 10 RB Points</p>
+          <p>We appreciate your trust in us and look forward to serving you again soon.</p>
+          <p>If you have any questions or need assistance, don’t hesitate to <a href="mailto:support@yourdomain.com">contact us</a>.</p>
+        </div>
+        <div class="footer">
+          <p>Thank you for being a valued customer.</p>
+          <p>Warm regards,<br>Your Company Name Team</p>
+        </div>
+      </div>
+    </body>
+  </html>
+`;
+    await sendEmail("piy735d@gmail.com", UserSubject, UserEmailBody);
+    if (user.referredBy) {
+      const referrer = await User.findById(user.referredBy);
+
+      const referrerSubject = "Congratulations on Earning RB Points - ReferBiz";
+      const referrerBody = `
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f9;
+        }
+        .email-container {
+          width: 100%;
+          max-width: 650px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+          text-align: center;
+          margin-bottom: 25px;
+          font-size: 28px;
+          font-weight: bold;
+          color: #4CAF50; /* Green for success and positivity */
+          text-transform: uppercase;
+        }
+        .email-content {
+          font-size: 16px;
+          color: #333333;
+          line-height: 1.6;
+        }
+        .email-content p {
+          margin-bottom: 15px;
+        }
+        .email-content strong {
+          color: #333333;
+        }
+        .email-content .highlight {
+          font-weight: bold;
+          color: #FF5722; /* Highlight color for key points */
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 14px;
+          color: #777777;
+        }
+        .footer a {
+          color: #4CAF50; /* Link color */
+          text-decoration: none;
+        }
+        .footer p {
+          margin: 10px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="email-header">
+          Congratulations on Your RB Points!
+        </div>
+        <div class="email-content">
+          <p>Dear <strong class="highlight">${referrer.fullName}</strong>,</p>
+          <p>We’re thrilled to inform you that you’ve earned <strong class="highlight">10 RB Points</strong> because your referred user has successfully completed their shopping at <strong class="highlight">${vendor.shopName}</strong>.</p>
+          <p>Thank you for using <strong class="highlight">ReferBiz</strong> and helping others discover amazing shopping experiences!</p>
+          <p>Your efforts are making a difference, and we are grateful for your continued support.</p>
+        </div>
+        <div class="footer">
+          <p>If you have any questions or need assistance, please <a href="mailto:support@referbiz.com">contact us</a>.</p>
+          <p>Keep referring and keep earning!</p>
+          <p>Warm regards,<br>The ReferBiz Team</p>
+        </div>
+      </div>
+    </body>
+  </html>
+`;
+
+      // Send email to the vendor (or system)
+      await sendEmail(
+        "piyushguptaji123@gmail.com",
+        referrerSubject,
+        referrerBody
+      );
+    }
 
     await user.save();
 
@@ -618,7 +785,6 @@ const addPayment = async (req, res, next) => {
 
     // Update vendor's total amount
     vendor.totalAmount += amount;
-
     await vendor.save();
 
     return res.status(200).json({ message: "Transaction successful." });
@@ -875,6 +1041,93 @@ const getPurchaseHistory = async (req, res) => {
   } catch (error) {
     console.error("Error fetching vendor purchases:", error);
     return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const registerOtpGenerate = async (req, res, next) => {
+  const { userEmail } = req.body;
+
+  if (!userEmail) {
+    return next(new CustomError("Email is Required", 400));
+  }
+
+  const user = await User.findOne({ userEmail });
+
+  if (!user) {
+    return next(new CustomError("Email is not registered", 400));
+  }
+
+  const uuid = uuidv4();
+
+  const otp = uuid.replace(/\D/g, "").slice(0, 4);
+  user.otp = await otp;
+  user.otpExpiry = (await Date.now()) + 2 * 60 * 1000;
+
+  await user.save();
+
+  // const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+  const subject = "🔒 Password Reset Request";
+  const message = `
+ <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="width: 100% max-width: 24rem background-color: #f4f4f4 border-radius: 8px padding: 20px box-sizing: border-box color-scheme: light dark background-color: #ffffff background-color: #1a1a1a">
+  <tr>
+    <td style="text-align: center padding: 20px 0">
+      
+      <img src="https://img.icons8.com/ios-filled/50/0074f9/lock.png" alt="Lock Icon" style="width: 40px margin-bottom: 15px display: block margin-left: auto margin-right: auto">
+
+      <p style="font-size: 1.2rem font-weight: bold margin: 0 color: #000000 color: #ffffff">
+        Hello, <span style="color: #0074f9">${user.fullName}</span>
+      </p>
+
+      <p style="font-weight: 400 text-align: center margin: 20px 0 color: #555555 color: #cccccc">
+        It seems you’ve requested to reset your password. Let’s get you back on track! Use this OTP
+      </p>
+
+     <p style="font-weight: 400 text-align: center margin: 20px 0 color: #555555 color: #cccccc">
+        <strong>${otp}</strong>
+      </p>
+
+      <p style="font-weight: 400 text-align: center margin: 20px 0 color: #555555 color: #cccccc">
+        If you did not request a password reset, no worries—just ignore this Email, and your password will remain unchanged.
+      </p>
+
+      <div style="text-align: center margin-top: 20px">
+        <p style="margin: 0 font-size: 1rem color: #000000 color: #ffffff">
+          Stay safe,
+        </p>
+
+        <img src="https://img.icons8.com/ios-filled/50/0074f9/shield.png" alt="Shield Icon" style="width: 30px margin: 10px 0">
+        <p style="margin: 0 color: #0074f9 font-weight: bold">Refer Biz</p>
+        <p style="margin: 0 color: #555555 color: #cccccc">Support Team</p>
+      </div>
+
+      <div style="text-align: center margin-top: 20px">
+        <a href="" style="text-decoration: none margin: 0 10px">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/facebook.png" alt="Facebook" style="width: 25px display: inline-block">
+        </a>
+        <a href="" style="text-decoration: none margin: 0 10px">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/x.png" alt="X (formerly Twitter)" style="width: 25px display: inline-block">
+        </a>
+        <a href="" style="text-decoration: none margin: 0 10px">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/instagram.png" alt="Instagram" style="width: 25px display: inline-block">
+        </a>
+        <a href="" style="text-decoration: none margin: 0 10px">
+          <img src="https://img.icons8.com/ios-filled/30/0074f9/linkedin.png" alt="LinkedIn" style="width: 25px display: inline-block">
+        </a>
+      </div>
+
+    </td>
+  </tr>
+</table>`;
+
+  try {
+    await sendEmail(userEmail, subject, message);
+    res.status(200).json({
+      success: true,
+      message: "Password reset link has been sent to your userEmail",
+    });
+  } catch (e) {
+    await user.save();
+    return next(new CustomError(e.message, 500));
   }
 };
 

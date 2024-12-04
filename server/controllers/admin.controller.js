@@ -519,6 +519,8 @@ const vendorsList = async (req, res, next) => {
   }
 };
 
+const getContactDataOfVendor = async (req, res, next) => {};
+
 export {
   vendorRegister,
   adminLogin,

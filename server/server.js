@@ -58,27 +58,24 @@ connectDB();
 const addLogoFieldToVendors = async () => {
   try {
     const result = await Vendor.updateMany(
-      {}, // Update all documents
+      {}, // Empty filter to select all vendors
       {
         $set: {
-          logo: {
-            publicId: "",
-            secure_url: "",
-          },
+          discountProvidedByVendor: 0, // Set the default discount
+          youTubeLink: null, // Set default null value for YouTube link
+          description: "", // Set empty description as default
         },
       }
     );
 
-    console.log(
-      `${result.modifiedCount} documents updated with the new logo field.`
-    );
+    console.log(`Successfully updated ${result.nModified} vendors.`);
   } catch (error) {
     console.error("Error updating documents:", error);
   }
 };
 
 // Call the function to update the database
-// addLogoFieldToVendors();
+addLogoFieldToVendors();
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);

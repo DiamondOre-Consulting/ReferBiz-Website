@@ -151,7 +151,6 @@ const vendorProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const user = await Vendor.findById(userId);
-
     res.status(200).json({
       success: true,
       message: "",
@@ -161,6 +160,7 @@ const vendorProfile = async (req, res, next) => {
     return next(new CustomError("Failed to fetch" + err.message, 500));
   }
 };
+
 const getVendorData = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -326,6 +326,7 @@ const updateProfile = async (req, res, next) => {
     return next(new CustomError(e.message, 500));
   }
 };
+
 const updateStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
@@ -666,18 +667,22 @@ const getCustomerList = async (req, res) => {
   }
 };
 
-// API Endpoint
 const vendorContactUs = async (req, res, next) => {
   try {
     const { name, email, message, phoneNumber, shopName } = req.body;
     const vendorId = req.user.id; // Assuming `req.user.id` is the logged-in vendor's ID
     console.log(name, email, message, phoneNumber, shopName);
     // Save the contact data to the database, including the vendorId
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found." });
+    }
     const contact = new Contact({
       name,
       email,
       message,
-      vendorId, // Add vendorId here
+      vendorId,
+      role: vendor?.role, // Add vendorId here
     });
 
     const subject = "Message by the vendor";
@@ -762,7 +767,7 @@ const vendorContactUs = async (req, res, next) => {
 `;
 
     // Send email to the vendor (or system)
-    await sendEmail(email, subject, body);
+    await sendEmail("itsakash18.06@gmail.com", subject, body);
 
     // Save contact form entry in the database
     await contact.save();

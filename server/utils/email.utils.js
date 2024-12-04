@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 const sendEmail = async function (userEmail, subject, message) {
   const transporter = nodemailer.createTransport({
@@ -10,16 +10,14 @@ const sendEmail = async function (userEmail, subject, message) {
       user: process.env.SMPT_USERNAME,
       pass: process.env.SMPT_PASSWORD,
     },
-  })
+  });
 
   await transporter.sendMail({
     from: '"Refer Biz" <referbiz@gmail.com>',
     to: userEmail,
     subject: subject,
     html: message,
-  })
+  });
+};
 
-
-}
-
-export default sendEmail
+export default sendEmail;

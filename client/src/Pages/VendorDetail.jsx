@@ -12,6 +12,7 @@ import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
 import { IoMdStar } from "react-icons/io";
 import { toast } from "sonner";
+import YouTube from "react-youtube";
 
 import { IoIosPeople } from "react-icons/io";
 import {
@@ -25,21 +26,33 @@ import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
 const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
-  const purchaseHistory = useSelector(
-    (state) => state?.vendor?.purchaseHistory
-  );
+  const purchases = useSelector((state) => state?.vendor?.purchaseHistory);
   const data = useSelector((state) => state?.auth?.data);
   console.log("user", data);
-  console.log("history", purchaseHistory);
+  console.log("history", purchases);
   const [amount, setAmount] = useState("");
   const [isReferOptionVisible, setIsReferOptionVisible] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+
   const [isPaid, setIsPaid] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const message = `Check out this amazing link: http://localhost:5173/register?referralCode=${data.referralCode}`;
   const { id } = useParams();
   console.log(id);
+  const [videoId, setVideoId] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const videoUrl = "https://www.youtube.com/watch?v=BZlVNdJrYfM";
+    const match = videoUrl.match(
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*v=([^&]+)|youtu\.be\/([^?]+)/
+    );
+    const videoLinkId = match ? match[1] || match[2] : null;
+    console.log("videoId", videoLinkId);
+    if (videoLinkId) {
+      setVideoId(videoLinkId);
+    }
+  }, []); // Dependency array ensures it runs only once
 
   const shareOnWhatsApp = () => {
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -89,11 +102,15 @@ const VendorDetail = () => {
     );
   };
   const handlePay = async () => {
-    await dispatch(addPayment([id, { amount: Number(amount) }]));
+    const response = await dispatch(
+      addPayment([id, { amount: Number(amount) }])
+    );
+    await dispatch(getPurchaseHistory(id));
     setIsPaid(true);
-    // setTimeout(() => {
-    //   setIsModalOpen(false);
-    // }, 100);
+    console.log("response", response?.payload?.message);
+    if (response?.payload?.message === "Transaction successful.") {
+      setIsModalOpen(false);
+    }
   };
   const handleRating = async (star) => {
     setRating(star);
@@ -105,7 +122,26 @@ const VendorDetail = () => {
     <>
       <Header />
       <BreadCrumbs headText={vendorData.shopName} items={breadcrumbItems} />;
-      <div className="max-w-[85rem] mx-auto  shadow-xl bg-gray-50 rounded-xl">
+      <div className="max-w-[85rem] w-full mx-auto shadow-xl bg-gray-50 rounded-xl">
+        <div className="space-y-4 p-4">
+          {error ? (
+            <p className="text-red-500">{error}</p>
+          ) : videoId ? (
+            <div className="w-full border border-gray-600 mx-auto mt-4 aspect-w-16 aspect-h-9">
+              <iframe
+                className="w-full h-96 rounded-md"
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&rel=0`}
+                title="YouTube Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          ) : (
+            <p>Loading video...</p>
+          )}
+        </div>
+
         <div className="grid gap-20 lg:grid-cols-2 grid-cols-1">
           <div className="p-5">
             <div className="flex justify-between items-center py-2 ">
@@ -187,20 +223,11 @@ const VendorDetail = () => {
                   >
                     <div class="bg-gradient-to-b from-stone-200/40 to-white/80 rounded-[8px] px-2 py-2">
                       <div class="flex gap-2 items-center justify-center">
-                        {isPaid ? (
-                          <>
-                            <div className="font-semibold text-center flex items-center">
-                              Amount <IndianRupee size={18} className="ml-1" />
-                              {amount} Paid{" "}
-                            </div>
-                          </>
-                        ) : (
-                          <span className="font-semibold text-center flex items-center">
-                            {" "}
-                            <IndianRupee size={18} className="ml-1" />
-                            Pay
-                          </span>
-                        )}
+                        <span className="font-semibold text-center flex items-center">
+                          {" "}
+                          <IndianRupee size={18} className="ml-1" />
+                          Pay
+                        </span>
                       </div>
                     </div>
                   </button>
@@ -212,56 +239,27 @@ const VendorDetail = () => {
                       <div className="border-t border-neutral-300 text-neutral-300 mt-2"></div>
                     </DialogTitle>
                   </DialogHeader>
-                  {isPaid ? (
-                    <>
-                      <div className="text-green-600 text-lg text-center font-semibold">
-                        Amount {amount} Sucessfully Paid
-                      </div>
-                      <div className="flex justify-center">
-                        <div className="mt-4 text-center ">
-                          <div className="font-semibold">
-                            Please rate your experience:
-                          </div>
-                          <div className="flex justify-center gap-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <span
-                                key={star}
-                                onClick={() => handleRating(star)}
-                                className={`cursor-pointer text-2xl ${
-                                  rating >= star
-                                    ? "text-yellow-500"
-                                    : "text-gray-300"
-                                }`}
-                              >
-                                ★
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col gap-4 mt-4">
-                      <input
-                        type="number"
-                        placeholder="Enter amount"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <button
-                        onClick={handlePay}
-                        disabled={!amount}
-                        className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
-                          isPaid
-                            ? "bg-green-500 border-green-600 cursor-default"
-                            : "bg-blue-500 border-blue-600 hover:brightness-110"
-                        }`}
-                      >
-                        {isPaid ? "Processing" : "Pay"}
-                      </button>
-                    </div>
-                  )}
+
+                  <div className="flex flex-col gap-4 mt-4">
+                    <input
+                      type="number"
+                      placeholder="Enter amount"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handlePay}
+                      disabled={!amount}
+                      className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
+                        isPaid
+                          ? "bg-green-500 border-green-600 cursor-default"
+                          : "bg-blue-500 border-blue-600 hover:brightness-110"
+                      }`}
+                    >
+                      Pay
+                    </button>
+                  </div>
                 </DialogContent>
               </Dialog>
             </div>
@@ -332,18 +330,62 @@ const VendorDetail = () => {
                 Contact Details
               </div>
             </div>
-            <div className="border-t border-gray-200 mx-2"></div>
-            <div className="text-gray-700 text-xl mt-2">
-              <div className="mb-2">Piyush Gupta</div>
-              <div className="border-t border-gray-200 my-2"></div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center mb-3">
+                  <img
+                    src={vendorData?.vendorImage?.secure_url}
+                    className={` hidden  duration-300 lg:block border-borderDark shadow-[0px_0px_10px_-3px_#808080] h-[3rem] w-[3rem] border-white rounded-full`}
+                  />
+                </div>
+                <div className="border-t border-gray-200 mx-2"></div>
+                <div className="text-gray-700 text-xl mt-2">
+                  <div className="mb-2">Piyush Gupta</div>
+                  <div className="border-t border-gray-200 my-2"></div>
 
-              <div className="mb-2">piyushguptaji123@gmail.com</div>
-              <div className="border-t border-gray-200 my-2"></div>
+                  <div className="mb-2">piyushguptaji123@gmail.com</div>
+                  <div className="border-t border-gray-200 my-2"></div>
 
-              <div className="mb-2">+91 8174075872</div>
-              <div className="border-t border-gray-200 my-2"></div>
+                  <div className="mb-2">+91 8174075872</div>
+                  <div className="border-t border-gray-200 my-2"></div>
+                </div>
+              </div>
+              <div className=" bg-gray-200  text-gray-600">
+                <div className="flex items-center justify-center">
+                  Youtube video coming soon
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+        <div className="p-4 bg-white rounded-md shadow-lg">
+          {/* Header */}
+          <div className="grid grid-cols-3 sm:grid-cols-3 font-semibold bg-blue-500 text-base text-white p-3 rounded-t-md">
+            <div className="text-center">#</div>
+            <div className="text-center">Amount</div>
+            <div className="text-center">Date</div>
+          </div>
+
+          {/* Body */}
+          {purchases
+            ?.slice()
+            .reverse()
+            .map((purchase, index) => (
+              <div
+                key={index}
+                className={`text-base grid grid-cols-3 sm:grid-cols-3  ${
+                  index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"
+                } p-3`}
+              >
+                <div className="text-center">{index + 1}</div>
+                <div className="text-center font-medium text-gray-800">
+                  ₹{purchase.amount}
+                </div>
+                <div className="text-center text-gray-600">
+                  {new Date(purchase.date).toLocaleString()}
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </>

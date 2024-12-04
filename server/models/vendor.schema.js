@@ -151,6 +151,20 @@ const vendorSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  discountProvidedByVendor: {
+    type: Number,
+    default: 0, // You can adjust the default value if needed
+  },
+  youTubeLink: {
+    type: String,
+    trim: true,
+    default: null, // Optional default
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: "", // Optional default
+  },
 });
 
 vendorSchema.methods = {

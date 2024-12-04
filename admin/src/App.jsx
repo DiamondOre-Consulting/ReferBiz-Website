@@ -10,6 +10,7 @@ import VendorList from "./Pages/VendorList"
 import CategoriesList from "./Pages/CategoriesList"
 import CategoryDetail from "./Pages/CategoryDetail"
 import RegisterVendor from "./Pages/Auth/RegisterVendor"
+import VendorDetail from "./Pages/VendorDetail"
 
 const App = () => {
   const { role } = useSelector((state) => state?.auth)
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/category-list" element={<CategoriesList />} />
           <Route path="/category/:id" element={<CategoryDetail />} />
           <Route path="/register-vendor" element={<RegisterVendor />} />
+          <Route path="/vendor/:id" element={<VendorDetail />} />
         </Route>
         <Route path="/*" element={<PageNotFound />} />
       </Routes>

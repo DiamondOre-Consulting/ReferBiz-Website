@@ -106,6 +106,28 @@ export const deleteSubCategory = createAsyncThunk('/admin/category/delete/subcat
     }
 })
 
+export const getVendorDetail = createAsyncThunk('/admin/vendor/detail', async (data) => {
+    try {
+        let res = axiosInstance.get(`admin/vendor/${data}`)
+
+        res = await res
+        return res.data
+    } catch (e) {
+        return toast.error(e?.response?.data?.message)
+    }
+})
+
+export const updateVendor = createAsyncThunk('/admin/vendor/update', async (data) => {
+    try {
+        let res = axiosInstance.put(`admin/update-vendor/${data[0]}`, data[1])
+
+        res = await res
+        return res.data
+    } catch (e) {
+        return toast.error(e?.response?.data?.message)
+    }
+})
+
 
 const listSlice = createSlice({
     name: 'list',

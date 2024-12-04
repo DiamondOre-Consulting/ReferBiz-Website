@@ -8,6 +8,7 @@ import Category from "../models/category.schema.js";
 import fs from "fs/promises";
 import vendorSchema from "../models/vendor.schema.js";
 import cloudinary from "cloudinary";
+import isLoggedIn from "../middlewares/auth.middleware.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -189,6 +190,7 @@ const adminRegister = async (req, res, next) => {
       success: true,
       message: "Admin Registration Successfully done",
       user,
+      isLoggedIn: true
     });
   } catch (err) {
     return next(new CustomError(err.message, 500));
@@ -223,6 +225,7 @@ const adminLogin = async (req, res, next) => {
       success: true,
       message: "Login Successfull!",
       user,
+      isLoggedIn: true
     });
   } catch (err) {
     return next(new CustomError(err.message, 500));
@@ -240,7 +243,7 @@ const logout = (req, res, next) => {
 
   try {
     res.cookie("token", token, cookiesOption);
-    res.status(200).json({ success: true, message: "Logged out" });
+    res.status(200).json({ success: true, message: "Logged out", isLoggedIn: false });
   } catch (e) {
     return res.status(500).json({ success: false, message: e.message });
   }
@@ -255,6 +258,7 @@ const profile = async (req, res, next) => {
       success: true,
       message: "",
       user,
+      isLoggedIn: true
     });
   } catch (err) {
     return next(new CustomError("Failed to fetch" + err.message, 500));

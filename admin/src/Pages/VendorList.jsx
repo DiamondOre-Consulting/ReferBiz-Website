@@ -120,114 +120,114 @@ const VendorList = () => {
           </div>
           {loading
             ? Array.from({ length: itemsPerPage }).map((_, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#1c202a]"
-                >
-                  <p className="min-w-[3rem] text-center">
+              <div
+                key={index}
+                className="flex items-center justify-between w-full gap-3 px-3 py-3 text-black bg-[#1c202a]"
+              >
+                <p className="min-w-[3rem] text-center">
+                  <Skeleton />
+                </p>
+                <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
+                  <p>
                     <Skeleton />
                   </p>
-                  <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
-                    <p>
-                      <Skeleton />
-                    </p>
-                  </div>
-                  <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
-                    <p>
-                      <Skeleton />
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 min-w-[6.8rem]">
-                    <Skeleton width={70} />
-                  </div>
-                  <div className="flex items-center gap-2 min-w-[6.8rem]">
-                    <Skeleton width={70} />
-                  </div>
-                  <div className="min-w-[3.3rem] flex items-center justify-center">
-                    <Skeleton width={24} height={24} />
-                  </div>
                 </div>
-              ))
-            : list?.map((data, index) => (
-                <div
-                  key={data?._id}
-                  className="relative text-[0.95rem] flex items-center border-t font-normal border-borderDark justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]"
-                >
-                  <p className="min-w-[3rem] text-center">
-                    {(currentPage - 1) * itemsPerPage + index + 1}.
+                <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
+                  <p>
+                    <Skeleton />
                   </p>
-                  <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
-                    <p>{data?.fullName}</p>
+                </div>
+                <div className="flex items-center gap-2 min-w-[6.8rem]">
+                  <Skeleton width={70} />
+                </div>
+                <div className="flex items-center gap-2 min-w-[6.8rem]">
+                  <Skeleton width={70} />
+                </div>
+                <div className="min-w-[3.3rem] flex items-center justify-center">
+                  <Skeleton width={24} height={24} />
+                </div>
+              </div>
+            ))
+            : list?.map((data, index) => (
+              <div
+                key={data?._id}
+                className="relative text-[0.95rem] flex items-center border-t font-normal border-borderDark justify-between w-full gap-3 px-3 py-3 text-white bg-[#1c202a]"
+              >
+                <p className="min-w-[3rem] text-center">
+                  {(currentPage - 1) * itemsPerPage + index + 1}.
+                </p>
+                <div className="min-w-[13rem] lg:min-w-[15rem] line-clamp-1">
+                  <p>{data?.fullName}</p>
+                </div>
+                <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
+                  <p>{data?.vendorEmail}</p>
+                </div>
+                <div className="min-w-[7rem]  truncate line-clamp-1">
+                  <p>{data?.phoneNumber}</p>
+                </div>
+                <div className="flex items-center gap-2 min-w-[6.8rem]">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor={`statusAccepted${index}`}
+                      className="font-semibold text-green-600"
+                    >
+                      O:
+                    </label>
+                    <input
+                      id={`statusAccepted${index}`}
+                      type="radio"
+                      name={`status${index}`}
+                      checked={data?.status === "OPEN"}
+                      onChange={() => handleStatusChange(data?._id, "OPEN")}
+                      value="OPEN"
+                      className="size-[15px] accent-green-500"
+                    />
                   </div>
-                  <div className="min-w-[13rem] lg:min-w-[15rem] truncate line-clamp-1">
-                    <p>{data?.vendorEmail}</p>
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor={`statusAccepted${index}`}
+                      className="font-semibold text-yellow-500"
+                    >
+                      C:
+                    </label>
+                    <input
+                      id={`statusAccepted${index}`}
+                      type="radio"
+                      name={`status${index}`}
+                      checked={data?.status === "CLOSE"}
+                      onChange={() => handleStatusChange(data?._id, "CLOSE")}
+                      value="OPEN"
+                      className="size-[15px] accent-yellow-500"
+                    />
                   </div>
-                  <div className="min-w-[7rem]  truncate line-clamp-1">
-                    <p>{data?.phoneNumber}</p>
-                  </div>
-                  <div className="flex items-center gap-2 min-w-[6.8rem]">
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`statusAccepted${index}`}
-                        className="font-semibold text-green-600"
-                      >
-                        O:
-                      </label>
-                      <input
-                        id={`statusAccepted${index}`}
-                        type="radio"
-                        name={`status${index}`}
-                        checked={data?.status === "OPEN"}
-                        onChange={() => handleStatusChange(data?._id, "OPEN")}
-                        value="OPEN"
-                        className="size-[15px] accent-green-500"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`statusAccepted${index}`}
-                        className="font-semibold text-yellow-500"
-                      >
-                        C:
-                      </label>
-                      <input
-                        id={`statusAccepted${index}`}
-                        type="radio"
-                        name={`status${index}`}
-                        checked={data?.status === "CLOSE"}
-                        onChange={() => handleStatusChange(data?._id, "CLOSE")}
-                        value="OPEN"
-                        className="size-[15px] accent-yellow-500"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label
-                        htmlFor={`statusRejected${index}`}
-                        className="font-semibold text-red-500"
-                      >
-                        B:
-                      </label>
-                      <input
-                        id={`statusRejected${index}`}
-                        type="radio"
-                        name={`status${index}`}
-                        checked={data?.status === "BLOCK"}
-                        onChange={() => handleStatusChange(data?._id, "BLOCK")}
-                        value="BLOCK"
-                        className="size-[15px] accent-red-500"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    onClick={() =>
-                      navigate(`/driver/${data?._id}`, { state: data?._id })
-                    }
-                    className="min-w-[3.3rem] sticky px-5 right-0 bg-[#1c202a] flex items-center justify-center"
-                  >
-                    <FaEye className="text-[1.45rem] cursor-pointer" />
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor={`statusRejected${index}`}
+                      className="font-semibold text-red-500"
+                    >
+                      B:
+                    </label>
+                    <input
+                      id={`statusRejected${index}`}
+                      type="radio"
+                      name={`status${index}`}
+                      checked={data?.status === "BLOCK"}
+                      onChange={() => handleStatusChange(data?._id, "BLOCK")}
+                      value="BLOCK"
+                      className="size-[15px] accent-red-500"
+                    />
                   </div>
                 </div>
-              ))}
+                <div
+                  onClick={() =>
+                    navigate(`/vendor/${data?._id}`, { state: data?._id })
+                  }
+                  className="min-w-[3.3rem] sticky px-5 right-0 bg-[#1c202a] flex items-center justify-center"
+                >
+                  <FaEye className="text-[1.45rem] cursor-pointer" />
+                </div>
+              </div>
+            ))}
         </div>
       </div>
       <div className="flex items-center justify-between mt-2 border border-[#242a34] bg-[#1c202a] text-white rounded overflow-hidden ">

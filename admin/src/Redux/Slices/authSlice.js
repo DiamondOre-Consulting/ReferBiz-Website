@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "sonner";
 import axiosInstance from "../../Helper/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const initialState = {
   isLoggedIn: localStorage.getItem("isLoggedIn") === "true" || false,
@@ -8,8 +9,9 @@ const initialState = {
     localStorage.getItem("data") !== "undefined"
       ? JSON.parse(localStorage.getItem("data"))
       : {},
-  role: localStorage.getItem("role") || "",
+  role: "",
 };
+
 
 export const createAccount = createAsyncThunk(
   "/admin/register",
@@ -52,11 +54,15 @@ export const logout = createAsyncThunk("/admin/logout", async () => {
 });
 
 export const userProfile = createAsyncThunk("/admin/details", async () => {
+  // const navigate = useNavigate()
   try {
     const res = axiosInstance.get("admin/");
     return (await res).data;
   } catch (e) {
+    console.log(e)
     toast.error(e?.message);
+    localStorage.clear();
+    // navigate('/login')
     throw e;
   }
 });
@@ -140,16 +146,14 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(loginAccount.fulfilled, (state, action) => {
       localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', true)
-      localStorage.setItem('role', action?.payload?.user?.role)
-      state.isLoggedIn = true
+      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
+      state.isLoggedIn = action?.payload?.isLoggedIn
       state.data = action?.payload?.user
       state.role = action?.payload?.user?.role
     }).addCase(createAccount.fulfilled, (state, action) => {
       localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', true)
-      localStorage.setItem('role', action?.payload?.user?.role)
-      state.isLoggedIn = true
+      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
+      state.isLoggedIn = action?.payload?.isLoggedIn
       state.data = action?.payload?.user
       state.role = action?.payload?.user?.role
     }).addCase(logout.fulfilled, (state) => {
@@ -159,9 +163,8 @@ const authSlice = createSlice({
       state.role = ""
     }).addCase(userProfile.fulfilled, (state, action) => {
       localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', true)
-      localStorage.setItem('role', action?.payload?.user?.role)
-      state.isLoggedIn = true
+      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
+      state.isLoggedIn = action?.payload?.isLoggedIn
       state.data = action?.payload?.user
       state.role = action?.payload?.user?.role
     })

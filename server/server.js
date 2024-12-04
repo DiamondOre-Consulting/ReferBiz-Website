@@ -75,7 +75,7 @@ const addLogoFieldToVendors = async () => {
 };
 
 // Call the function to update the database
-addLogoFieldToVendors();
+// addLogoFieldToVendors();
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);

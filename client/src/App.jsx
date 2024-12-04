@@ -28,6 +28,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/vendor/login" element={<VendorLogin />} />
+        <Route path="/about-us/" element={<AboutUs />} />
 
         <Route
           path="/"
@@ -75,7 +76,6 @@ const App = () => {
         <Route element={<RequireAuth allowedRoles={["USER"]} />}>
           <Route path={`/vendor-detail/:id`} element={<VendorDetail />} />
           <Route path="/profile/:fullName" element={<Profile />} />
-          <Route path="/about-us/" element={<AboutUs />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={["VENDOR"]} />}>

@@ -17,6 +17,8 @@ const cookieOption = {
 };
 
 const vendorRegister = async (req, res, next) => {
+  console.log(1);
+  console.log(req.body);
   try {
     const {
       fullName,
@@ -28,6 +30,9 @@ const vendorRegister = async (req, res, next) => {
       fullAddress,
       iframe,
       categoryIds,
+      discountProvidedByVendor,
+      description,
+      youTubeLink,
     } = req.body;
 
     if (
@@ -37,21 +42,24 @@ const vendorRegister = async (req, res, next) => {
       !vendorPassword ||
       !nearByLocation ||
       !phoneNumber ||
-      !fullAddress
+      !fullAddress ||
+      !discountProvidedByVendor ||
+      !description ||
+      !youTubeLink
     ) {
       return next(new CustomError("All Fields are required", 400));
     }
-
+    console.log(" uniqueEmail       ", req.body);
     const uniqueEmail = await Vendor.findOne({ vendorEmail });
     if (uniqueEmail) {
       return next(new CustomError("Email is already registered", 400));
     }
-
+    console.log(" uniqueEmail       ", uniqueEmail);
     const validCategories = await Category.find({ _id: { $in: categoryIds } });
     if (validCategories.length !== categoryIds.length) {
       return next(new CustomError("Invalid category IDs provided", 400));
     }
-
+    console.log("user", validCategories);
     // Create the vendor with references to categories
     const user = await Vendor.create({
       fullName,
@@ -62,6 +70,9 @@ const vendorRegister = async (req, res, next) => {
       phoneNumber,
       fullAddress,
       iframe,
+      discountProvidedByVendor,
+      description,
+      youTubeLink,
       products: categoryIds.map((id) => ({ category: id })),
     });
 
@@ -190,7 +201,7 @@ const adminRegister = async (req, res, next) => {
       success: true,
       message: "Admin Registration Successfully done",
       user,
-      isLoggedIn: true
+      isLoggedIn: true,
     });
   } catch (err) {
     return next(new CustomError(err.message, 500));
@@ -225,7 +236,7 @@ const adminLogin = async (req, res, next) => {
       success: true,
       message: "Login Successfull!",
       user,
-      isLoggedIn: true
+      isLoggedIn: true,
     });
   } catch (err) {
     return next(new CustomError(err.message, 500));
@@ -243,7 +254,9 @@ const logout = (req, res, next) => {
 
   try {
     res.cookie("token", token, cookiesOption);
-    res.status(200).json({ success: true, message: "Logged out", isLoggedIn: false });
+    res
+      .status(200)
+      .json({ success: true, message: "Logged out", isLoggedIn: false });
   } catch (e) {
     return res.status(500).json({ success: false, message: e.message });
   }
@@ -258,7 +271,7 @@ const profile = async (req, res, next) => {
       success: true,
       message: "",
       user,
-      isLoggedIn: true
+      isLoggedIn: true,
     });
   } catch (err) {
     return next(new CustomError("Failed to fetch" + err.message, 500));

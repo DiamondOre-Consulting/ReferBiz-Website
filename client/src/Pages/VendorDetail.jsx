@@ -7,6 +7,7 @@ import {
   getPurchaseHistory,
   getVendorData,
 } from "../Redux/Slices/vendorSlice";
+import PhoneInput from "react-phone-input-2";
 import { FaCopy, FaWhatsapp } from "react-icons/fa";
 import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
@@ -63,7 +64,8 @@ const VendorDetail = () => {
       toast.error("Please enter a phone number");
       return;
     }
-    if (phoneNumber?.length != 10) {
+    console.log("lenggh", phoneNumber?.length);
+    if (phoneNumber?.length != 12) {
       toast.error("Please enter a 10 digit number");
       return;
     }
@@ -266,25 +268,38 @@ const VendorDetail = () => {
             {/* Options below the Refer Button */}
             {isReferOptionVisible && (
               <>
-                <div className="flex items-center justify-between space-x-4 gap-3">
-                  <input
-                    type="text"
-                    placeholder="Enter phone number"
+                <div className="flex mt-5 flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4 gap-3">
+                  {/* Phone Input */}
+                  <PhoneInput
+                    country={"in"}
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full sm:w-[calc(100%-3rem)] h-12 px-4 py-2 mt-4 rounded-lg border border-gray-300 mb-4"
+                    onChange={setPhoneNumber}
+                    inputProps={{
+                      name: "phone",
+                      required: true,
+                      autoFocus: true,
+                    }}
+                    containerClass="w-full"
+                    placeholder="Please Enter Phone Number"
+                    inputClass="focus:outline-none focus:border-blue-900 border-gray-700 text-gray-800 rounded-md w-full py-2 px-3"
+                    buttonClass="bg-gray-300 focus:outline-none focus:border focus:border-blue-600 rounded-l-md"
+                    dropdownClass="custom-dropdown bg-gray-200 shadow-lg"
                   />
-                  <div className="w-full flex items-center gap-5  ">
+
+                  {/* Buttons Container */}
+                  <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
+                    {/* Send Button */}
                     <button
                       onClick={sendMessage}
-                      className="cursor-pointer w-32 h-12 transition-all bg-blue-500 text-white px-4 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                      className="cursor-pointer w-full sm:w-32 h-12 transition-all bg-blue-500 text-white px-4 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
                     >
                       Send
                     </button>
 
+                    {/* Copy to Clipboard Button */}
                     <button
                       onClick={copyToClipboard}
-                      className="flex items-center justify-center w-12 h-12 bg-gary-300 text-gray-700 rounded-full border-gray-300 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                      className="flex items-center justify-center w-full sm:w-12 h-12 bg-gray-300 text-gray-700 rounded-lg sm:rounded-full border-gray-300 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
                     >
                       <FaCopy size={20} />
                     </button>
@@ -292,7 +307,7 @@ const VendorDetail = () => {
                     {/* Share on WhatsApp Button */}
                     <button
                       onClick={shareOnWhatsApp}
-                      className="flex items-center justify-center w-12 h-12 bg-green-600 text-white rounded-full border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
+                      className="flex items-center justify-center w-full sm:w-12 h-12 bg-green-600 text-white rounded-lg sm:rounded-full border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
                     >
                       <FaWhatsapp size={20} />
                     </button>

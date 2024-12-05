@@ -45,6 +45,10 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
+  rbPoints: {
+    type: Number,
+    default: 0,
+  },
   discountEarnings: {
     type: Number,
     default: 0,

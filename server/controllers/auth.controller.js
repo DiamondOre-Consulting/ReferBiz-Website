@@ -58,9 +58,6 @@ const register = async (req, res, next) => {
 
       if (referredUser) {
         user.referredBy = referredUser._id;
-        user.referralEarnings += 50;
-        user.totalEarnings += 50;
-
         await User.findByIdAndUpdate(
           referredUser._id,
           {
@@ -69,9 +66,6 @@ const register = async (req, res, next) => {
                 userId: user._id,
                 dateReferred: new Date(),
               },
-            },
-            $inc: {
-              referralEarnings: 50,
             },
           },
           { new: true }
@@ -523,7 +517,8 @@ const addPayment = async (req, res, next) => {
   const { amount } = req.body;
   const { vendorId } = req.params;
   const userId = req.user.id;
-  console.log(amount, vendorId, userId);
+  const percent = Math.floor(amount / 100);
+  let referralEarning;
 
   if (!userId || !vendorId || !amount || amount <= 0) {
     return res.status(400).json({ message: "Invalid input parameters." });
@@ -535,31 +530,28 @@ const addPayment = async (req, res, next) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    console.log(user);
-
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) {
       return res.status(404).json({ message: "Vendor not found." });
     }
 
-    // If referredBy exists, credit 2% of the amount to the referring user
+    const userEarning = percent * 5;
+    user.rbPoints += userEarning;
+    user.totalEarnings += userEarning;
+    console.log("refer", user);
     if (user.referredBy) {
       const referrer = await User.findById(user.referredBy);
       if (referrer) {
-        const referralEarning = amount * 0.02;
+        referralEarning = userEarning * 0.1;
+        console.log("refer1", referralEarning);
         referrer.referralEarnings += referralEarning;
         referrer.totalEarnings += referralEarning;
+        console.log("refer1", referrer.referralEarnings);
 
         await referrer.save();
       }
     }
 
-    // Update user's referral earnings and total earnings
-    const userEarning = amount * 0.05;
-    user.referralEarnings += userEarning;
-    user.totalEarnings += userEarning;
-
-    // Update user's vendorList
     const existingVendor = user.vendorList.find(
       (item) => item.vendorId.toString() === vendorId
     );
@@ -588,169 +580,165 @@ const addPayment = async (req, res, next) => {
     }
     const UserSubject = "Message by the Referbiz";
     const UserEmailBody = `
-  <html>
-    <head>
-      <style>
-        body {
-          font-family: 'Arial', sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #f4f4f9;
-        }
-        .email-container {
-          width: 100%;
-          max-width: 650px;
-          margin: 0 auto;
-          background-color: #ffffff;
-          padding: 30px;
-          border-radius: 10px;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-        .email-header {
-          text-align: center;
-          margin-bottom: 25px;
-          font-size: 28px;
-          font-weight: bold;
-          color: #4CAF50; /* Green for a welcoming feel */
-          text-transform: uppercase;
-        }
-        .email-content {
-          font-size: 16px;
-          color: #333333;
-          line-height: 1.6;
-        }
-        .email-content p {
-          margin-bottom: 15px;
-        }
-        .email-content .highlight {
-          font-weight: bold;
-          color: #FF5722; /* Highlight for key details */
-        }
-        .footer {
-          text-align: center;
-          margin-top: 30px;
-          font-size: 14px;
-          color: #777777;
-        }
-        .footer a {
-          color: #4CAF50; /* Link color */
-          text-decoration: none;
-        }
-        .footer p {
-          margin: 10px 0;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="email-container">
-        <div class="email-header">
-          Thank You for Shopping With Us!
-        </div>
-        <div class="email-content">
-          <p>Dear <strong class="highlight">${user.fullName}</strong>,</p>
-          <p>We are delighted to inform you that your shopping experience at <strong class="highlight">${vendor.shopName}</strong> was successful!</p>
-          <p><strong class="highlight">Total Amount Paid:</strong> ${amount} INR</p>
-          <p><strong class="highlight">Reward Points Earned:</strong> 10 RB Points</p>
-          <p>We appreciate your trust in us and look forward to serving you again soon.</p>
-          <p>If you have any questions or need assistance, don’t hesitate to <a href="mailto:support@yourdomain.com">contact us</a>.</p>
-        </div>
-        <div class="footer">
-          <p>Thank you for being a valued customer.</p>
-          <p>Warm regards,<br>Your Company Name Team</p>
-        </div>
-      </div>
-    </body>
-  </html>
-`;
-    await sendEmail("piy735d@gmail.com", UserSubject, UserEmailBody);
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f9;
+            }
+            .email-container {
+              width: 100%;
+              max-width: 650px;
+              margin: 0 auto;
+              background-color: #ffffff;
+              padding: 30px;
+              border-radius: 10px;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            }
+            .email-header {
+              text-align: center;
+              margin-bottom: 25px;
+              font-size: 28px;
+              font-weight: bold;
+              color: #4CAF50; /* Green for a welcoming feel */
+              text-transform: uppercase;
+            }
+            .email-content {
+              font-size: 16px;
+              color: #333333;
+              line-height: 1.6;
+            }
+            .email-content p {
+              margin-bottom: 15px;
+            }
+            .email-content .highlight {
+              font-weight: bold;
+              color: #FF5722; /* Highlight for key details */
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              font-size: 14px;
+              color: #777777;
+            }
+            .footer a {
+              color: #4CAF50; /* Link color */
+              text-decoration: none;
+            }
+            .footer p {
+              margin: 10px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-container">
+            <div class="email-header">
+              Thank You for Shopping With Us!
+            </div>
+            <div class="email-content">
+              <p>Dear <strong class="highlight">${user.fullName}</strong>,</p>
+              <p>We are delighted to inform you that your shopping experience at <strong class="highlight">${vendor.shopName}</strong> was successful!</p>
+              <p><strong class="highlight">Total Amount Paid:</strong> ${amount} INR</p>
+              <p><strong class="highlight">Reward Points Earned:</strong> ${userEarning} RB Points</p>
+              <p>We appreciate your trust in us and look forward to serving you again soon.</p>
+              <p>If you have any questions or need assistance, don’t hesitate to <a href="mailto:support@yourdomain.com">contact us</a>.</p>
+            </div>
+            <div class="footer">
+              <p>Thank you for being a valued customer.</p>
+              <p>Warm regards,<br>Your Company Name Team</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    await sendEmail(user.userEmail, UserSubject, UserEmailBody);
     if (user.referredBy) {
       const referrer = await User.findById(user.referredBy);
 
       const referrerSubject = "Congratulations on Earning RB Points - ReferBiz";
       const referrerBody = `
-  <html>
-    <head>
-      <style>
-        body {
-          font-family: 'Arial', sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #f4f4f9;
-        }
-        .email-container {
-          width: 100%;
-          max-width: 650px;
-          margin: 0 auto;
-          background-color: #ffffff;
-          padding: 30px;
-          border-radius: 10px;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-        .email-header {
-          text-align: center;
-          margin-bottom: 25px;
-          font-size: 28px;
-          font-weight: bold;
-          color: #4CAF50; /* Green for success and positivity */
-          text-transform: uppercase;
-        }
-        .email-content {
-          font-size: 16px;
-          color: #333333;
-          line-height: 1.6;
-        }
-        .email-content p {
-          margin-bottom: 15px;
-        }
-        .email-content strong {
-          color: #333333;
-        }
-        .email-content .highlight {
-          font-weight: bold;
-          color: #FF5722; /* Highlight color for key points */
-        }
-        .footer {
-          text-align: center;
-          margin-top: 30px;
-          font-size: 14px;
-          color: #777777;
-        }
-        .footer a {
-          color: #4CAF50; /* Link color */
-          text-decoration: none;
-        }
-        .footer p {
-          margin: 10px 0;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="email-container">
-        <div class="email-header">
-          Congratulations on Your RB Points!
-        </div>
-        <div class="email-content">
-          <p>Dear <strong class="highlight">${referrer.fullName}</strong>,</p>
-          <p>We’re thrilled to inform you that you’ve earned <strong class="highlight">10 RB Points</strong> because your referred user has successfully completed their shopping at <strong class="highlight">${vendor.shopName}</strong>.</p>
-          <p>Thank you for using <strong class="highlight">ReferBiz</strong> and helping others discover amazing shopping experiences!</p>
-          <p>Your efforts are making a difference, and we are grateful for your continued support.</p>
-        </div>
-        <div class="footer">
-          <p>If you have any questions or need assistance, please <a href="mailto:support@referbiz.com">contact us</a>.</p>
-          <p>Keep referring and keep earning!</p>
-          <p>Warm regards,<br>The ReferBiz Team</p>
-        </div>
-      </div>
-    </body>
-  </html>
-`;
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f9;
+            }
+            .email-container {
+              width: 100%;
+              max-width: 650px;
+              margin: 0 auto;
+              background-color: #ffffff;
+              padding: 30px;
+              border-radius: 10px;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            }
+            .email-header {
+              text-align: center;
+              margin-bottom: 25px;
+              font-size: 28px;
+              font-weight: bold;
+              color: #4CAF50; /* Green for success and positivity */
+              text-transform: uppercase;
+            }
+            .email-content {
+              font-size: 16px;
+              color: #333333;
+              line-height: 1.6;
+            }
+            .email-content p {
+              margin-bottom: 15px;
+            }
+            .email-content strong {
+              color: #333333;
+            }
+            .email-content .highlight {
+              font-weight: bold;
+              color: #FF5722; /* Highlight color for key points */
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              font-size: 14px;
+              color: #777777;
+            }
+            .footer a {
+              color: #4CAF50; /* Link color */
+              text-decoration: none;
+            }
+            .footer p {
+              margin: 10px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="email-container">
+            <div class="email-header">
+              Congratulations on Your RB Points!
+            </div>
+            <div class="email-content">
+              <p>Dear <strong class="highlight">${referrer.fullName}</strong>,</p>
+              <p>We’re thrilled to inform you that you’ve earned <strong class="highlight">${referralEarning} Points</strong> because your referred user has successfully completed their shopping at <strong class="highlight">${vendor.shopName}</strong> by <strong class="highlight">${user.fullName}</strong>.</p>
+              <p>Thank you for using <strong class="highlight">ReferBiz</strong> and helping others discover amazing shopping experiences!</p>
+              <p>Your efforts are making a difference, and we are grateful for your continued support.</p>
+            </div>
+            <div class="footer">
+              <p>If you have any questions or need assistance, please <a href="mailto:support@referbiz.com">contact us</a>.</p>
+              <p>Keep referring and keep earning!</p>
+              <p>Warm regards,<br>The ReferBiz Team</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
 
       // Send email to the vendor (or system)
-      await sendEmail(
-        "piyushguptaji123@gmail.com",
-        referrerSubject,
-        referrerBody
-      );
+      await sendEmail(referrer.userEmail, referrerSubject, referrerBody);
     }
 
     await user.save();

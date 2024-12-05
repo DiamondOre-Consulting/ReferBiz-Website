@@ -399,7 +399,6 @@ export const getPurchaseHistory = createAsyncThunk(
       console.log(res);
       return res.data;
     } catch (e) {
-      toast.error("Something went wrong");
       return e?.response?.data?.message;
     }
   }

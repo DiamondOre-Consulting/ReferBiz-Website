@@ -116,7 +116,7 @@ const VendorDetail = () => {
   };
   const handleRating = async (star) => {
     setRating(star);
-    await dispatch(ratingToVendor([vendorData._id, { starRating: rating }]));
+    await dispatch(ratingToVendor([vendorData._id, { starRating: star }]));
     await dispatch(getVendorData(vendorData._id));
   };
 
@@ -265,11 +265,9 @@ const VendorDetail = () => {
                 </DialogContent>
               </Dialog>
             </div>
-            {/* Options below the Refer Button */}
             {isReferOptionVisible && (
               <>
                 <div className="flex mt-5 flex-col sm:flex-row items-center sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4 gap-3">
-                  {/* Phone Input */}
                   <PhoneInput
                     country={"in"}
                     value={phoneNumber}
@@ -286,9 +284,7 @@ const VendorDetail = () => {
                     dropdownClass="custom-dropdown bg-gray-200 shadow-lg"
                   />
 
-                  {/* Buttons Container */}
                   <div className="w-full sm:w-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
-                    {/* Send Button */}
                     <button
                       onClick={sendMessage}
                       className="cursor-pointer w-full sm:w-32 h-12 transition-all bg-blue-500 text-white px-4 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
@@ -296,7 +292,6 @@ const VendorDetail = () => {
                       Send
                     </button>
 
-                    {/* Copy to Clipboard Button */}
                     <button
                       onClick={copyToClipboard}
                       className="flex items-center justify-center w-full sm:w-12 h-12 bg-gray-300 text-gray-700 rounded-lg sm:rounded-full border-gray-300 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"
@@ -304,7 +299,6 @@ const VendorDetail = () => {
                       <FaCopy size={20} />
                     </button>
 
-                    {/* Share on WhatsApp Button */}
                     <button
                       onClick={shareOnWhatsApp}
                       className="flex items-center justify-center w-full sm:w-12 h-12 bg-green-600 text-white rounded-lg sm:rounded-full border-green-700 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px]"

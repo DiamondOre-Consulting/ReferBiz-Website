@@ -444,12 +444,12 @@ const Profile = () => {
                         </div>
                         <div className="shadow-xl p-4 bg-neutral-200 rounded-xl">
                           <div className="text-gray-500  text-xl font-bold text-center">
-                            Discount Earning
+                            RB Coins
                           </div>
                           <div className="flex items-center justify-center gap-2 my-5">
                             <IndianRupee size={22} className="font-semibold " />
                             <div className="font-semibold text-xl text-gray-500">
-                              {data.discountEarnings}
+                              {data?.rbPoints}
                             </div>
                           </div>
                         </div>

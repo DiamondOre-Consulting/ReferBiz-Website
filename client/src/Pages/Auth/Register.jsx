@@ -24,8 +24,6 @@ const SocialLoginButton = () => (
     </button>
   </Fragment>
 );
-// Get the full URL
-// Output: TESeed7
 
 const SignUpForm = () => {
   const [loaderActive, setLoaderActive] = useState(false);

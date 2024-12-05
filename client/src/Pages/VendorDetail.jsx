@@ -13,7 +13,6 @@ import BreadCrumbs from "../Components/BreadCrumbs";
 import { IndianRupee } from "lucide-react";
 import { IoMdStar } from "react-icons/io";
 import { toast } from "sonner";
-import YouTube from "react-youtube";
 
 import { IoIosPeople } from "react-icons/io";
 import {
@@ -33,6 +32,8 @@ const VendorDetail = () => {
   console.log("history", purchases);
   const [amount, setAmount] = useState("");
   const [isReferOptionVisible, setIsReferOptionVisible] = useState(false);
+  const [discountedAmount, setDiscountedAmount] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const [isPaid, setIsPaid] = useState(false);
@@ -59,6 +60,7 @@ const VendorDetail = () => {
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
+
   const sendMessage = () => {
     if (!phoneNumber) {
       toast.error("Please enter a phone number");
@@ -74,12 +76,13 @@ const VendorDetail = () => {
     )}`;
     window.open(whatsappUrl, "_blank");
   };
+
   const dispatch = useDispatch();
   console.log("vendor", vendorData);
   console.log(
     "res",
-    vendorData.totalRatingSum,
-    vendorData.totalNumberGivenReview
+    vendorData?.totalRatingSum,
+    vendorData?.totalNumberGivenReview
   );
   const fetchData = async () => {
     await dispatch(getVendorData(id));
@@ -90,7 +93,7 @@ const VendorDetail = () => {
   }, []);
   const breadcrumbItems = [
     { label: "Home", href: "/" },
-    { label: vendorData.shopName },
+    { label: vendorData?.shopName },
   ];
   const copyToClipboard = () => {
     const link = `http://localhost:5173/register?referralCode=${data.referralCode}`;
@@ -103,12 +106,30 @@ const VendorDetail = () => {
       }
     );
   };
+  const handleAmountChange = (e) => {
+    const enteredAmount = Number(e.target.value);
+    setAmount(enteredAmount);
+
+    if (enteredAmount > 0) {
+      const discount = (enteredAmount * 7) / 100;
+      setDiscountedAmount(enteredAmount - discount);
+    } else {
+      setDiscountedAmount(null);
+    }
+  };
+
   const handlePay = async () => {
+    if (!discountedAmount) return;
+
+    setIsProcessing(true); // Start processing
     const response = await dispatch(
-      addPayment([id, { amount: Number(amount) }])
+      addPayment([id, { amount: discountedAmount }])
     );
+
     await dispatch(getPurchaseHistory(id));
     setIsPaid(true);
+    setIsProcessing(false); // Stop processing
+
     console.log("response", response?.payload?.message);
     if (response?.payload?.message === "Transaction successful.") {
       setIsModalOpen(false);
@@ -241,7 +262,48 @@ const VendorDetail = () => {
                       <div className="border-t border-neutral-300 text-neutral-300 mt-2"></div>
                     </DialogTitle>
                   </DialogHeader>
+                  <div className="flex flex-col gap-4 mt-4">
+                    <input
+                      type="number"
+                      placeholder="Enter amount"
+                      value={amount}
+                      onChange={handleAmountChange}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
+                    {discountedAmount !== null && (
+                      <div className="text-sm text-gray-700">
+                        <p>Original Amount: ₹{amount}</p>
+                        <p>Discount (7%): -₹{(amount * 7) / 100}</p>
+                        <p className="font-semibold">
+                          Payable Amount: ₹{discountedAmount}
+                        </p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handlePay}
+                      disabled={!amount || isProcessing || isPaid}
+                      className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
+                        isPaid
+                          ? "bg-green-500 border-green-600 cursor-default"
+                          : isProcessing
+                          ? "bg-gray-400 border-gray-500 cursor-not-allowed"
+                          : "bg-blue-500 border-blue-600 hover:brightness-110"
+                      }`}
+                    >
+                      {isProcessing ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span>
+                          Processing...
+                        </div>
+                      ) : isPaid ? (
+                        "Paid"
+                      ) : (
+                        "Pay"
+                      )}
+                    </button>
+                  </div>{" "}
                   <div className="flex flex-col gap-4 mt-4">
                     <input
                       type="number"

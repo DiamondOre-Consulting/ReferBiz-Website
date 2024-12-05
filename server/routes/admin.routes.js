@@ -46,6 +46,7 @@ router.get("/user-list", isLoggedIn, usersList);
 router.get("/vendor-list", isLoggedIn, vendorsList);
 router.get("/category-list", isLoggedIn, getAllCategory);
 router.post("/add-category", isLoggedIn, addCategory);
+
 router.delete("/delete-category/:id", isLoggedIn, deleteCategory);
 router.put("/update-category/:id", isLoggedIn, updateCategory);
 router.put("/delete-subCategory/:id", isLoggedIn, deleteSubCategory);

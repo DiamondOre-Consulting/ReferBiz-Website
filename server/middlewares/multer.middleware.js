@@ -1,5 +1,5 @@
-import multer from "multer"
-import path from "path"
+import multer from "multer";
+import path from "path";
 
 const upload = multer({
   dest: "uploads/",
@@ -7,23 +7,24 @@ const upload = multer({
   storage: multer.diskStorage({
     destination: "uploads/",
     filename: (_req, file, cb) => {
-      cb(null, file.originalname)
+      cb(null, file.originalname);
     },
   }),
   fileFilter: (_req, file, cb) => {
-    let ext = path.extname(file.originalname)
+    let ext = path.extname(file.originalname);
 
     if (
       ext !== ".jpg" &&
       ext !== ".jpeg" &&
       ext !== ".webp" &&
-      ext !== ".png"
+      ext !== ".png" &&
+      ext !== ".csv"
     ) {
-      cb(new Error(`Unsupported file type! ${ext}`), false)
-      return
+      cb(new Error(`Unsupported file type! ${ext}`), false);
+      return;
     }
-    cb(null, true)
+    cb(null, true);
   },
-})
+});
 
-export default upload
+export default upload;

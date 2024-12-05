@@ -8,12 +8,15 @@ import Category from "../models/category.schema.js";
 import fs from "fs/promises";
 import vendorSchema from "../models/vendor.schema.js";
 import cloudinary from "cloudinary";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import isLoggedIn from "../middlewares/auth.middleware.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  // sameSite: "None",
+  sameSite: "None",
 };
 
 const vendorRegister = async (req, res, next) => {
@@ -536,6 +539,79 @@ const vendorsList = async (req, res, next) => {
   }
 };
 
+// const addCategoryByCsv = async (req, res) => {
+//   try {
+//     // Ensure the file is provided
+//     if (!req.file) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "CSV file is required" });
+//     }
+
+//     // Get file path and read its content
+//     const filePath = path.join(__dirname, req.file.path);
+//     const fileContent = fs.readFileSync(filePath, "utf8");
+
+//     // Parse CSV file
+//     const parsedData = Papa.parse(fileContent, {
+//       header: true,
+//       skipEmptyLines: true,
+//     });
+
+//     // Normalize and collect categories from the CSV
+//     const categories = parsedData.data.map((row) =>
+//       row.categoryName.trim().toLowerCase()
+//     );
+
+//     // Ensure categories are unique within the CSV
+//     const uniqueCategories = [...new Set(categories)];
+
+//     // Find existing categories in the database
+//     const existingCategories = await Category.find({
+//       categoryName: { $in: uniqueCategories },
+//     }).lean();
+
+//     // Extract the names of existing categories
+//     const existingCategoryNames = existingCategories.map(
+//       (cat) => cat.categoryName
+//     );
+
+//     // Filter out categories that already exist in the database
+//     const newCategories = uniqueCategories.filter(
+//       (category) => !existingCategoryNames.includes(category)
+//     );
+
+//     // Add new categories to the database if any
+//     if (newCategories.length > 0) {
+//       const insertData = newCategories.map((name) => ({ categoryName: name }));
+//       await Category.insertMany(insertData);
+//     }
+
+//     // Cleanup the uploaded file
+//     fs.unlinkSync(filePath);
+
+//     // Send response with results
+//     res.status(200).json({
+//       success: true,
+//       message: "CSV processed successfully",
+//       added: newCategories.length,
+//       existing: existingCategoryNames.length,
+//       skipped: categories.length - newCategories.length,
+//     });
+//   } catch (error) {
+//     console.error(error);
+
+//     // Ensure the uploaded file is cleaned up even in case of errors
+//     if (req.file && req.file.path) {
+//       fs.unlinkSync(req.file.path);
+//     }
+
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// };
+
+// export default addCategoryByCsv;
+
 const getContactDataOfVendor = async (req, res, next) => {};
 
 export {
@@ -550,4 +626,5 @@ export {
   logout,
   usersList,
   vendorsList,
+  // addCategoryByCsv,
 };

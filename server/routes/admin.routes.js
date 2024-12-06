@@ -10,6 +10,9 @@ import {
   logout,
   usersList,
   vendorsList,
+  addCategoriesAndSubcategoryByCsv,
+  addCategoriesCsv,
+  addSubcategoriesByCsv,
 } from "../controllers/admin.controller.js";
 import express from "express";
 
@@ -33,6 +36,24 @@ router.post(
     { name: "logo", maxCount: 1 },
   ]),
   vendorRegister
+);
+router.post(
+  "/upload",
+  upload.single("file"),
+  isLoggedIn,
+  addCategoriesAndSubcategoryByCsv
+);
+router.post(
+  "/upload-category",
+  upload.single("file"),
+  isLoggedIn,
+  addCategoriesCsv
+);
+router.post(
+  "/upload-subcategory/:id",
+  upload.single("file"),
+  isLoggedIn,
+  addSubcategoriesByCsv
 );
 router.post("/login", adminLogin);
 router.post("/register", adminRegister);

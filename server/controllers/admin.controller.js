@@ -5,7 +5,8 @@ import User from "../models/user.schema.js";
 import { v4 as uuidv4 } from "uuid";
 import sendEmail from "../utils/email.utils.js";
 import Category from "../models/category.schema.js";
-import fs from "fs/promises";
+import fs from "fs";
+import csv from "csv-parser";
 import vendorSchema from "../models/vendor.schema.js";
 import cloudinary from "cloudinary";
 import path from "path";
@@ -52,7 +53,7 @@ const vendorRegister = async (req, res, next) => {
     ) {
       return next(new CustomError("All Fields are required", 400));
     }
-    console.log(" uniqueEmail       ", req.body);
+    console.log("uniqueEmail", req.body);
     const uniqueEmail = await Vendor.findOne({ vendorEmail });
     if (uniqueEmail) {
       return next(new CustomError("Email is already registered", 400));
@@ -539,80 +540,210 @@ const vendorsList = async (req, res, next) => {
   }
 };
 
-// const addCategoryByCsv = async (req, res) => {
-//   try {
-//     // Ensure the file is provided
-//     if (!req.file) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "CSV file is required" });
-//     }
+const addCategoriesAndSubcategoryByCsv = async (req, res) => {
+  const categories = [];
+  //formate for csv file must be like this otherwise it will not parse
+  // "categoryName", "subCategory", "", "", "", "", "", "", "", "";
+  // "Technology", "Smartphones, Tablets", "", "", "", "", "", "", "", "";
+  // "Apparel", "Formal Wear, Casual Wear", "", "", "", "", "", "", "", "";
+  // "", "", "", "", "", "", "", "", "", "";
+  fs.createReadStream(req.file.path)
+    .pipe(csv())
+    .on("data", (row) => {
+      const categoryName = row.categoryName ? row.categoryName.trim() : "";
+      let subCategory = row.subCategory ? row.subCategory.trim() : "";
+      console.log("cat", categoryName, subCategory);
+      if (subCategory) {
+        subCategory = subCategory.split(",").map((item) => item.trim());
+      }
+      console.log("sub", subCategory);
 
-//     // Get file path and read its content
-//     const filePath = path.join(__dirname, req.file.path);
-//     const fileContent = fs.readFileSync(filePath, "utf8");
+      if (!categoryName || !subCategory || subCategory.length === 0) return;
 
-//     // Parse CSV file
-//     const parsedData = Papa.parse(fileContent, {
-//       header: true,
-//       skipEmptyLines: true,
-//     });
+      categories.push({ categoryName, subCategory });
+    })
+    .on("end", async () => {
+      try {
+        for (const category of categories) {
+          const existingCategory = await Category.findOne({
+            categoryName: {
+              $regex: new RegExp(`^${category.categoryName}$`, "i"),
+            },
+          });
 
-//     // Normalize and collect categories from the CSV
-//     const categories = parsedData.data.map((row) =>
-//       row.categoryName.trim().toLowerCase()
-//     );
+          if (existingCategory) {
+            const updatedSubcategories = Array.from(
+              new Set([
+                ...existingCategory.subCategory,
+                ...category.subCategory.map((sub) => sub.toLowerCase()),
+              ])
+            );
 
-//     // Ensure categories are unique within the CSV
-//     const uniqueCategories = [...new Set(categories)];
+            existingCategory.subCategory = updatedSubcategories;
+            await existingCategory.save();
+          } else {
+            const newCategory = new Category({
+              categoryName: category.categoryName,
+              subCategory: category.subCategory.map((sub) => sub.toLowerCase()),
+            });
+            await newCategory.save();
+          }
+        }
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          }
+        });
 
-//     // Find existing categories in the database
-//     const existingCategories = await Category.find({
-//       categoryName: { $in: uniqueCategories },
-//     }).lean();
+        res.status(200).json({ message: "Categories added successfully" });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error adding categories", error });
+      }
+    })
+    .on("error", (error) => {
+      console.error(error);
+      res.status(500).json({ message: "Error processing the CSV file", error });
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        }
+      });
+    });
+};
+const addCategoriesCsv = async (req, res) => {
+  const categoriesToAdd = new Set();
 
-//     // Extract the names of existing categories
-//     const existingCategoryNames = existingCategories.map(
-//       (cat) => cat.categoryName
-//     );
+  fs.createReadStream(req.file.path)
+    .pipe(csv())
+    .on("data", (row) => {
+      const categoryName = row.categoryName ? row.categoryName.trim() : "";
 
-//     // Filter out categories that already exist in the database
-//     const newCategories = uniqueCategories.filter(
-//       (category) => !existingCategoryNames.includes(category)
-//     );
+      if (categoryName) {
+        categoriesToAdd.add(categoryName.toLowerCase());
+      }
+    })
+    .on("end", async () => {
+      try {
+        const uniqueCategories = Array.from(categoriesToAdd);
 
-//     // Add new categories to the database if any
-//     if (newCategories.length > 0) {
-//       const insertData = newCategories.map((name) => ({ categoryName: name }));
-//       await Category.insertMany(insertData);
-//     }
+        for (const categoryName of uniqueCategories) {
+          const existingCategory = await Category.findOne({
+            categoryName: { $regex: new RegExp(`^${categoryName}$`, "i") },
+          });
 
-//     // Cleanup the uploaded file
-//     fs.unlinkSync(filePath);
+          if (!existingCategory) {
+            const newCategory = new Category({ categoryName });
+            await newCategory.save();
+          }
+        }
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          }
+        });
 
-//     // Send response with results
-//     res.status(200).json({
-//       success: true,
-//       message: "CSV processed successfully",
-//       added: newCategories.length,
-//       existing: existingCategoryNames.length,
-//       skipped: categories.length - newCategories.length,
-//     });
-//   } catch (error) {
-//     console.error(error);
+        res.status(200).json({
+          message: "Categories added successfully, duplicates ignored.",
+        });
+      } catch (error) {
+        console.error(error);
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          }
+        });
+        res
+          .status(500)
+          .json({ message: "Error adding categories to the database", error });
+      }
+    })
+    .on("error", (error) => {
+      console.error(error);
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        }
+      });
+      res.status(500).json({ message: "Error processing the CSV file", error });
+    });
+};
+const addSubcategoriesByCsv = async (req, res) => {
+  const { id } = req.params;
 
-//     // Ensure the uploaded file is cleaned up even in case of errors
-//     if (req.file && req.file.path) {
-//       fs.unlinkSync(req.file.path);
-//     }
+  if (!id) {
+    return res
+      .status(400)
+      .json({ message: "Category ID is required in params." });
+  }
 
-//     res.status(500).json({ success: false, message: "Server Error" });
-//   }
-// };
+  try {
+    const category = await Category.findById(id);
 
-// export default addCategoryByCsv;
+    if (!category) {
+      return res.status(404).json({ message: "Category not found." });
+    }
 
-const getContactDataOfVendor = async (req, res, next) => {};
+    const subCategoriesToAdd = new Set();
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (row) => {
+        const subCategory = row.subCategory ? row.subCategory.trim() : "";
+
+        if (subCategory) {
+          subCategoriesToAdd.add(subCategory.toLowerCase());
+        }
+      })
+      .on("end", async () => {
+        try {
+          const existingSubCategories = new Set(
+            category.subCategory.map((sub) => sub.toLowerCase())
+          );
+
+          const uniqueSubCategories = Array.from(subCategoriesToAdd).filter(
+            (subCategory) => !existingSubCategories.has(subCategory)
+          );
+
+          if (uniqueSubCategories.length > 0) {
+            category.subCategory.push(...uniqueSubCategories);
+            await category.save();
+          }
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            }
+          });
+
+          res.status(200).json({
+            message: "Subcategories added successfully.",
+            addedSubcategories: uniqueSubCategories,
+          });
+        } catch (error) {
+          console.error(error);
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            }
+          });
+          res.status(500).json({ message: "Error updating category", error });
+        }
+      })
+      .on("error", (error) => {
+        console.error(error);
+        fs.unlink(req.file.path, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          }
+        });
+        res
+          .status(500)
+          .json({ message: "Error processing the CSV file", error });
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching category", error });
+  }
+};
 
 export {
   vendorRegister,
@@ -626,5 +757,7 @@ export {
   logout,
   usersList,
   vendorsList,
-  // addCategoryByCsv,
+  addCategoriesAndSubcategoryByCsv,
+  addCategoriesCsv,
+  addSubcategoriesByCsv,
 };

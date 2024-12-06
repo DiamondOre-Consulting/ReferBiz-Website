@@ -1,7 +1,7 @@
-import mongoose from "mongoose"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcryptjs"
-const Schema = mongoose.Schema
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+const Schema = mongoose.Schema;
 
 const adminSchema = new Schema({
   fullName: {
@@ -40,18 +40,17 @@ const adminSchema = new Schema({
   otpExpiry: {
     type: Date,
   },
-})
+});
 
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("adminPassword")) {
-    return next()
+    return next();
   }
-  this.adminPassword = await bcrypt.hash(this.adminPassword, 10)
-})
+  this.adminPassword = await bcrypt.hash(this.adminPassword, 10);
+});
 
 adminSchema.methods = {
   generateJWTToken: async function () {
-
     return await jwt.sign(
       {
         id: this._id,
@@ -62,11 +61,11 @@ adminSchema.methods = {
       {
         expiresIn: process.env.JWT_EXPIRY,
       }
-    )
+    );
   },
   comparePassword: async function (plainPassword) {
-    return await bcrypt.compare(plainPassword, this.adminPassword)
+    return await bcrypt.compare(plainPassword, this.adminPassword);
   },
-}
+};
 
-export default mongoose.model("Admin", adminSchema)
+export default mongoose.model("Admin", adminSchema);

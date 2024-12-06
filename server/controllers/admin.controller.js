@@ -12,7 +12,6 @@ import cloudinary from "cloudinary";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import isLoggedIn from "../middlewares/auth.middleware.js";
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -544,9 +543,10 @@ const addCategoriesAndSubcategoryByCsv = async (req, res) => {
   const categories = [];
   //formate for csv file must be like this otherwise it will not parse
   // "categoryName", "subCategory", "", "", "", "", "", "", "", "";
-  // "Technology", "Smartphones, Tablets", "", "", "", "", "", "", "", "";
-  // "Apparel", "Formal Wear, Casual Wear", "", "", "", "", "", "", "", "";
+  // "Technology", "Smartphones,Tablets", "", "", "", "", "", "", "", "";
+  // "Apparel", "Formal Wear,Casual Wear", "", "", "", "", "", "", "", "";
   // "", "", "", "", "", "", "", "", "", "";
+  console.log("file", req.file);
   fs.createReadStream(req.file.path)
     .pipe(csv())
     .on("data", (row) => {
@@ -595,7 +595,9 @@ const addCategoriesAndSubcategoryByCsv = async (req, res) => {
           }
         });
 
-        res.status(200).json({ message: "Categories added successfully" });
+        res
+          .status(200)
+          .json({ success: true, message: "Categories added successfully" });
       } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error adding categories", error });
@@ -644,6 +646,7 @@ const addCategoriesCsv = async (req, res) => {
         });
 
         res.status(200).json({
+          success: true,
           message: "Categories added successfully, duplicates ignored.",
         });
       } catch (error) {
@@ -715,8 +718,8 @@ const addSubcategoriesByCsv = async (req, res) => {
           });
 
           res.status(200).json({
+            success: true,
             message: "Subcategories added successfully.",
-            addedSubcategories: uniqueSubCategories,
           });
         } catch (error) {
           console.error(error);

@@ -106,15 +106,12 @@ const VendorDetail = () => {
       }
     );
   };
-  const handleAmountChange = (e) => {
-    const enteredAmount = Number(e.target.value);
-    setAmount(enteredAmount);
+  const handleAddAmount = () => {
+    if (amount) {
+      const discount = Math.floor((amount * 7) / 100);
+      const payableAmount = amount - discount;
 
-    if (enteredAmount > 0) {
-      const discount = (enteredAmount * 7) / 100;
-      setDiscountedAmount(enteredAmount - discount);
-    } else {
-      setDiscountedAmount(null);
+      setDiscountedAmount(payableAmount); // Display up to 2 decimal places
     }
   };
 
@@ -133,6 +130,7 @@ const VendorDetail = () => {
     console.log("response", response?.payload?.message);
     if (response?.payload?.message === "Transaction successful.") {
       setIsModalOpen(false);
+      setIsPaid(false);
     }
   };
   const handleRating = async (star) => {
@@ -233,7 +231,6 @@ const VendorDetail = () => {
               </button>
 
               {/* Options below the Refer Button */}
-
               <Dialog
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
@@ -242,12 +239,11 @@ const VendorDetail = () => {
                 <DialogTrigger className="w-1/2">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    class=" w-full group p-[4px] rounded-[12px] bg-gradient-to-b from-white to-stone-200/40 shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995]"
+                    className="w-full group p-[4px] rounded-[12px] bg-gradient-to-b from-white to-stone-200/40 shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995]"
                   >
-                    <div class="bg-gradient-to-b from-stone-200/40 to-white/80 rounded-[8px] px-2 py-2">
-                      <div class="flex gap-2 items-center justify-center">
+                    <div className="bg-gradient-to-b from-stone-200/40 to-white/80 rounded-[8px] px-2 py-2">
+                      <div className="flex gap-2 items-center justify-center">
                         <span className="font-semibold text-center flex items-center">
-                          {" "}
                           <IndianRupee size={18} className="ml-1" />
                           Pay
                         </span>
@@ -257,21 +253,34 @@ const VendorDetail = () => {
                 </DialogTrigger>
                 <DialogContent className="bg-white sm:w-[px] rounded-[20px] max-h-[652px] py-[20px] px-[24px]">
                   <DialogHeader>
-                    <DialogTitle className="">
+                    <DialogTitle>
                       Payment
                       <div className="border-t border-neutral-300 text-neutral-300 mt-2"></div>
                     </DialogTitle>
                   </DialogHeader>
-                  <div className="flex flex-col gap-4 mt-4">
-                    <input
-                      type="number"
-                      placeholder="Enter amount"
-                      value={amount}
-                      onChange={handleAmountChange}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                    {discountedAmount !== null && (
+                  <div className="flex flex-col gap-4 mt-2">
+                    <div>
+                      <label className="text-base  font-semibold text-black">
+                        Enter Bill Amount
+                      </label>
+                      <div className="flex mt-2 items-center gap-4">
+                        <input
+                          type="number"
+                          placeholder="Enter amount"
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={handleAddAmount}
+                          disabled={!amount}
+                          className="w-full bg-blue-500 text-white px-6 py-2 rounded-lg hover:brightness-110"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                    {/* {discountedAmount !== null && (
                       <div className="text-sm text-gray-700">
                         <p>Original Amount: ₹{amount}</p>
                         <p>Discount (7%): -₹{(amount * 7) / 100}</p>
@@ -279,50 +288,42 @@ const VendorDetail = () => {
                           Payable Amount: ₹{discountedAmount}
                         </p>
                       </div>
-                    )}
-
-                    <button
-                      onClick={handlePay}
-                      disabled={!amount || isProcessing || isPaid}
-                      className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
-                        isPaid
-                          ? "bg-green-500 border-green-600 cursor-default"
-                          : isProcessing
-                          ? "bg-gray-400 border-gray-500 cursor-not-allowed"
-                          : "bg-blue-500 border-blue-600 hover:brightness-110"
-                      }`}
-                    >
-                      {isProcessing ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span>
-                          Processing...
-                        </div>
-                      ) : isPaid ? (
-                        "Paid"
-                      ) : (
-                        "Pay"
-                      )}
-                    </button>
-                  </div>{" "}
-                  <div className="flex flex-col gap-4 mt-4">
-                    <input
-                      type="number"
-                      placeholder="Enter amount"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      onClick={handlePay}
-                      disabled={!amount}
-                      className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
-                        isPaid
-                          ? "bg-green-500 border-green-600 cursor-default"
-                          : "bg-blue-500 border-blue-600 hover:brightness-110"
-                      }`}
-                    >
-                      Pay
-                    </button>
+                    )} */}
+                    <div>
+                      <label className="text-base  font-semibold text-black">
+                        Amount To be Paid
+                      </label>
+                      <div className="flex flex-col gap-4 mt-2">
+                        <input
+                          type="number"
+                          value={discountedAmount || ""}
+                          readOnly
+                          className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100"
+                        />
+                        <button
+                          onClick={handlePay}
+                          disabled={!discountedAmount || isProcessing || isPaid}
+                          className={`w-full text-white px-6 py-2 rounded-lg transition-all ${
+                            isPaid
+                              ? "bg-green-500 border-green-600 cursor-default"
+                              : isProcessing
+                              ? "bg-gray-400 border-gray-500 cursor-not-allowed"
+                              : "bg-blue-500 border-blue-600 hover:brightness-110"
+                          }`}
+                        >
+                          {isProcessing ? (
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="animate-spin h-5 w-5 border-4 border-t-transparent border-white rounded-full"></span>
+                              Processing...
+                            </div>
+                          ) : isPaid ? (
+                            "Paid"
+                          ) : (
+                            "Pay"
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>

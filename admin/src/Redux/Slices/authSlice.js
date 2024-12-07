@@ -12,7 +12,6 @@ const initialState = {
   role: "",
 };
 
-
 export const createAccount = createAsyncThunk(
   "/admin/register",
   async (data) => {
@@ -59,7 +58,7 @@ export const userProfile = createAsyncThunk("/admin/details", async () => {
     const res = axiosInstance.get("admin/");
     return (await res).data;
   } catch (e) {
-    console.log(e)
+    console.log(e);
     toast.error(e?.message);
     localStorage.clear();
     // navigate('/login')
@@ -127,48 +126,55 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-export const registerVendor = createAsyncThunk('/vendor/register', async (data) => {
-  try {
-    let res = axiosInstance.post('admin/vendor-register', data)
-    res = await res
-    toast.success(res.data.message)
-    return res.data
-  } catch (e) {
-    toast.error(e?.response?.data?.message)
-    throw e
+export const registerVendor = createAsyncThunk(
+  "/vendor/register",
+  async (data) => {
+    try {
+      let res = axiosInstance.post("admin/vendor-register", data);
+      res = await res;
+      toast.success(res.data.message);
+      return res.data;
+    } catch (e) {
+      toast.error(e?.response?.data?.message);
+      throw e;
+    }
   }
-})
+);
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(loginAccount.fulfilled, (state, action) => {
-      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
-      state.isLoggedIn = action?.payload?.isLoggedIn
-      state.data = action?.payload?.user
-      state.role = action?.payload?.user?.role
-    }).addCase(createAccount.fulfilled, (state, action) => {
-      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
-      state.isLoggedIn = action?.payload?.isLoggedIn
-      state.data = action?.payload?.user
-      state.role = action?.payload?.user?.role
-    }).addCase(logout.fulfilled, (state) => {
-      localStorage.clear()
-      state.data = {}
-      state.isLoggedIn = false
-      state.role = ""
-    }).addCase(userProfile.fulfilled, (state, action) => {
-      localStorage.setItem('data', JSON.stringify(action?.payload?.user))
-      localStorage.setItem('isLoggedIn', action?.payload?.isLoggedIn)
-      state.isLoggedIn = action?.payload?.isLoggedIn
-      state.data = action?.payload?.user
-      state.role = action?.payload?.user?.role
-    })
-  }
-})
+    builder
+      .addCase(loginAccount.fulfilled, (state, action) => {
+        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+        localStorage.setItem("isLoggedIn", action?.payload?.isLoggedIn);
+        state.isLoggedIn = action?.payload?.isLoggedIn;
+        state.data = action?.payload?.user;
+        state.role = action?.payload?.user?.role;
+      })
+      .addCase(createAccount.fulfilled, (state, action) => {
+        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+        localStorage.setItem("isLoggedIn", action?.payload?.isLoggedIn);
+        state.isLoggedIn = action?.payload?.isLoggedIn;
+        state.data = action?.payload?.user;
+        state.role = action?.payload?.user?.role;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        localStorage.clear();
+        state.data = {};
+        state.isLoggedIn = false;
+        state.role = "";
+      })
+      .addCase(userProfile.fulfilled, (state, action) => {
+        localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+        localStorage.setItem("isLoggedIn", action?.payload?.isLoggedIn);
+        state.isLoggedIn = action?.payload?.isLoggedIn;
+        state.data = action?.payload?.user;
+        state.role = action?.payload?.user?.role;
+      });
+  },
+});
 
-export default authSlice.reducer
+export default authSlice.reducer;

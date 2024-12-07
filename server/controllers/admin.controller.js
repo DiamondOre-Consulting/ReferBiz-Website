@@ -83,8 +83,6 @@ const vendorRegister = async (req, res, next) => {
       return next(new CustomError("Registration Failed!", 400));
     }
 
-    const token = await user.generateJWTToken();
-    res.cookie("token", token, cookieOption);
     console.log(req.files.logo[0]);
     if (req.files && req.files.vendorImage) {
       try {

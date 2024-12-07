@@ -126,6 +126,7 @@ const vendorRegister = async (req, res, next) => {
     }
 
     if (req.files && req.files.logo) {
+      console.log("hello babu");
       try {
         const logoImageResult = await cloudinary.v2.uploader.upload(
           req.files.logo[0].path,
@@ -137,21 +138,27 @@ const vendorRegister = async (req, res, next) => {
             crop: "fill",
           }
         );
-
+        console.log("result aa gya re baba");
         if (logoImageResult) {
           user.logo.publicId = logoImageResult.public_id;
           user.logo.secure_url = logoImageResult.secure_url;
         }
 
+        console.log("maza aa gya");
+
         // Remove the local uploaded file
         await fs.rm(`uploads/${req.files.logo[0].filename}`, {
           force: true,
         });
+
+        console.log("ho gya wow");
       } catch (err) {
+        console.log("are yr", err);
         return next(new CustomError("Logo image can not be uploaded", 500));
       }
     }
 
+    console.log("ohh shit done");
     await user.save();
 
     // Populate categories for the response

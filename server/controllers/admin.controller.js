@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import sendEmail from "../utils/email.utils.js";
 import Category from "../models/category.schema.js";
 import fs from "fs";
+import fsp from "fs/promises"; // Use promises version of
+
 import csv from "csv-parser";
 import vendorSchema from "../models/vendor.schema.js";
 import cloudinary from "cloudinary";
@@ -76,7 +78,7 @@ const vendorRegister = async (req, res, next) => {
       discountProvidedByVendor,
       description,
       youTubeLink,
-      products: categoryIds.map((id) => ({ category: id })),
+      products: categoryIds?.map((id) => ({ category: id })),
     });
 
     if (!user) {
@@ -112,7 +114,7 @@ const vendorRegister = async (req, res, next) => {
         const filePath = `uploads/${req.files.vendorImage[0].filename}`;
         console.log("Attempting to remove file:", filePath);
 
-        await fs.rm(filePath, { force: true });
+        await fsp.rm(filePath, { force: true });
         console.log("File removed successfully:", filePath);
 
         console.log("done");
@@ -134,12 +136,19 @@ const vendorRegister = async (req, res, next) => {
           req.files.logo[0].path,
           {
             folder: "Referbiz",
-            width: 250,
-            height: 250,
-            gravity: "faces",
-            crop: "fill",
           }
         );
+        // Upload to Cloudinary
+        // const vendorImageResult = await cloudinary.v2.uploader.upload(
+        //   req.files.vendorImage[0].path,
+        //   {
+        //     folder: "Referbiz",
+        //     width: 250,
+        //     height: 250,
+        //     gravity: "faces",
+        //     crop: "fill",
+        //   }
+        // );
         console.log("result aa gya re baba");
         if (logoImageResult) {
           user.logo.publicId = logoImageResult.public_id;
@@ -149,7 +158,7 @@ const vendorRegister = async (req, res, next) => {
         console.log("maza aa gya");
 
         // Remove the local uploaded file
-        await fs.rm(`uploads/${req.files.logo[0].filename}`, {
+        await fsp.rm(`uploads/${req.files.logo[0].filename}`, {
           force: true,
         });
 

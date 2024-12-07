@@ -125,6 +125,8 @@ const vendorRegister = async (req, res, next) => {
       }
     }
 
+    console.log(req.files.logo);
+
     if (req.files && req.files.logo) {
       console.log("hello babu");
       try {

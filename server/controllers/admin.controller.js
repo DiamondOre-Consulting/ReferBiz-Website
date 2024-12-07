@@ -110,9 +110,7 @@ const vendorRegister = async (req, res, next) => {
           console.log("Vendor Image URL:", user.vendorImage.secure_url);
         }
 
-        // Safely remove the local uploaded file
         const filePath = `uploads/${req.files.vendorImage[0].filename}`;
-        console.log("Attempting to remove file:", filePath);
 
         await fsp.rm(filePath, { force: true });
         console.log("File removed successfully:", filePath);
@@ -127,10 +125,7 @@ const vendorRegister = async (req, res, next) => {
       }
     }
 
-    console.log(req.files.logo);
-
     if (req.files && req.files.logo) {
-      console.log("hello babu");
       try {
         const logoImageResult = await cloudinary.v2.uploader.upload(
           req.files.logo[0].path,
@@ -138,24 +133,11 @@ const vendorRegister = async (req, res, next) => {
             folder: "Referbiz",
           }
         );
-        // Upload to Cloudinary
-        // const vendorImageResult = await cloudinary.v2.uploader.upload(
-        //   req.files.vendorImage[0].path,
-        //   {
-        //     folder: "Referbiz",
-        //     width: 250,
-        //     height: 250,
-        //     gravity: "faces",
-        //     crop: "fill",
-        //   }
-        // );
-        console.log("result aa gya re baba");
+
         if (logoImageResult) {
           user.logo.publicId = logoImageResult.public_id;
           user.logo.secure_url = logoImageResult.secure_url;
         }
-
-        console.log("maza aa gya");
 
         // Remove the local uploaded file
         await fsp.rm(`uploads/${req.files.logo[0].filename}`, {
@@ -169,10 +151,8 @@ const vendorRegister = async (req, res, next) => {
       }
     }
 
-    console.log("ohh shit done");
     await user.save();
 
-    // Populate categories for the response
     const populatedUser = await Vendor.findById(user._id).populate(
       "products.category"
     );

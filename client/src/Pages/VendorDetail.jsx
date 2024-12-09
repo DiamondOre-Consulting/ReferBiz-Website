@@ -78,7 +78,7 @@ const VendorDetail = () => {
   };
 
   const dispatch = useDispatch();
-  console.log("vendor", vendorData);
+  console.log("vendordata", vendorData);
   console.log(
     "res",
     vendorData?.totalRatingSum,
@@ -135,14 +135,14 @@ const VendorDetail = () => {
   };
   const handleRating = async (star) => {
     setRating(star);
-    await dispatch(ratingToVendor([vendorData._id, { starRating: star }]));
-    await dispatch(getVendorData(vendorData._id));
+    await dispatch(ratingToVendor([vendorData?._id, { starRating: star }]));
+    await dispatch(getVendorData(vendorData?._id));
   };
 
   return (
     <>
       <Header />
-      <BreadCrumbs headText={vendorData.shopName} items={breadcrumbItems} />;
+      <BreadCrumbs headText={vendorData?.shopName} items={breadcrumbItems} />;
       <div className="max-w-[85rem] w-full mx-auto shadow-xl bg-gray-50 rounded-xl">
         <div className="space-y-4 p-4">
           {error ? (
@@ -174,8 +174,8 @@ const VendorDetail = () => {
                   <div>
                     {vendorData?.totalNumberGivenReview > 0
                       ? (
-                          vendorData.totalRatingSum /
-                          vendorData.totalNumberGivenReview
+                          vendorData?.totalRatingSum /
+                          vendorData?.totalNumberGivenReview
                         ).toFixed(1)
                       : "0"}
                   </div>

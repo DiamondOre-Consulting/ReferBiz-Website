@@ -167,16 +167,17 @@ const VendorDetail = () => {
           <div className="p-5">
             <div className="flex justify-between items-center py-2 ">
               <div className="font-semibold  text-gray-700 text-4xl">
-                {vendorData.businessName}
+                {vendorData?.shopName}
               </div>
               <div>
                 <div className="text-lg text-gray-700 items-center flex justify-center font-semibold">
                   <div>
-                    {" "}
-                    {(
-                      vendorData?.totalRatingSum /
-                      vendorData?.totalNumberGivenReview
-                    ).toFixed(1)}
+                    {vendorData?.totalNumberGivenReview > 0
+                      ? (
+                          vendorData.totalRatingSum /
+                          vendorData.totalNumberGivenReview
+                        ).toFixed(1)
+                      : "0"}
                   </div>
 
                   <div>
@@ -412,13 +413,13 @@ const VendorDetail = () => {
                 </div>
                 <div className="border-t border-gray-200 mx-2"></div>
                 <div className="text-gray-700 text-xl mt-2">
-                  <div className="mb-2">Piyush Gupta</div>
+                  <div className="mb-2">{vendorData?.fullName}</div>
                   <div className="border-t border-gray-200 my-2"></div>
 
-                  <div className="mb-2">piyushguptaji123@gmail.com</div>
+                  <div className="mb-2">{vendorData?.vendorEmail}</div>
                   <div className="border-t border-gray-200 my-2"></div>
 
-                  <div className="mb-2">+91 8174075872</div>
+                  <div className="mb-2">{vendorData?.phoneNumber}</div>
                   <div className="border-t border-gray-200 my-2"></div>
                 </div>
               </div>

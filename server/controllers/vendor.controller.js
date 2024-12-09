@@ -10,7 +10,7 @@ const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "None",
+  // sameSite: "None",
 };
 
 const login = async (req, res, next) => {

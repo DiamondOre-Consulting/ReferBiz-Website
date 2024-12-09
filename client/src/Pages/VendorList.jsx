@@ -23,6 +23,7 @@ const VendorList = () => {
   const getLocation = useLocation();
   const [selectCategory, setSelectCategory] = useState("");
   const vendorList = useSelector((state) => state.vendor.vendorList);
+  console.log("vendort", vendorList);
   const [vendorDataList, setVendorDataList] = useState(vendorList);
 
   const categoryList = useSelector((state) => state?.vendor?.categoryList);
@@ -104,18 +105,18 @@ const VendorList = () => {
       className="bg-[#040D43] border-t-[8px]  border-[#2c56ff] h-[16rem] w-[18.5rem] hover:bg-gradient-to-b hover:from-transparent group hover:via-[#1e43fa63] hover:to-[#1d46ea] shadow-xl rounded-b-xl rounded-sm p-6  mx-auto hover:shadow-xl transition-all duration-500 flex flex-col items-center justify-center"
     >
       {/* Title */}
-      <h4 className="mb-1 text-2xl font-medium">{vendor?.businessName}</h4>
-      <p className="mb-4 text-sm">{vendor?.businessCategory}</p>
+      <h4 className="mb-1 text-2xl font-medium">{vendor?.shopName}</h4>
+      <p className="mb-4 text-sm">{vendor?.description}</p>
       <p className="opacity-50">{vendor?.bio}</p>
 
       <div className="flex items-center justify-center gap-6">
         <div className="flex items-center justify-center gap-1 font-semibold text-[0.95rem]">
           <FaRegEye />
-          {vendor?.visitorCount}
+          {vendor?.customerList?.length}
         </div>
         <div className="flex items-center justify-center gap-1 font-semibold text-[0.95rem]">
           <FaUser />
-          {vendor?.totalReferrals?.length}
+          {vendor?.customerList?.length}
         </div>
         <div className="flex items-center justify-center gap-1 font-semibold text-[0.95rem]">
           <GiBiceps />

@@ -11,7 +11,7 @@ const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "None",
+  // sameSite: "None",
 };
 
 const register = async (req, res, next) => {
@@ -110,7 +110,7 @@ const login = async (req, res, next) => {
 
     const token = await user.generateJWTToken();
     res.cookie("token", token, cookieOption);
-
+    console.log(res.cookie);
     res.status(200).json({
       success: true,
       message: "Login Successfull!",

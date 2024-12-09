@@ -106,9 +106,12 @@ const VendorDetail = () => {
       }
     );
   };
+
   const handleAddAmount = () => {
     if (amount) {
-      const discount = Math.floor((amount * 7) / 100);
+      const vendor_discount = vendorData.discountProvidedByVendor;
+      console.log("discountProvidedByVendor", vendor_discount);
+      const discount = Math.floor((amount * vendor_discount) / 100);
       const payableAmount = amount - discount;
 
       setDiscountedAmount(payableAmount); // Display up to 2 decimal places

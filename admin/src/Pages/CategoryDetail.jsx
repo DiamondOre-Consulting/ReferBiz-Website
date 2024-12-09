@@ -18,6 +18,8 @@ import { HiXMark } from "react-icons/hi2";
 
 const CategoryDetail = () => {
   const [loaderActive, setLoaderActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [subCategoryInput, setSubCategoryInput] = useState("");
   const [addCategoryActive, setAddCategoryActive] = useState(false);
   const [subCategoryUpdateActive, setSubCategoryUpdateActive] = useState(false);
@@ -45,6 +47,7 @@ const CategoryDetail = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     setLoaderActive(true);
 
@@ -55,6 +58,7 @@ const CategoryDetail = () => {
     if (res?.payload?.success) {
       setAddCategoryActive(false);
       setSubCategoryInput("");
+      setIsLoading(false);
       loadData();
       toast.success("Category updated successfully!");
     }
@@ -137,8 +141,21 @@ const CategoryDetail = () => {
                 value={subCategoryInput}
               />
             </div>
-            <button type="submit" className="bg-[#726CD0] rounded p-2">
-              Add
+            <button
+              disabled={isLoading}
+              type="submit"
+              className="bg-[#726CD0] rounded p-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="flex items-center justify-center gap-4">
+                    <span className="mr-2">Adding</span>
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-opacity-50"></div>
+                  </div>
+                </>
+              ) : (
+                "Add"
+              )}
             </button>
           </form>
         </div>

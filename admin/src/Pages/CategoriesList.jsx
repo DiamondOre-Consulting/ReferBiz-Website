@@ -24,6 +24,7 @@ const CategoriesList = () => {
   const navigate = useNavigate();
   const list = useSelector((state) => state?.list?.categoriesList);
 
+  const [isLoading, setIsLoading] = useState(false);
   const [addCategoryActive, setAddCategoryActive] = useState(false);
   const [addCategoryUpdateActive, setAddCategoryUpdateActive] = useState(false);
   const [statusUpdated, setStatusUpdated] = useState(false);
@@ -81,6 +82,7 @@ const CategoriesList = () => {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (!categoryInput) {
       toast.error("Category is required!");
@@ -91,6 +93,7 @@ const CategoriesList = () => {
     if (res?.payload?.success) {
       setCategoryInput("");
       setAddCategoryActive(false);
+      setIsLoading(false);
     } else {
       loadData();
       setAddCategoryActive(false);
@@ -164,8 +167,21 @@ const CategoriesList = () => {
                 value={categoryInput}
               />
             </div>
-            <button type="submit" className="bg-[#726CD0] rounded p-2">
-              Add
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-[#726CD0] rounded p-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="flex items-center justify-center gap-4">
+                    <span className="mr-2">Adding</span>
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-opacity-50"></div>
+                  </div>
+                </>
+              ) : (
+                "Add"
+              )}
             </button>
           </form>
         </div>

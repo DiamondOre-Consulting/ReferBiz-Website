@@ -13,6 +13,7 @@ import {
   addCategoriesAndSubcategoryByCsv,
   addCategoriesCsv,
   addSubcategoriesByCsv,
+  getVendorData,
 } from "../controllers/admin.controller.js";
 import express from "express";
 
@@ -55,6 +56,8 @@ router.post(
   isLoggedIn,
   addSubcategoriesByCsv
 );
+
+router.get("/vendor-data/:id", isLoggedIn, getVendorData);
 router.post("/login", adminLogin);
 router.post("/register", adminRegister);
 router.get("/logout", isLoggedIn, logout);

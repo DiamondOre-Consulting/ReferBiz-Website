@@ -9,6 +9,7 @@ const SignUpForm = () => {
   const dispatch = useDispatch();
   const categoriesList = useSelector((state) => state?.list?.categoriesList);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [vendorData, setVendorData] = useState({
     fullName: "",
@@ -134,6 +135,7 @@ const SignUpForm = () => {
   };
 
   const handleSubmit = async (event) => {
+    setIsLoading(true); // Start loading
     event.preventDefault();
 
     const {
@@ -211,6 +213,7 @@ const SignUpForm = () => {
         vendorImage: null,
         logo: null,
       });
+      setIsLoading(false);
       setSelectedCategories([]);
       setImagePreviews({
         vendorImage: null,
@@ -543,9 +546,18 @@ const SignUpForm = () => {
 
       <button
         type="submit"
-        className="w-full py-3 text-white bg-[#6761D9] rounded px-7"
+        className="w-full py-3 text-white bg-[#6761D9] rounded px-7 flex items-center justify-center"
+        onClick={handleSubmit}
+        disabled={isLoading}
       >
-        Register Vendor
+        {isLoading ? (
+          <>
+            <span className="mr-2">Registering</span>
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-opacity-50"></div>
+          </>
+        ) : (
+          "Register Vendor"
+        )}
       </button>
     </form>
   );

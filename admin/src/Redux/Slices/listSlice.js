@@ -7,6 +7,7 @@ const initialState = {
   vendorList: [{}],
   categoriesList: [{}],
   categoryDetail: {},
+  vendorData: {},
 };
 
 export const getUsersList = createAsyncThunk(
@@ -127,10 +128,10 @@ export const deleteSubCategory = createAsyncThunk(
 );
 
 export const getVendorDetail = createAsyncThunk(
-  "/admin/vendor/detail",
+  "/vendor/detail",
   async (data) => {
     try {
-      let res = axiosInstance.get(`admin/vendor/${data}`);
+      let res = axiosInstance.get(`admin/vendor-data/${data}`);
 
       res = await res;
       return res.data;
@@ -212,6 +213,10 @@ const listSlice = createSlice({
       })
       .addCase(getCategory.fulfilled, (state, action) => {
         state.categoryDetail = action?.payload?.category;
+      })
+      .addCase(getVendorDetail.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.vendorData = action?.payload?.user;
       });
   },
 });

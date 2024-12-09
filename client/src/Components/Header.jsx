@@ -232,44 +232,52 @@ const Header = () => {
             </Link>
           </li>
         </ul>
-        <div className="flex items-center justify-center gap-2 my-5 font-semibold w-[14rem]">
-          <Link to={"/login"} onClick={closeMenu}>
-            <button
-              className={` bg-transparent hover:bg-main text-black hover:text-white border-main  duration-300 lg:block border   w-full p-[5px] text-[0.95rem] px-6 rounded-md`}
-            >
-              Login
-            </button>
-          </Link>
-          <Link to={"/register"} onClick={closeMenu}>
-            <button
-              className={` hover:bg-transparent bg-main border-main text-white hover:text-black duration-300 border w-full p-[5px] text-[0.95rem] px-6 rounded-md`}
-            >
-              Sign up
-            </button>
-          </Link>
-        </div>
-        <div className="text-[1.68rem] w-fit mx-auto mb-6 flex items-center gap-3">
-          <Link to={""} target="_blank" className="" onClick={closeMenu}>
-            <FaInstagramSquare />
-          </Link>
-          <Link to={""} className="" onClick={closeMenu}>
-            <FaFacebookSquare />
-          </Link>
-          <Link to={""} className="" onClick={closeMenu}>
-            <FaSquareXTwitter />
-          </Link>
-          <Link
-            to={"https://wa.me/"}
-            target="_blank"
-            className=""
-            onClick={closeMenu}
-          >
-            <FaWhatsappSquare />
-          </Link>
-          <Link to={"tel:+"} className="" onClick={closeMenu}>
-            <FaSquarePhone />
-          </Link>
-        </div>
+        {isLoggedIn ? (
+          <>
+            <div className="flex items-center px-4 py-2   font-semibold sora-500 justify-between">
+              <Link
+                to={`/profile/${userData?.fullName}`}
+                className={`border-b-2 transition-all duration-300  ${
+                  isActive("/Contact")
+                    ? "text-main border-main"
+                    : "border-transparent hover:text-main hover:border-main"
+                }`}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to={"/logout"}
+                onClick={handleLogout}
+                className={`border-b-2 bg-red-600 p-1.5 rounded-md text-white  transition-all duration-300  ${
+                  isActive("/Contact")
+                    ? "text-main border-main"
+                    : "border-transparent hover:text-main hover:border-main"
+                }`}
+              >
+                Logout
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-center gap-2 my-5 font-semibold w-[14rem]">
+              <Link to={"/login"} onClick={closeMenu}>
+                <button
+                  className={` bg-transparent hover:bg-main text-black hover:text-white border-main  duration-300 lg:block border   w-full p-[5px] text-[0.95rem] px-6 rounded-md`}
+                >
+                  Login
+                </button>
+              </Link>
+              <Link to={"/register"} onClick={closeMenu}>
+                <button
+                  className={` hover:bg-transparent bg-main border-main text-white hover:text-black duration-300 border w-full p-[5px] text-[0.95rem] px-6 rounded-md`}
+                >
+                  Sign up
+                </button>
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

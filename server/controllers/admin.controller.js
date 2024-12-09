@@ -743,6 +743,36 @@ const addSubcategoriesByCsv = async (req, res) => {
     res.status(500).json({ message: "Error fetching category", error });
   }
 };
+const getVendorData = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+
+    // Find the vendor by ID and populate the 'category' field in the products array
+    const vendor = await Vendor.findById(id).populate({
+      path: "products.category", // Path to populate
+      select: "categoryName", // Only fetch the categoryName field
+    });
+
+    console.log(vendor);
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: "Vendor not found",
+      });
+    }
+    // console.log(vendor);
+
+    res.status(200).json({
+      success: true,
+      message: "Vendor data fetched successfully",
+      user: vendor,
+    });
+  } catch (err) {
+    console.error(err);
+    return next(new CustomError("Failed to fetch: " + err.message, 500));
+  }
+};
 
 export {
   vendorRegister,
@@ -759,4 +789,5 @@ export {
   addCategoriesAndSubcategoryByCsv,
   addCategoriesCsv,
   addSubcategoriesByCsv,
+  getVendorData,
 };

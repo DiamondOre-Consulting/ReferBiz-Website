@@ -15,11 +15,13 @@ const ContactForm = () => {
   // useEffect(() => {
   //   fetchProfile();
   // }, []);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [name, setName] = useState(data?.fullName || "");
   const [email, setEmail] = useState(data?.userEmail || "");
   const [phoneNumber, setPhoneNumber] = useState(data?.phoneNumber || "");
   const handleSubmit = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     const form = {
       name: data?.fullName || name,
@@ -30,6 +32,7 @@ const ContactForm = () => {
       role: data?.role || "USER",
     };
     await dispatch(userContact(form));
+    setIsLoading(false);
   };
 
   return (
@@ -82,9 +85,17 @@ const ContactForm = () => {
       <div className="text-start">
         <button
           type="submit"
-          className="px-8 py-[0.6rem] w-full mb-4 text-white bg-indigo-600 rounded hover:bg-opacity-90"
+          disabled={isLoading}
+          className="px-8 py-[0.6rem] w-full mb-4 flex items-center justify-center gap-4 text-white bg-indigo-600 rounded hover:bg-opacity-90"
         >
-          Submit
+          {isLoading ? (
+            <>
+              <span className="mr-2">Submitting</span>
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-opacity-50"></div>
+            </>
+          ) : (
+            "Submit"
+          )}
         </button>
       </div>
     </form>

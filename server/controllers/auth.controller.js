@@ -107,7 +107,12 @@ const login = async (req, res, next) => {
     if (!passwordCheck) {
       return next(new CustomError("Password is wrong", 400));
     }
-
+    console.log(user.isBlocked);
+    if (user.isBlocked) {
+      return next(
+        new CustomError("Admin has Blocked you . Please contact Admin", 400)
+      );
+    }
     const token = await user.generateJWTToken();
     res.cookie("token", token, cookieOption);
     console.log(res.cookie);
@@ -141,6 +146,20 @@ const logout = (req, res, next) => {
 const profile = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "",
+      user,
+    });
+  } catch (err) {
+    return next(new CustomError("Failed to fetch" + err.message, 500));
+  }
+};
+const getUserById = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
     const user = await User.findById(userId);
 
     res.status(200).json({
@@ -1137,4 +1156,5 @@ export {
   userContactUs,
   giveReviewToVendor,
   getPurchaseHistory,
+  getUserById,
 };

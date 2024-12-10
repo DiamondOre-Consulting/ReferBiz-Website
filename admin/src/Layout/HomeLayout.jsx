@@ -122,28 +122,6 @@ const HomeLayout = ({ children }) => {
                   Dashboard
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to={"/vendor/global-settings"}
-                  className={({ isActive }) =>
-                    isActive ? activeListStyle : listStyle
-                  }
-                >
-                  <RiFileList2Fill />
-                  Orders
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to={"/vendor/global-settings"}
-                  className={({ isActive }) =>
-                    isActive ? activeListStyle : listStyle
-                  }
-                >
-                  <MdOutlineSettings />
-                  Store
-                </NavLink>
-              </li>
 
               <li>
                 <NavLink
@@ -212,9 +190,9 @@ const HomeLayout = ({ children }) => {
                   User Enquiry
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
-                  to={"/enquiry"}
+                  to={"/"}
                   className={({ isActive }) =>
                     isActive ? activeListStyle : listStyle
                   }
@@ -222,7 +200,7 @@ const HomeLayout = ({ children }) => {
                   <MdOutlineContactMail />
                   Contact Us
                 </NavLink>
-              </li>
+              </li> */}
             </div>
           </ul>
           <Link

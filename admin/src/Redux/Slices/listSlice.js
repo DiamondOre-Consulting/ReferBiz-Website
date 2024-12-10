@@ -8,6 +8,7 @@ const initialState = {
   categoriesList: [{}],
   categoryDetail: {},
   vendorData: {},
+  userData: {},
 };
 
 export const getUsersList = createAsyncThunk(
@@ -128,12 +129,27 @@ export const deleteSubCategory = createAsyncThunk(
 );
 
 export const getVendorDetail = createAsyncThunk(
-  "/vendor/detail",
+  "/user/detail",
   async (data) => {
     try {
       let res = axiosInstance.get(`admin/vendor-data/${data}`);
 
       res = await res;
+      console.log("respionse gotted", res);
+      return res.data;
+    } catch (e) {
+      return toast.error(e?.response?.data?.message);
+    }
+  }
+);
+export const getUserDetails = createAsyncThunk(
+  "/vendor/detail",
+  async (data) => {
+    try {
+      let res = axiosInstance.get(`user/get-user/${data}`);
+
+      res = await res;
+      console.log("respionse gotted", res);
       return res.data;
     } catch (e) {
       return toast.error(e?.response?.data?.message);
@@ -145,9 +161,24 @@ export const updateVendor = createAsyncThunk(
   "/admin/vendor/update",
   async (data) => {
     try {
-      let res = axiosInstance.put(`admin/update-vendor/${data[0]}`, data[1]);
+      let res = axiosInstance.post(`admin/update-vendor`, data);
 
       res = await res;
+      console.log("upadeted vendr", res);
+      return res.data;
+    } catch (e) {
+      return toast.error(e?.response?.data?.message);
+    }
+  }
+);
+export const updateUserStatus = createAsyncThunk(
+  "/user/update-status",
+  async (data) => {
+    try {
+      let res = axiosInstance.put(`admin/update-status/${data[0]}`, data[1]);
+
+      res = await res;
+      console.log("updateds status", res);
       return res.data;
     } catch (e) {
       return toast.error(e?.response?.data?.message);
@@ -215,8 +246,12 @@ const listSlice = createSlice({
         state.categoryDetail = action?.payload?.category;
       })
       .addCase(getVendorDetail.fulfilled, (state, action) => {
-        console.log(action.payload);
+        console.log("action", action.payload);
         state.vendorData = action?.payload?.user;
+      })
+      .addCase(getUserDetails.fulfilled, (state, action) => {
+        console.log("action", action.payload);
+        state.userData = action?.payload?.user;
       });
   },
 });

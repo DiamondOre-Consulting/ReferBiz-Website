@@ -14,6 +14,8 @@ import {
   addCategoriesCsv,
   addSubcategoriesByCsv,
   getVendorData,
+  updateVendor,
+  updateStatus,
 } from "../controllers/admin.controller.js";
 import express from "express";
 
@@ -38,6 +40,16 @@ router.post(
   ]),
   vendorRegister
 );
+router.post(
+  "/update-vendor",
+  isLoggedIn,
+  upload.fields([
+    { name: "vendorImage", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
+  ]),
+  updateVendor
+);
+router.put("/update-status/:id", isLoggedIn, updateStatus);
 router.post(
   "/upload",
   upload.single("file"),

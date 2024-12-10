@@ -6,35 +6,41 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import HomeLayout from "../Layout/HomeLayout";
 import { toast } from "sonner";
-import { getVendorDetail, updateVendor } from "../Redux/Slices/listSlice";
+import {
+  getVendorDetail,
+  updateVendor,
+  getCategoriesList,
+} from "../Redux/Slices/listSlice";
 
 const VendorDetail = () => {
   const [loaderActive, setLoaderActive] = useState(false);
   const categoriesList = useSelector((state) => state?.list?.categoriesList);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+
   const [viewingImage, setViewingImage] = useState(null);
   const [statusUpdated, setStatusUpdated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const vendor = useSelector((state) => state?.list?.vendorData);
-  console.log("abc", vendor);
+  console.log("id", vendor);
 
-  const [vendorData1, setVendorData1] = useState({
-    fullName: "",
-    vendorEmail: "",
-    phoneNumber: "",
-    shopName: "",
-    fullAddress: "",
-    nearByLocation: "",
-    iframe: "",
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [vendorData, setVendorData] = useState({
+    fullName: vendor?.fullName || "",
+    vendorEmail: vendor?.vendorEmail || "",
+    phoneNumber: vendor?.phoneNumber || "",
+    shopName: vendor?.shopName || "",
+    fullAddress: vendor?.fullAddress || "",
+    nearByLocation: vendor?.nearByLocation || "",
+    iframe: vendor?.nearByLocation || "",
     categoryIds: [],
     vendorImage: null,
     logo: null,
-    description: "",
-    youtubeUrl: "",
-    discount: "",
+    description: vendor?.description || "",
+    youtubeUrl: vendor?.youTubeLink || "",
+    discount: vendor?.discountProvidedByVendor || "",
   });
-  console.log("xyz", vendorData1);
+
+  console.log("vendor?.fullName", vendor?.fullName);
 
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -43,34 +49,13 @@ const VendorDetail = () => {
     const res = await dispatch(getVendorDetail(id)).finally(() =>
       setLoaderActive(false)
     );
-
-    console.log(res?.payload?.user);
-
-    setVendorData1({
-      fullName: res?.payload?.user?.fullName || "",
-      vendorEmail: res?.payload?.user?.vendorEmail || "",
-      phoneNumber: res?.payload?.user?.phoneNumber || "",
-      shopName: res?.payload?.user?.shopName || "",
-      fullAddress: res?.payload?.user?.fullAddress || "",
-      nearByLocation: res?.payload?.user?.nearByLocation || "",
-      iframe: res?.payload?.user?.iframe || "",
-      categoryIds: res?.payload?.user?.categoriesList || [],
-      vendorImage: null,
-      logo: null,
-      description: res?.payload?.user?.description || "",
-      youtubeUrl: res?.payload?.user?.youtubeUrl || "",
-      discount: res?.payload?.user?.discount || "",
-    });
-
-    console.log("res", res);
-    setVendorData1(res.payload.data);
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  console.log(vendorData1);
+  console.log(vendorData);
 
   useEffect(() => {
     if (statusUpdated) {
@@ -111,7 +96,7 @@ const VendorDetail = () => {
       setSelectedCategories([...selectedCategories, e.target.value]);
     }
 
-    setVendorData1((prevData) => {
+    setVendorData((prevData) => {
       const updatedCategoryIds = new Set([
         ...prevData.categoryIds,
         category[1],
@@ -128,7 +113,7 @@ const VendorDetail = () => {
       selectedCategories.filter((category) => category !== categoryToRemove)
     );
 
-    setVendorData1((prevData) => {
+    setVendorData((prevData) => {
       const updatedCategoryIds = prevData.categoryIds.filter(
         (id) => id !== categoryToRemove.split(",")[1]
       );
@@ -141,8 +126,8 @@ const VendorDetail = () => {
 
   const handleUserInput = (e) => {
     const { name, value } = e.target;
-    setVendorData1({
-      ...vendorData1,
+    setVendorData({
+      ...vendorData,
       [name]: value,
     });
   };
@@ -150,7 +135,7 @@ const VendorDetail = () => {
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
-    setVendorData1((prevData) => ({
+    setVendorData((prevData) => ({
       ...prevData,
       [name]: file,
     }));
@@ -168,7 +153,7 @@ const VendorDetail = () => {
   };
 
   const removeImage = (field) => {
-    setVendorData1((prevData) => ({
+    setVendorData((prevData) => ({
       ...prevData,
       [field]: null,
     }));
@@ -194,15 +179,13 @@ const VendorDetail = () => {
       phoneNumber,
       shopName,
       fullAddress,
-      vendorPassword,
-      confirmPassword,
       nearByLocation,
       iframe,
       categoryIds,
       discount,
       description,
       youtubeUrl,
-    } = vendorData1;
+    } = vendorData;
 
     if (
       !fullName ||
@@ -210,8 +193,6 @@ const VendorDetail = () => {
       !phoneNumber ||
       !shopName ||
       !fullAddress ||
-      !vendorPassword ||
-      !confirmPassword ||
       !nearByLocation ||
       !iframe ||
       !categoryIds ||
@@ -219,44 +200,38 @@ const VendorDetail = () => {
       !description ||
       !youtubeUrl
     ) {
-      return toast.error("All fields are required");
+      return toast.error("All fields ");
     }
 
-    if (vendorPassword !== confirmPassword) {
-      return toast.error("Password doesn't match");
-    }
-
-    console.log("vendordetails", vendorData1);
+    console.log("vendordetails", vendorData);
 
     const formData = new FormData();
-    formData.append("fullName", vendorData1.fullName);
-    formData.append("vendorEmail", vendorData1.vendorEmail);
-    formData.append("phoneNumber", vendorData1.phoneNumber);
-    formData.append("shopName", vendorData1.shopName);
-    formData.append("fullAddress", vendorData1.fullAddress);
-    formData.append("vendorPassword", vendorData1.vendorPassword);
-    formData.append("nearByLocation", vendorData1.nearByLocation);
-    formData.append("iframe", vendorData1.iframe);
-    formData.append("vendorImage", vendorData1.vendorImage);
-    formData.append("logo", vendorData1.logo);
-    formData.append("discountProvidedByVendor", vendorData1.discount);
-    formData.append("youTubeLink", vendorData1.youtubeUrl);
-    formData.append("description", vendorData1.description);
+    formData.append("fullName", vendorData.fullName);
+    formData.append("id", vendor._id);
+    formData.append("vendorEmail", vendorData.vendorEmail);
+    formData.append("phoneNumber", vendorData.phoneNumber);
+    formData.append("shopName", vendorData.shopName);
+    formData.append("fullAddress", vendorData.fullAddress);
+    formData.append("nearByLocation", vendorData.nearByLocation);
+    formData.append("iframe", vendorData.iframe);
+    formData.append("vendorImage", vendorData.vendorImage);
+    formData.append("logo", vendorData.logo);
+    formData.append("discountProvidedByVendor", vendorData.discount);
+    formData.append("youTubeLink", vendorData.youtubeUrl);
+    formData.append("description", vendorData.description);
 
     categoryIds.forEach((id) => formData.append("categoryIds[]", id));
 
     console.log("field", formData);
-    const res = await dispatch(registerVendor(formData));
+    const res = await dispatch(updateVendor(formData));
 
     if (res?.payload?.success) {
-      setVendorData1({
+      setVendorData({
         fullName: "",
         vendorEmail: "",
         phoneNumber: "",
         shopName: "",
         fullAddress: "",
-        vendorPassword: "",
-        confirmPassword: "",
         nearByLocation: "",
         iframe: "",
         categoryIds: [],
@@ -269,14 +244,12 @@ const VendorDetail = () => {
         vendorImage: null,
         logo: null,
       });
+    } else {
+      setIsLoading(false);
     }
   };
 
   const mainDiv = "flex flex-col gap-[0.5px]";
-  const labelStyle =
-    "text-[0.83rem] tracking-wide text-[#CFCCE4] font-[400] ml-[0.5px]";
-  const inputStyle =
-    "border border-[#685ED4] w-full rounded-[3px] h-full px-2 p-[7px] outline-none text-[0.95rem] tracking-wide resize-none bg-[#3D4056] text-white";
 
   return (
     <HomeLayout>
@@ -351,7 +324,7 @@ const VendorDetail = () => {
                 <div className="size-2 bg-[#2F3349] rounded-full"></div>
               </div>
             </div>
-            <div className="flex flex-col w-full gap-1">
+            <div className="flex flex-col justify-center w-full gap-1">
               <div className="mb-4">
                 <h2 className="text-[1.8rem] font-semibold tracking-wide">
                   Vendor Details
@@ -362,14 +335,14 @@ const VendorDetail = () => {
                   <div className="bg-[#FF4C51] w-[5px] h-[5px] rounded-full"></div>
                 </div>
               </div>
-              <div className="w-full sm:w-1/2">
+              <div className="w-full">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="vendorImage" className="mb-1 text-gray-300">
                     Profile Image
                   </label>
                   <input
                     type="file"
-                    className="bg-[#1D222B] rounded leading-10 focus:outline-none border border-borderDark"
+                    className="w-full bg-[#1D222B] rounded leading-10 focus:outline-none border border-borderDark"
                     id="vendorImage"
                     name="vendorImage"
                     onChange={handleFileChange}
@@ -395,7 +368,7 @@ const VendorDetail = () => {
                 </div>
               </div>
               {/* Shop Logo */}
-              <div className="w-full sm:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="logo" className="mb-1 text-gray-300">
                     Shop Logo
@@ -427,7 +400,7 @@ const VendorDetail = () => {
                   )}
                 </div>
               </div>
-              <div className="w-full lg:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="fullName" className="mb-1 text-gray-300">
                     Full Name
@@ -439,11 +412,11 @@ const VendorDetail = () => {
                     name="fullName"
                     placeholder="Your First Name"
                     onChange={handleUserInput}
-                    value={vendorData1?.fullName}
+                    value={vendorData?.fullName}
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="shopName" className="mb-1 text-gray-300">
                     Shop Name
@@ -455,12 +428,12 @@ const VendorDetail = () => {
                     name="shopName"
                     placeholder="Your Shop Name"
                     onChange={handleUserInput}
-                    value={vendorData1?.shopName}
+                    value={vendorData?.shopName}
                   />
                 </div>
               </div>
 
-              <div className="w-full lg:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="vendorEmail" className="mb-1 text-gray-300">
                     Vendor Email
@@ -472,11 +445,11 @@ const VendorDetail = () => {
                     name="vendorEmail"
                     placeholder="Email"
                     onChange={handleUserInput}
-                    value={vendorData1?.vendorEmail}
+                    value={vendorData?.vendorEmail}
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="phoneNumber" className="mb-1 text-gray-300">
                     Phone number
@@ -488,7 +461,7 @@ const VendorDetail = () => {
                     name="phoneNumber"
                     placeholder="Phone number"
                     onChange={handleUserInput}
-                    value={vendorData1.phoneNumber}
+                    value={vendorData.phoneNumber}
                   />
                 </div>
               </div>
@@ -505,7 +478,7 @@ const VendorDetail = () => {
                     name="fullAddress"
                     placeholder="Vendor Address"
                     onChange={handleUserInput}
-                    value={vendorData1.fullAddress}
+                    value={vendorData.fullAddress}
                   />
                 </div>
               </div>
@@ -524,49 +497,12 @@ const VendorDetail = () => {
                     name="nearByLocation"
                     placeholder="Shop near by location"
                     onChange={handleUserInput}
-                    value={vendorData1.nearByLocation}
+                    value={vendorData.nearByLocation}
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-1/2">
-                <div className="flex flex-col mx-2 mb-3">
-                  <label
-                    htmlFor="vendorPassword"
-                    className="mb-1 text-gray-300"
-                  >
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    className="bg-[#1D222B]  rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                    id="vendorPassword"
-                    name="vendorPassword"
-                    placeholder="Password"
-                    onChange={handleUserInput}
-                    value={vendorData1.vendorPassword}
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-1/2">
-                <div className="flex flex-col mx-2 mb-4">
-                  <label
-                    htmlFor="confirmPassword"
-                    className="mb-1 text-gray-300"
-                  >
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    className="bg-[#1D222B]   rounded  leading-10 px-4 focus:outline-none border border-borderDark "
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    onChange={handleUserInput}
-                    value={vendorData1.confirmPassword}
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-1/2">
+
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="discount" className="mb-1 text-gray-300">
                     Discount
@@ -578,11 +514,11 @@ const VendorDetail = () => {
                     name="discount"
                     placeholder="Vendor Discount"
                     onChange={handleUserInput}
-                    value={vendorData1.discount}
+                    value={vendorData?.discount}
                   />
                 </div>
               </div>
-              <div className="w-full lg:w-1/2">
+              <div className="w-full ">
                 <div className="flex flex-col mx-2 mb-3">
                   <label htmlFor="Youtube Link" className="mb-1 text-gray-300">
                     Youtube Link
@@ -594,7 +530,7 @@ const VendorDetail = () => {
                     name="youtubeUrl"
                     placeholder="Enter Youtube Url"
                     onChange={handleUserInput}
-                    value={vendorData1.youtubeUrl}
+                    value={vendorData?.youtubeUrl}
                   />
                 </div>
               </div>
@@ -611,7 +547,7 @@ const VendorDetail = () => {
                     name="iframe"
                     placeholder="Map i-frame"
                     onChange={handleUserInput}
-                    value={vendorData1.iframe}
+                    value={vendorData?.iframe}
                   />
                 </div>
               </div>
@@ -629,7 +565,7 @@ const VendorDetail = () => {
                     name="description"
                     placeholder="Enter Description"
                     onChange={handleUserInput}
-                    value={vendorData1.description}
+                    value={vendorData?.description}
                   />
                 </div>
               </div>

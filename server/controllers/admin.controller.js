@@ -167,6 +167,162 @@ const vendorRegister = async (req, res, next) => {
     return next(new CustomError(err.message, 500));
   }
 };
+const updateVendor = async (req, res, next) => {
+  console.log(1);
+  console.log(req.body);
+  try {
+    const {
+      id,
+      fullName,
+      vendorEmail,
+
+      shopName,
+      nearByLocation,
+      phoneNumber,
+      fullAddress,
+      iframe,
+      categoryIds,
+      discountProvidedByVendor,
+      description,
+      youTubeLink,
+    } = req.body;
+
+    if (
+      !id ||
+      !shopName ||
+      !fullName ||
+      !vendorEmail ||
+      !nearByLocation ||
+      !phoneNumber ||
+      !fullAddress ||
+      !discountProvidedByVendor ||
+      !description ||
+      !youTubeLink
+    ) {
+      return next(new CustomError("All Fields are required", 400));
+    }
+    console.log("dpne");
+    const validCategories = await Category.find({ _id: { $in: categoryIds } });
+    if (validCategories.length !== categoryIds.length) {
+      return next(new CustomError("Invalid category IDs provided", 400));
+    }
+    console.log("user", validCategories);
+
+    const user = await Vendor.findById(id);
+    if (fullName) {
+      user.fullName = await fullName;
+    }
+    if (phoneNumber) {
+      user.phoneNumber = await phoneNumber;
+    }
+    if (shopName) {
+      user.shopName = await shopName;
+    }
+    if (nearByLocation) {
+      user.nearByLocation = await nearByLocation;
+    }
+    if (fullAddress) {
+      user.fullAddress = await fullAddress;
+    }
+    if (categoryIds) {
+      user.products = categoryIds?.map((id) => ({ category: id }));
+    }
+    if (discountProvidedByVendor) {
+      user.discountProvidedByVendor = await discountProvidedByVendor;
+    }
+    if (description) {
+      user.description = await description;
+    }
+    if (youTubeLink) {
+      user.youTubeLink = await youTubeLink;
+    }
+    if (iframe) {
+      user.iframe = await iframe;
+    }
+    console.log("dpne");
+
+    console.log(req.files);
+    if (req.files && req.files.vendorImage) {
+      try {
+        // Upload to Cloudinary
+        const vendorImageResult = await cloudinary.v2.uploader.upload(
+          req.files.vendorImage[0].path,
+          {
+            folder: "Referbiz",
+            width: 250,
+            height: 250,
+            gravity: "faces",
+            crop: "fill",
+          }
+        );
+        console.log("Vendor image uploaded successfully:", vendorImageResult);
+
+        if (vendorImageResult) {
+          user.vendorImage = {
+            publicId: vendorImageResult.public_id,
+            secure_url: vendorImageResult.secure_url,
+          };
+          console.log("Vendor Image Public ID:", user.vendorImage.publicId);
+          console.log("Vendor Image URL:", user.vendorImage.secure_url);
+        }
+
+        const filePath = `uploads/${req.files.vendorImage[0].filename}`;
+
+        await fsp.rm(filePath, { force: true });
+        console.log("File removed successfully:", filePath);
+
+        console.log("done");
+      } catch (err) {
+        console.error(
+          "Error during vendor image upload or cleanup:",
+          err.message
+        );
+        return next(new CustomError("Vendor image cannot be uploaded", 500));
+      }
+    }
+
+    if (req.files && req.files.logo) {
+      try {
+        const logoImageResult = await cloudinary.v2.uploader.upload(
+          req.files.logo[0].path,
+          {
+            folder: "Referbiz",
+          }
+        );
+
+        if (logoImageResult) {
+          user.logo.publicId = logoImageResult.public_id;
+          user.logo.secure_url = logoImageResult.secure_url;
+        }
+
+        // Remove the local uploaded file
+        await fsp.rm(`uploads/${req.files.logo[0].filename}`, {
+          force: true,
+        });
+
+        console.log("ho gya wow");
+      } catch (err) {
+        console.log("are yr", err);
+        return next(new CustomError("Logo image can not be uploaded", 500));
+      }
+    }
+    console.log("done");
+
+    await user.save();
+
+    const populatedUser = await Vendor.findById(user._id).populate(
+      "products.category"
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Updated Successfully",
+      user: populatedUser, // Send populated data in response
+    });
+  } catch (err) {
+    return next(new CustomError(err.message, 500));
+  }
+};
 
 const adminRegister = async (req, res, next) => {
   try {
@@ -773,6 +929,23 @@ const getVendorData = async (req, res, next) => {
     return next(new CustomError("Failed to fetch: " + err.message, 500));
   }
 };
+const updateStatus = async (req, res, next) => {
+  try {
+    const { isBlocked } = req.body;
+    const { id } = req.params;
+    console.log("isblocked", isBlocked);
+    const user = await User.findById(id);
+    user.isBlocked = await isBlocked;
+    await user.save();
+    res.status(200).json({
+      status: true,
+      message: "Status updated Successfully",
+      user,
+    });
+  } catch (err) {
+    return next(new CustomError("Failed to fetch: " + err.message, 500));
+  }
+};
 
 export {
   vendorRegister,
@@ -790,4 +963,6 @@ export {
   addCategoriesCsv,
   addSubcategoriesByCsv,
   getVendorData,
+  updateVendor,
+  updateStatus,
 };

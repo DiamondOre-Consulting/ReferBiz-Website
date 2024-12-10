@@ -9,6 +9,7 @@ import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
 import morgan from "morgan";
+import User from "./models/user.schema.js";
 import Vendor from "./models/vendor.schema.js";
 
 const app = express();
@@ -58,18 +59,12 @@ const connectDB = async () => {
 connectDB();
 const addLogoFieldToVendors = async () => {
   try {
-    const result = await Vendor.updateMany(
-      {}, // Empty filter to select all vendors
-      {
-        $set: {
-          discountProvidedByVendor: 0, // Set the default discount
-          youTubeLink: null, // Set default null value for YouTube link
-          description: "", // Set empty description as default
-        },
-      }
+    const result = await User.updateMany(
+      { isBlocked: { $exists: false } }, // Only update users where isBlocked doesn't exist
+      { $set: { isBlocked: false } } // Add the isBlocked field and set it to false
     );
 
-    console.log(`Successfully updated ${result.nModified} vendors.`);
+    console.log(`Successfully updated ${result.modifiedCount} users.`);
   } catch (error) {
     console.error("Error updating documents:", error);
   }

@@ -18,7 +18,7 @@ const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "None",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
 };
 
 const vendorRegister = async (req, res, next) => {
@@ -765,6 +765,7 @@ const addCategoriesAndSubcategoryByCsv = async (req, res) => {
       });
     });
 };
+
 const addCategoriesCsv = async (req, res) => {
   const categoriesToAdd = new Set();
 
@@ -823,6 +824,7 @@ const addCategoriesCsv = async (req, res) => {
       res.status(500).json({ message: "Error processing the CSV file", error });
     });
 };
+
 const addSubcategoriesByCsv = async (req, res) => {
   const { id } = req.params;
 
@@ -899,6 +901,7 @@ const addSubcategoriesByCsv = async (req, res) => {
     res.status(500).json({ message: "Error fetching category", error });
   }
 };
+
 const getVendorData = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -929,6 +932,7 @@ const getVendorData = async (req, res, next) => {
     return next(new CustomError("Failed to fetch: " + err.message, 500));
   }
 };
+
 const updateStatus = async (req, res, next) => {
   try {
     const { isBlocked } = req.body;

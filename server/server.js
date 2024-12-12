@@ -9,10 +9,26 @@ import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import cloudinary from "cloudinary";
 import morgan from "morgan";
-import User from "./models/user.schema.js";
-import Vendor from "./models/vendor.schema.js";
-
+import http from "http";
+import { Server } from "socket.io";
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      process.env.FRONTEND_URL,
+      process.env.ADMIN_FRONTEND_URL,
+    ],
+    credentials: true,
+  },
+});
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 5000;
@@ -56,22 +72,48 @@ const connectDB = async () => {
   }
 };
 
+io.on("connection", (socket) => {
+  console.log("New client connected:", socket.id);
+
+  socket.on("joinVendorRoom", (vendorId) => {
+    const roomName = `vendor_${vendorId}`;
+    socket.join(roomName);
+    console.log(`Vendor ${vendorId} joined room: ${roomName}`);
+  });
+
+  socket.on("payment-request", (data) => {
+    console.log("Payment request received on server:", data);
+    const vendorRoom = `vendor_${data.vendorId}`;
+
+    io.to(vendorRoom).emit("payment-request", {
+      paymentId: data.paymentId,
+      customerName: data.customerName,
+      amount: data.amount,
+      message: data.message,
+    });
+
+    console.log(`Payment request sent to room: ${vendorRoom}`);
+  });
+
+  socket.on("payment-confirmation", (data) => {
+    console.log("Payment confirmation received:", data);
+    io.emit("payment-status", {
+      paymentId: data.paymentId,
+      status: data.status,
+      vendorId: data.vendorId,
+    });
+  });
+
+  socket.on("error", (error) => {
+    console.error("Socket error:", error);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
 connectDB();
-const addLogoFieldToVendors = async () => {
-  try {
-    const result = await User.updateMany(
-      { isBlocked: { $exists: false } }, // Only update users where isBlocked doesn't exist
-      { $set: { isBlocked: false } } // Add the isBlocked field and set it to false
-    );
-
-    console.log(`Successfully updated ${result.modifiedCount} users.`);
-  } catch (error) {
-    console.error("Error updating documents:", error);
-  }
-};
-
-// Call the function to update the database
-// addLogoFieldToVendors();
 
 app.use("/api/vendor", vendorRouter);
 app.use("/api/user", authRouter);
@@ -80,6 +122,6 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 app.use(errorMiddleware);
-app.listen(PORT, () => {
-  console.log("App is running at :", PORT);
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

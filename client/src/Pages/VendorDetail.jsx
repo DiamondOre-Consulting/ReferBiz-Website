@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../Components/Header";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import io from "socket.io-client";
 import {
   addPayment,
   getPurchaseHistory,
@@ -23,6 +24,12 @@ import {
   DialogTitle,
 } from "../Components/Dialogue";
 import { ratingToVendor } from "../Redux/Slices/vendorSlice";
+
+const socket = io("http://localhost:5000", {
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
 
 const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
@@ -79,11 +86,7 @@ const VendorDetail = () => {
 
   const dispatch = useDispatch();
   console.log("vendordata", vendorData);
-  console.log(
-    "res",
-    vendorData?.totalRatingSum,
-    vendorData?.totalNumberGivenReview
-  );
+
   const fetchData = async () => {
     await dispatch(getVendorData(id));
     await dispatch(getPurchaseHistory(id));
@@ -120,22 +123,58 @@ const VendorDetail = () => {
 
   const handlePay = async () => {
     if (!discountedAmount) return;
+    setIsProcessing(true);
 
-    setIsProcessing(true); // Start processing
-    const response = await dispatch(
-      addPayment([id, { amount: discountedAmount }])
-    );
+    const paymentId = Date.now().toString();
 
-    await dispatch(getPurchaseHistory(id));
-    setIsPaid(true);
-    setIsProcessing(false); // Stop processing
+    // Payment request going to vendor
+    socket.emit("payment-request", {
+      paymentId: paymentId,
+      vendorId: vendorData._id,
+      customerName: data?.fullName || "Customer",
+      email: data?.userEmail || "",
+      amount: discountedAmount,
+      message: `Payment request for ${discountedAmount} rupees`,
+    });
 
-    console.log("response", response?.payload?.message);
-    if (response?.payload?.message === "Transaction successful.") {
-      setIsModalOpen(false);
-      setIsPaid(false);
-    }
+    socket.on("payment-status", async (response) => {
+      console.log("Received payment status:", response);
+
+      if (response.paymentId === paymentId) {
+        if (response.status === "accepted") {
+          setIsPaid(true);
+          const result = await dispatch(
+            addPayment([id, { amount: discountedAmount }])
+          );
+          if (result?.payload?.message === "Transaction successful.") {
+            setIsModalOpen(false);
+            setIsPaid(false);
+            setIsProcessing(false);
+            setAmount(0);
+            setDiscountedAmount(0);
+            toast.success("Payment Done!");
+          }
+          dispatch(getPurchaseHistory(id));
+        } else if (response.status === "rejected") {
+          toast.error("Payment rejected by vendor");
+          setIsModalOpen(false);
+          setIsPaid(false);
+          setIsProcessing(false);
+          setAmount(0);
+          setDiscountedAmount(0);
+        }
+        socket.off("payment-status");
+      }
+    });
+    socket.on("payment-timeout", (data) => {
+      console.log("timeout");
+      if (data.paymentId === paymentId) {
+        toast.error("Payment request not accepted or timed out by vendor.");
+      }
+      socket.off("payment-timeout");
+    });
   };
+
   const handleRating = async (star) => {
     setRating(star);
     await dispatch(ratingToVendor([vendorData?._id, { starRating: star }]));
@@ -284,15 +323,7 @@ const VendorDetail = () => {
                         </button>
                       </div>
                     </div>
-                    {/* {discountedAmount !== null && (
-                      <div className="text-sm text-gray-700">
-                        <p>Original Amount: ₹{amount}</p>
-                        <p>Discount (7%): -₹{(amount * 7) / 100}</p>
-                        <p className="font-semibold">
-                          Payable Amount: ₹{discountedAmount}
-                        </p>
-                      </div>
-                    )} */}
+
                     <div>
                       <label className="text-base  font-semibold text-black">
                         Amount To be Paid

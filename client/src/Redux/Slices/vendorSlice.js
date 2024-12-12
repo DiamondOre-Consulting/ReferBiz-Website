@@ -404,6 +404,24 @@ export const getPurchaseHistory = createAsyncThunk(
   }
 );
 
+export const confirmPayment = createAsyncThunk(
+  "/user/confirm-payment",
+  async (data) => {
+    try {
+      const { vendorId, paymentId, status } = data;
+      let res = await axiosInstance.post(
+        `/user/confirm-payment/${vendorId}/${paymentId}`,
+        { status }
+      );
+      toast.success("Payment processed successfully");
+      return res.data;
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to process payment");
+      throw e;
+    }
+  }
+);
+
 const vendorSlice = createSlice({
   name: "vendor",
   initialState,
@@ -447,6 +465,9 @@ const vendorSlice = createSlice({
       })
       .addCase(getPurchaseHistory.fulfilled, (state, action) => {
         state.purchaseHistory = action?.payload?.lastPurchases;
+      })
+      .addCase(confirmPayment.fulfilled, (state, action) => {
+        // You can update any state if needed after payment confirmation
       });
   },
 });

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import HomeLayout from "../Layout/HomeLayout";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import {
   getVendorDetail,
   updateVendor,
@@ -200,7 +200,7 @@ const VendorDetail = () => {
       !description ||
       !youtubeUrl
     ) {
-      return toast.error("All fields ");
+      return console.error("All fields ");
     }
 
     console.log("vendordetails", vendorData);

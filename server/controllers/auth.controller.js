@@ -7,11 +7,12 @@ import CustomError from "../utils/error.utils.js";
 import sendEmail from "../utils/email.utils.js";
 import Vendor from "../models/vendor.schema.js";
 import Contact from "../models/contact.schema.js";
+
 const cookieOption = {
   secure: process.env.NODE_ENV === "production" ? true : false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  sameSite: "None",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
 };
 
 const register = async (req, res, next) => {
@@ -478,11 +479,10 @@ const searchVendorsByCategory = async (req, res, next) => {
   const { category, location } = req.params;
 
   try {
-    // Query vendors with the matching category ObjectId and location
     const vendors = await Vendor.find({
-      "products.category": category, // Match directly with the ObjectId
+      "products.category": category,
       nearByLocation: location,
-    }).populate("products.category", "categoryName"); // Optionally populate category details
+    }).populate("products.category", "categoryName");
 
     if (!vendors.length) {
       return next(new CustomError("No vendors found for this category", 404));
@@ -572,7 +572,7 @@ const addPayment = async (req, res, next) => {
     }
 
     const existingVendor = user.vendorList.find(
-      (item) => item.vendorId.toString() === vendorId
+      (item) => item.vendorId && item.vendorId.toString() === vendorId
     );
 
     if (existingVendor) {
@@ -764,7 +764,7 @@ const addPayment = async (req, res, next) => {
 
     // Update vendor's customerList
     const existingCustomer = vendor.customerList.find(
-      (item) => item.userId.toString() === userId
+      (item) => item.userId && item.userId.toString() === userId
     );
 
     if (existingCustomer) {
@@ -985,7 +985,7 @@ const giveReviewToVendor = async (req, res) => {
     }
 
     const previousRatingIndex = vendor?.ratedBy?.findIndex(
-      (rating) => rating.userId.toString() === userId
+      (rating) => rating.userId && rating.userId.toString() === userId
     );
 
     if (previousRatingIndex !== -1) {
@@ -1031,7 +1031,7 @@ const getPurchaseHistory = async (req, res) => {
     }
 
     const vendor = user.vendorList.find(
-      (v) => v.vendorId.toString() === vendorId
+      (v) => v.vendorId && v.vendorId.toString() === vendorId
     );
 
     if (!vendor) {

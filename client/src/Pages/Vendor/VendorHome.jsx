@@ -30,6 +30,12 @@ const VendorHome = () => {
   }, [paymentRequests, vendor?._id]);
 
   useEffect(() => {
+    // const newSocket = io("http://localhost:5000", {
+    //   reconnection: true,
+    //   reconnectionAttempts: 5,
+    //   reconnectionDelay: 1000,
+    //   transports: ["websocket"],
+    // });
     const newSocket = io("https://referbiz-backend.onrender.com", {
       reconnection: true,
       reconnectionAttempts: 5,
@@ -71,19 +77,19 @@ const VendorHome = () => {
     socket.emit("joinVendorRoom", vendor._id);
     console.log("Joined vendor room:", vendorRoom);
 
-    socket.on("payment-request", (data) => {
+    const handlePaymentRequest = (data) => {
       console.log("Payment request received in VendorHome:", data);
 
       setPaymentRequests((prev) => {
         const exists = prev.some((req) => req.paymentId === data.paymentId);
         if (!exists) {
           const newRequests = [...prev, data];
-
           localStorage.setItem(
             `paymentRequests_${vendor._id}`,
             JSON.stringify(newRequests)
           );
 
+          // Set a timeout to auto-remove the payment request
           setTimeout(() => {
             setPaymentRequests((currentRequests) => {
               const updatedRequests = currentRequests.filter(
@@ -93,27 +99,30 @@ const VendorHome = () => {
                 `paymentRequests_${vendor._id}`,
                 JSON.stringify(updatedRequests)
               );
-              localStorage.removeItem(`paymentRequests_${vendor._id}`);
               return updatedRequests;
             });
 
+            // Emit timeout event to the client
             socket.emit("payment-timeout", {
               paymentId: data.paymentId,
               vendorId: vendor._id,
+              message: "Payment request timed out. Please try again.",
             });
 
             console.log(`Payment request ${data.paymentId} timed out.`);
-          }, 60000);
+          }, 60000); // 1 minute timeout
 
           toast.success("New payment request received!");
           return newRequests;
         }
         return prev;
       });
-    });
+    };
+
+    socket.on("payment-request", handlePaymentRequest);
 
     return () => {
-      socket.off("payment-request");
+      socket.off("payment-request", handlePaymentRequest);
     };
   }, [socket, vendor?._id]);
 

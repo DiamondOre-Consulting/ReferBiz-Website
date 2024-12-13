@@ -102,7 +102,7 @@ const VendorList = () => {
   const TeamvendorItem = ({ vendor }) => (
     <div
       onClick={() => navigate(`/vendor-detail/${vendor?._id}`)}
-      className="bg-[#040D43] border-t-[8px]  border-[#2c56ff] h-[16rem] w-[18.5rem] hover:bg-gradient-to-b hover:from-transparent group hover:via-[#1e43fa63] hover:to-[#1d46ea] shadow-xl rounded-b-xl rounded-sm p-6  mx-auto hover:shadow-xl transition-all duration-500 flex flex-col items-center justify-center"
+      className="bg-[#040D43] border-t-[8px] cursor-pointer border-[#2c56ff] h-[16rem] w-[18.5rem] hover:bg-gradient-to-b hover:from-transparent group hover:via-[#1e43fa63] hover:to-[#1d46ea] shadow-xl rounded-b-xl rounded-sm p-6  mx-auto hover:shadow-xl transition-all duration-500 flex flex-col items-center justify-center"
     >
       {/* Title */}
       <h4 className="mb-1 text-2xl font-medium">{vendor?.shopName}</h4>

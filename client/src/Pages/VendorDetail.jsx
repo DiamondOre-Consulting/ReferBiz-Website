@@ -30,6 +30,11 @@ const socket = io("https://referbiz-backend.onrender.com", {
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
 });
+// const socket = io("http://localhost:5000", {
+//   reconnection: true,
+//   reconnectionAttempts: 5,
+//   reconnectionDelay: 1000,
+// });
 
 const VendorDetail = () => {
   const vendorData = useSelector((state) => state?.vendor?.vendorData);
@@ -127,9 +132,9 @@ const VendorDetail = () => {
 
     const paymentId = Date.now().toString();
 
-    // Payment request going to vendor
+    // Send payment request to vendor
     socket.emit("payment-request", {
-      paymentId: paymentId,
+      paymentId,
       vendorId: vendorData._id,
       customerName: data?.fullName || "Customer",
       email: data?.userEmail || "",
@@ -137,9 +142,8 @@ const VendorDetail = () => {
       message: `Payment request for ${discountedAmount} rupees`,
     });
 
-    socket.on("payment-status", async (response) => {
-      console.log("Received payment status:", response);
-
+    // Listen for payment status updates
+    const handlePaymentStatus = async (response) => {
       if (response.paymentId === paymentId) {
         if (response.status === "accepted") {
           setIsPaid(true);
@@ -148,31 +152,38 @@ const VendorDetail = () => {
           );
           if (result?.payload?.message === "Transaction successful.") {
             setIsModalOpen(false);
-            setIsPaid(false);
-            setIsProcessing(false);
-            setAmount(0);
-            setDiscountedAmount(0);
+            resetPaymentState();
             toast.success("Payment Done!");
           }
           dispatch(getPurchaseHistory(id));
         } else if (response.status === "rejected") {
           toast.error("Payment rejected by vendor");
-          setIsModalOpen(false);
-          setIsPaid(false);
-          setIsProcessing(false);
-          setAmount(0);
-          setDiscountedAmount(0);
+          resetPaymentState();
         }
-        socket.off("payment-status");
+        socket.off("payment-status", handlePaymentStatus);
       }
-    });
-    socket.on("payment-timeout", (data) => {
-      console.log("timeout");
+    };
+
+    // Add timeout handler
+    const handlePaymentTimeout = (data) => {
       if (data.paymentId === paymentId) {
-        toast.error("Payment request not accepted or timed out by vendor.");
+        toast.error("Payment request timed out. Please try again.");
+        resetPaymentState();
       }
-      socket.off("payment-timeout");
-    });
+      socket.off("payment-timeout", handlePaymentTimeout);
+    };
+
+    socket.on("payment-status", handlePaymentStatus);
+    socket.on("payment-timeout", handlePaymentTimeout); // Listen for timeout event
+
+    // Reset payment state function
+    const resetPaymentState = () => {
+      setIsPaid(false);
+      setIsProcessing(false);
+      setAmount(0);
+      setDiscountedAmount(0);
+      setIsModalOpen(false);
+    };
   };
 
   const handleRating = async (star) => {

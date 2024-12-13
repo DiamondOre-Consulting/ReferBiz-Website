@@ -111,6 +111,16 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
   });
+
+  socket.on("payment-timeout", (data) => {
+    console.log("Payment timeout:", data);
+    // Broadcast timeout to all clients (the customer will receive this)
+    io.emit("payment-timeout", {
+      paymentId: data.paymentId,
+      vendorId: data.vendorId,
+      message: data.message,
+    });
+  });
 });
 
 connectDB();

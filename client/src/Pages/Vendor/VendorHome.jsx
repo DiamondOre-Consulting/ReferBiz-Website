@@ -30,7 +30,7 @@ const VendorHome = () => {
   }, [paymentRequests, vendor?._id]);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io("https://referbiz-backend.onrender.com", {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

@@ -25,7 +25,7 @@ import {
 } from "../Components/Dialogue";
 import { ratingToVendor } from "../Redux/Slices/vendorSlice";
 
-const socket = io("http://localhost:5000", {
+const socket = io("https://referbiz-backend.onrender.com", {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,

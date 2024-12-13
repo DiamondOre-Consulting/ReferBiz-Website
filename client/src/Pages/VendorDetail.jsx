@@ -30,6 +30,7 @@ const socket = io("https://referbiz-backend.onrender.com", {
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
 });
+
 // const socket = io("http://localhost:5000", {
 //   reconnection: true,
 //   reconnectionAttempts: 5,
@@ -139,12 +140,17 @@ const VendorDetail = () => {
       customerName: data?.fullName || "Customer",
       email: data?.userEmail || "",
       amount: discountedAmount,
+      customerId: data._id,
       message: `Payment request for ${discountedAmount} rupees`,
     });
 
-    // Listen for payment status updates
     const handlePaymentStatus = async (response) => {
-      if (response.paymentId === paymentId) {
+      if (
+        response.paymentId === paymentId &&
+        response.customerId === data._id
+      ) {
+        socket.off("payment-timeout", handlePaymentTimeout);
+
         if (response.status === "accepted") {
           setIsPaid(true);
           const result = await dispatch(
@@ -155,7 +161,8 @@ const VendorDetail = () => {
             resetPaymentState();
             toast.success("Payment Done!");
           }
-          dispatch(getPurchaseHistory(id));
+          await dispatch(getVendorData(id));
+          await dispatch(getPurchaseHistory(id));
         } else if (response.status === "rejected") {
           toast.error("Payment rejected by vendor");
           resetPaymentState();
@@ -164,25 +171,29 @@ const VendorDetail = () => {
       }
     };
 
-    // Add timeout handler
-    const handlePaymentTimeout = (data) => {
-      if (data.paymentId === paymentId) {
-        toast.error("Payment request timed out. Please try again.");
-        resetPaymentState();
+    const handlePaymentTimeout = (response) => {
+      if (response.paymentId === paymentId) {
+        if (!isPaid) {
+          toast.error("Payment request timed out. Please try again.");
+          resetPaymentState();
+        }
       }
-      socket.off("payment-timeout", handlePaymentTimeout);
     };
 
     socket.on("payment-status", handlePaymentStatus);
-    socket.on("payment-timeout", handlePaymentTimeout); // Listen for timeout event
+    socket.on("payment-timeout", handlePaymentTimeout);
 
-    // Reset payment state function
     const resetPaymentState = () => {
       setIsPaid(false);
       setIsProcessing(false);
       setAmount(0);
       setDiscountedAmount(0);
       setIsModalOpen(false);
+    };
+
+    return () => {
+      socket.off("payment-timeout", handlePaymentTimeout);
+      socket.off("payment-status", handlePaymentStatus);
     };
   };
 

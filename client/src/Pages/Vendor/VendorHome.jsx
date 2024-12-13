@@ -36,6 +36,7 @@ const VendorHome = () => {
     //   reconnectionDelay: 1000,
     //   transports: ["websocket"],
     // });
+
     const newSocket = io("https://referbiz-backend.onrender.com", {
       reconnection: true,
       reconnectionAttempts: 5,
@@ -83,13 +84,12 @@ const VendorHome = () => {
       setPaymentRequests((prev) => {
         const exists = prev.some((req) => req.paymentId === data.paymentId);
         if (!exists) {
-          const newRequests = [...prev, data];
+          const newRequests = [...prev, { ...data, timestamp: Date.now() }];
           localStorage.setItem(
             `paymentRequests_${vendor._id}`,
             JSON.stringify(newRequests)
           );
 
-          // Set a timeout to auto-remove the payment request
           setTimeout(() => {
             setPaymentRequests((currentRequests) => {
               const updatedRequests = currentRequests.filter(
@@ -99,20 +99,18 @@ const VendorHome = () => {
                 `paymentRequests_${vendor._id}`,
                 JSON.stringify(updatedRequests)
               );
+
+              socket.emit("payment-timeout", {
+                paymentId: data.paymentId,
+                vendorId: vendor._id,
+                customerId: data.customerId,
+                message:
+                  "Vendor did not respond to your request. Please try again!",
+              });
+
               return updatedRequests;
             });
-
-            // Emit timeout event to the client
-            socket.emit("payment-timeout", {
-              paymentId: data.paymentId,
-              vendorId: vendor._id,
-              message: "Payment request timed out. Please try again.",
-            });
-
-            console.log(`Payment request ${data.paymentId} timed out.`);
-          }, 60000); // 1 minute timeout
-
-          toast.success("New payment request received!");
+          }, 60000);
           return newRequests;
         }
         return prev;
@@ -126,36 +124,34 @@ const VendorHome = () => {
     };
   }, [socket, vendor?._id]);
 
-  const handlePaymentConfirmation = async (paymentId, status) => {
+  const handlePaymentConfirmation = async (paymentId, status, customerId) => {
     if (!socket || !vendor?._id) return;
 
     try {
-      socket.emit("payment-confirmation", {
-        paymentId: paymentId,
-        vendorId: vendor._id,
-        status: status,
-      });
-
+      // Update local state and localStorage
       setPaymentRequests((prev) => {
         const newRequests = prev.filter((req) => req.paymentId !== paymentId);
         localStorage.setItem(
           `paymentRequests_${vendor._id}`,
           JSON.stringify(newRequests)
         );
-        localStorage.removeItem(`paymentRequests_${vendor._id}`);
         return newRequests;
       });
+
+      // Emit the confirmation
+      socket.emit("payment-confirmation", {
+        paymentId: paymentId,
+        vendorId: vendor._id,
+        status: status,
+        customerId: customerId,
+      });
+
+      toast.success(`Payment ${status}`);
     } catch (error) {
       console.error("Error confirming payment:", error);
       toast.error("Failed to process payment");
     }
   };
-
-  // Clear all requests (optional - you can add a button for this)
-  // const clearAllRequests = () => {
-  //   setPaymentRequests([]);
-  //   localStorage.removeItem(`paymentRequests_${vendor._id}`);
-  // };
 
   return (
     <HomeLayout>
@@ -163,22 +159,18 @@ const VendorHome = () => {
         <div className="bg-[#726CD1] relative max-w-full min-w-[18rem] overflow-hidden h-[9rem] p-4 rounded-lg">
           <h3 className="text-[1.6rem] font-semibold">Total Visits</h3>
           <p className="text-[1.2rem] ">{vendor?.customerList?.length}</p>{" "}
-          {/* <HiOutlineUsers className="absolute bottom-[-3rem] right-[-1rem] text-[#ffffff66] text-[11rem]" /> */}
         </div>
         <div className="bg-[#726CD1] relative max-w-full min-w-[18rem] overflow-hidden h-[9rem] p-4 rounded-lg">
           <h3 className="text-[1.6rem] font-semibold">Total Products</h3>
           <p className="text-[1.2rem]">{vendor?.products?.length}</p>
-          {/* <GiTakeMyMoney className="absolute bottom-[-3rem] right-[-2rem] text-[#ffffff66] text-[11rem]" /> */}
         </div>
         <div className="bg-[#726CD1] relative max-w-full min-w-[18rem] overflow-hidden h-[9rem] p-4 rounded-lg">
           <h3 className="text-[1.6rem] font-semibold">Total Transactions</h3>
           <p className="text-[1.2rem]">{vendor?.totalTransactions}</p>
-          {/* <HiOutlineUsers className="absolute bottom-[-3rem] right-[-1rem] text-[#ffffff66] text-[11rem]" /> */}
         </div>
         <div className="bg-[#726CD1] relative max-w-full min-w-[18rem] overflow-hidden h-[9rem] p-4 rounded-lg">
           <h3 className="text-[1.6rem] font-semibold">Profit Earned</h3>
           <p className="text-[1.2rem]">0</p>
-          {/* <HiOutlineUsers className="absolute bottom-[-3rem] right-[-1rem] text-[#ffffff66] text-[11rem]" /> */}
         </div>
       </div>
 
@@ -189,7 +181,6 @@ const VendorHome = () => {
           </h1>
         </div>
 
-        {/* Payment Requests Section */}
         {paymentRequests.length > 0 && (
           <div className="mt-8">
             <div className="flex items-center justify-center">
@@ -211,7 +202,11 @@ const VendorHome = () => {
                     <button
                       className="bg-green-500 px-4 py-2 rounded hover:bg-green-600"
                       onClick={() =>
-                        handlePaymentConfirmation(request.paymentId, "accepted")
+                        handlePaymentConfirmation(
+                          request.paymentId,
+                          "accepted",
+                          request.customerId
+                        )
                       }
                     >
                       Accept
@@ -219,7 +214,11 @@ const VendorHome = () => {
                     <button
                       className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
                       onClick={() =>
-                        handlePaymentConfirmation(request.paymentId, "rejected")
+                        handlePaymentConfirmation(
+                          request.paymentId,
+                          "rejected",
+                          request.customerId
+                        )
                       }
                     >
                       Reject

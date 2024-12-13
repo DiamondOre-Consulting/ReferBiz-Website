@@ -1,41 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import {
-  FaCar,
-  FaHotel,
-  FaArrowDown,
-  FaArrowRight,
-  FaRegUser,
-  FaUser,
-} from "react-icons/fa";
+import { FaRegUser } from "react-icons/fa";
 import { HiOutlineXMark } from "react-icons/hi2";
 import { CgLogOut } from "react-icons/cg";
-import {
-  MdContentPaste,
-  MdOutlineSettings,
-  MdOutlineDashboard,
-  MdOutlineContactMail,
-} from "react-icons/md";
+import { MdOutlineSettings, MdOutlineContactMail } from "react-icons/md";
 import { RxHamburgerMenu } from "react-icons/rx";
-import {
-  RiFileList2Fill,
-  RiGalleryFill,
-  RiUserLocationFill,
-} from "react-icons/ri";
-import { GiSunPriest } from "react-icons/gi";
-import { PiUserList, PiUsersThreeBold } from "react-icons/pi";
-import { FaSailboat, FaCircle, FaPersonCircleQuestion } from "react-icons/fa6";
-import { RiArrowRightSLine, RiArrowDownSLine } from "react-icons/ri";
-import { LuShoppingBag } from "react-icons/lu";
+import { PiUsersThreeBold } from "react-icons/pi";
 import { vendorLogout } from "../Redux/Slices/authSlice";
 import { TfiDashboard } from "react-icons/tfi";
 import { IoGiftOutline, IoNotificationsOutline } from "react-icons/io5";
 import { userProfile } from "../Redux/Slices/vendorSlice";
+import { io } from "socket.io-client";
+import { toast } from "sonner";
 
 const HomeLayout = ({ children }) => {
   const [active, setActive] = useState(false);
-  const [dropdownActive, setDropdownActive] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -71,7 +51,7 @@ const HomeLayout = ({ children }) => {
       const hours = istTime.getHours();
       const minutes = istTime.getMinutes();
       const ampm = hours >= 12 ? "PM" : "AM";
-      const formattedHours = hours % 12 || 12; // Convert 24 hour format to 12 hour format
+      const formattedHours = hours % 12 || 12;
       const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
       const formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
       setTime(formattedTime);
@@ -82,6 +62,63 @@ const HomeLayout = ({ children }) => {
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
+
+  const [socket, setSocket] = useState(null);
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    if (!vendor?._id) return;
+
+    // const newSocket = io("http://localhost:5000", {
+    //   reconnection: true,
+    //   reconnectionAttempts: 5,
+    //   reconnectionDelay: 1000,
+    //   transports: ["websocket"],
+    // });
+
+    const newSocket = io("https://referbiz-backend.onrender.com", {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      transports: ["websocket"],
+    });
+
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
+      newSocket.emit("joinVendorRoom", vendor._id);
+    });
+
+    newSocket.on("payment-request", (data) => {
+      const requestWithTimestamp = {
+        ...data,
+        timestamp: Date.now(),
+      };
+
+      const savedRequests = JSON.parse(
+        localStorage.getItem(`paymentRequests_${vendor._id}`) || "[]"
+      );
+
+      if (!savedRequests.some((req) => req.paymentId === data.paymentId)) {
+        const newRequests = [...savedRequests, requestWithTimestamp];
+        localStorage.setItem(
+          `paymentRequests_${vendor._id}`,
+          JSON.stringify(newRequests)
+        );
+
+        // Update notification count
+        setNotificationCount((prev) => prev + 1);
+        toast.success("New payment request received! Check dashboard.");
+      }
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+    };
+  }, [vendor?._id]);
 
   const listStyle =
     "flex items-center justify-start gap-2 pl-4 p-2 m-[0.4rem] ml-0 mr-3 md:mr-4 rounded-r bg-[#2A303D] hover:bg-[#6761D9] hover:text-white transition-all duration-300 text-[#CBC8E0] font-semibold tracking-wide text-[1.02rem]";
@@ -103,8 +140,8 @@ const HomeLayout = ({ children }) => {
             <div className="flex items-center justify-center gap-5 pr-1">
               <div className="relative py-2 pr-6 border-r cursor-pointer border-grayText border-opacity-65">
                 <IoNotificationsOutline className="text-[1.5rem] hover:text-white text-grayText" />
-                <div className="flex  top-[-0.05rem] right-[0.85rem] absolute min-w-[1.5rem] items-center justify-center text-[0.85rem] font-semibold rounded-full bg-dashRed">
-                  <p>5</p>
+                <div className="flex top-[-0.05rem] right-[0.85rem] absolute min-w-[1.5rem] items-center justify-center text-[0.85rem] font-semibold rounded-full bg-dashRed">
+                  <p>{notificationCount}</p>
                 </div>
               </div>
               <Link

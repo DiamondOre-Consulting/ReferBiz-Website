@@ -90,6 +90,7 @@ io.on("connection", (socket) => {
       customerName: data.customerName,
       amount: data.amount,
       message: data.message,
+      customerId: data.customerId,
     });
 
     console.log(`Payment request sent to room: ${vendorRoom}`);
@@ -97,10 +98,13 @@ io.on("connection", (socket) => {
 
   socket.on("payment-confirmation", (data) => {
     console.log("Payment confirmation received:", data);
+
+    // Emit to specific customer's room
     io.emit("payment-status", {
       paymentId: data.paymentId,
       status: data.status,
       vendorId: data.vendorId,
+      customerId: data.customerId,
     });
   });
 
@@ -114,11 +118,12 @@ io.on("connection", (socket) => {
 
   socket.on("payment-timeout", (data) => {
     console.log("Payment timeout:", data);
-    // Broadcast timeout to all clients (the customer will receive this)
+    // Broadcast timeout to everyone
     io.emit("payment-timeout", {
       paymentId: data.paymentId,
       vendorId: data.vendorId,
-      message: data.message,
+      customerId: data.customerId,
+      message: "Payment request timed out. Please try again.",
     });
   });
 });
